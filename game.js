@@ -190,40 +190,45 @@ class TextGame {
     this.gameInput.focus(); // Focus back on input
   }
 
-  handleInput() {
-    if (this.isTyping) return; // Don't process input while text is typing
+handleInput() {
+  if (this.isTyping) return; // Don't process input while text is typing
 
-    const input = this.gameInput.value.trim().toLowerCase();
-    this.clearInput();
+  // Get input but DON'T force lowercase for everything
+  const rawInput = this.gameInput.value.trim();
+  this.clearInput();
 
-    // Print the input with prompt
-    this.print(`> ${input}`, "player-input");
+  // Print the input with prompt
+  this.print(`> ${rawInput}`, "player-input");
 
-    // Process based on current input mode
-    switch (this.inputMode) {
-      case "title":
-        this.handleTitleInput(input);
-        break;
-      case "normal":
-        this.handleNormalInput(input);
-        break;
-      case "choices":
-        this.handleChoiceInput(input);
-        break;
-      case "stats":
-        this.handleStatInput(input);
-        break;
-      case "inventory":
-        this.handleInventoryInput(input);
-        break;
-      case "loadGame":
-        this.handleLoadGameInput(input);
-        break;
-      case "errorRecovery":
-        this.handleErrorRecoveryInput(input);
-        break;
-    }
+  // For most input modes, convert to lowercase for processing
+  // BUT preserve original case for loadGame mode
+  const input = this.inputMode === "loadGame" ? rawInput : rawInput.toLowerCase();
+
+  // Process based on current input mode
+  switch (this.inputMode) {
+    case "title":
+      this.handleTitleInput(input);
+      break;
+    case "normal":
+      this.handleNormalInput(input);
+      break;
+    case "choices":
+      this.handleChoiceInput(input);
+      break;
+    case "stats":
+      this.handleStatInput(input);
+      break;
+    case "inventory":
+      this.handleInventoryInput(input);
+      break;
+    case "loadGame":
+      this.handleLoadGameInput(rawInput); // Use rawInput to preserve case
+      break;
+    case "errorRecovery":
+      this.handleErrorRecoveryInput(input);
+      break;
   }
+}
 
   handleTitleInput(input) {
     if (input === "1" || input === "new" || input === "new game") {
