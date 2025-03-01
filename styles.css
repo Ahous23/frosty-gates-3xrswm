@@ -9,7 +9,7 @@ body {
 
 .game-container {
   max-width: 800px;
-  height: 100vh;
+  height: auto;
   margin: 0 auto;
   padding: 20px;
   background-color: #222;
