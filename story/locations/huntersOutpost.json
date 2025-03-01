@@ -1,0 +1,100 @@
+{
+    "scenes": {
+      "huntersOutpost": {
+        "text": "After a day's journey through dense forest, you reach the hunter's outpost - a collection of sturdy log cabins perched on a hilltop overlooking the valley. The hunters gather around as you share news of the attack.\n\n'Aye, we've seen them,' says Karina, the lead tracker. 'These ain't normal bears. Bigger, smarter. Some say they've seen them walking on two legs, carrying weapons.' She unfurls a crude map on the table. 'They've established a territory here, in the Crystal Caves. No hunter who's gone in has returned.'",
+        "choices": [
+          { "text": "Ask for Karina's help in tracking the bears to their lair", "nextScene": "recruitKarina" },
+          { "text": "Request weapons and supplies for your journey", "nextScene": "gatherSupplies" },
+          { "text": "Set out for the Crystal Caves immediately", "nextScene": "toCrystalCaves" }
+        ]
+      },
+      "recruitKarina": {
+        "text": "You explain your mission to Karina, emphasizing the threat these bears pose to all the villages in the region. She listens intently, her weathered face revealing nothing.\n\n'My father taught me never to enter a fight I couldn't win,' she says finally. 'But he also taught me that some fights choose you.' She stands and begins gathering her gear. 'I'll help you track them, Olaf, but I won't promise to follow you into their den. That kind of madness requires personal motivation.'\n\nWith Karina's expert tracking abilities at your side, your chances of finding the bears' lair have significantly improved.",
+        "choices": [
+          { "text": "Take some time to gather supplies before setting out", "nextScene": "gatherSupplies" },
+          { "text": "Leave immediately for the Crystal Caves", "nextScene": "toCrystalCaves" }
+        ]
+      },
+      "gatherSupplies": {
+        "text": "The hunters are generous with their supplies. They provide you with smoked meat, a water skin, bandages, and a small pot of healing salve. An older hunter named Geralt approaches you with a weathered bow.\n\n'This belonged to my son,' he says quietly. 'He went hunting near the Crystal Caves last winter. Never returned.' He presses the bow into your hands. 'It's a fine weapon. Silent. Better than charging in with an axe announcing your presence.'\n\nYou spend the night at the outpost, enjoying what might be your last comfortable sleep for some time. In the morning, you prepare to set out, now better equipped for the journey ahead.",
+        "items": [
+          {
+            "id": "smokedMeat",
+            "name": "Smoked Meat",
+            "description": "Strips of venison that have been smoked to preserve them for long journeys. Restores some health when consumed.",
+            "category": "consumable",
+            "icon": "🥩",
+            "quantity": 3,
+            "effects": {
+              "heal": 20
+            }
+          },
+          {
+            "id": "waterSkin",
+            "name": "Water Skin",
+            "description": "A leather pouch filled with fresh, clean water. Quenches thirst and provides a small boost to stamina.",
+            "category": "consumable",
+            "icon": "💧",
+            "quantity": 1,
+            "effects": {
+              "statBoost": {
+                "speed": 1
+              }
+            }
+          },
+          {
+            "id": "bandages",
+            "name": "Bandages",
+            "description": "Clean cloth strips that can be used to bind wounds and stop bleeding.",
+            "category": "consumable",
+            "icon": "🩹",
+            "quantity": 5,
+            "effects": {
+              "heal": 10
+            }
+          },
+          {
+            "id": "healingSalve",
+            "name": "Healing Salve",
+            "description": "A pungent herbal paste that accelerates healing when applied to wounds.",
+            "category": "consumable",
+            "icon": "🧪",
+            "quantity": 2,
+            "effects": {
+              "heal": 30,
+              "custom": true
+            }
+          },
+          {
+            "id": "huntersBow",
+            "name": "Hunter's Bow",
+            "description": "A well-crafted wooden bow that has seen much use. Still deadly in the right hands.",
+            "category": "weapon",
+            "icon": "🏹",
+            "quantity": 1,
+            "stackable": false,
+            "usable": false
+          }
+        ],
+        "choices": [
+          { "text": "Ask Karina to join you as a tracker", "nextScene": "recruitKarina" },
+          { "text": "Thank the hunters and head to the Crystal Caves alone", "nextScene": "toCrystalCaves" }
+        ]
+      },
+      "toCrystalCaves": {
+        "text": "With determination in your heart, you set off toward the Crystal Caves. The journey will take two days through increasingly rugged terrain. As you travel, the forest grows denser and darker, the trees taller and more ancient.\n\nBy nightfall of the first day, you make camp beside a small stream. The forest is unnaturally quiet - no birds sing, no small creatures rustle in the underbrush. It's as if all wildlife knows to avoid this area.\n\nAs you sit by your small fire, you hear a distant roar that makes your blood run cold. It's not the sound of any ordinary bear. There's something almost... human in its tone. You grip your weapon tighter and prepare for a restless night.",
+        "choices": [
+          { 
+            "text": "Use smoked meat to regain strength before continuing",
+            "nextScene": "consumedMeatBeforeCaves",
+            "requires": {
+              "item": "smokedMeat"
+            },
+            "useItem": "smokedMeat"
+          },
+          { "text": "Continue to the Crystal Caves at first light", "nextScene": "approachCaves" },
+          { "text": "Try to locate the source of the roar", "nextScene": "investigateRoar" }
+        ]
+      },
+      "consumedMeatBeforeCaves": {
+        "text": "You take out a strip of the smoked venison and eat it slowly, savoring the rich, smoky flavor. As the protein-rich food enters your system, you feel your strength returning. The weariness in your muscles fades, and your mind becomes more alert.\n\nYou'll need all

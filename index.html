@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Olaf vs Bears</title>
+    <!-- Make sure the path is correct -->
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="game-container">
+      <div class="title-screen" id="titleScreen">
+        <h1>Olaf vs Bears</h1>
+        <button id="newGameBtn" disabled>New Game</button>
+        <button id="loadGameBtn">Load Game</button>
+        <div id="loadGameArea" class="hidden">
+          <textarea
+            id="saveCodeInput"
+            placeholder="Paste your save code here..."
+          ></textarea>
+          <button id="submitLoadBtn">Load</button>
+        </div>
+        <div id="loadingIndicator">Loading story content...</div>
+      </div>
+
+      <!-- Make sure the game screen is hidden initially -->
+      <div class="game-screen hidden" id="gameScreen">
+        <div id="storyTextContainer" class="story-text-container">
+          <div id="storyText" class="story-text"></div>
+          <button id="skipTypingBtn" class="skip-typing-btn hidden">
+            Skip >>
+          </button>
+        </div>
+        <div id="choicesContainer" class="choices-container hidden"></div>
+        <div id="statAllocation" class="stat-allocation hidden"></div>
+        <div class="game-controls">
+          <button id="saveGameBtn">Save Game</button>
+          <div id="saveCodeDisplay" class="hidden">
+            <textarea id="saveCodeOutput" readonly></textarea>
+            <button id="copySaveBtn">Copy to Clipboard</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- If you have an inventory modal, make sure it's hidden -->
+      <div id="inventoryModal" class="modal hidden">
+        <!-- Inventory content -->
+      </div>
+    </div>
+
+    <script src="game.js"></script>
+  </body>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      console.log("Page loaded");
+
+      // Check if CSS is loaded
+      const styleSheets = document.styleSheets;
+      console.log("Style sheets loaded:", styleSheets.length);
+
+      // Check visibility of elements
+      console.log(
+        "Title screen visible:",
+        !document.getElementById("titleScreen").classList.contains("hidden")
+      );
+      console.log(
+        "Game screen visible:",
+        !document.getElementById("gameScreen").classList.contains("hidden")
+      );
+
+      // If you have inventory modal
+      const inventoryModal = document.getElementById("inventoryModal");
+      if (inventoryModal) {
+        console.log(
+          "Inventory visible:",
+          !inventoryModal.classList.contains("hidden")
+        );
+        // Force hide it
+        inventoryModal.classList.add("hidden");
+      }
+    });
+  </script>
+</html>

@@ -1,0 +1,19 @@
+{
+  "chapters": {
+    "chapter1": "story/chapters/chapter1.json",
+    "huntersOutpost": "story/locations/huntersOutpost.json"
+  },
+  "sceneMapping": {
+    "chapter1": {
+      "scenes": ["intro", "chapter1"]
+    },
+    "huntersOutpost": {
+      "scenes": [
+        "huntersOutpost",
+        "recruitKarina",
+        "gatherSupplies",
+        "toCrystalCaves"
+      ]
+    }
+  }
+}
