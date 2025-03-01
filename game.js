@@ -436,50 +436,49 @@ handleInput() {
   }
 
   try {
-    // Clean the input
+    // Clean the input string of any whitespace
     const cleanInput = input.trim();
     
-    // Try a direct approach first
-    try {
-      const saveData = JSON.parse(atob(cleanInput));
-      this.loadSaveData(saveData);
-    } catch (initialError) {
-      console.log("Initial parsing failed, trying alternative approach");
-      
-      // Create a proper case-sensitive base64 string
-      // This converts lowercase letters to uppercase and vice versa
-      // which might help if the case was inverted somehow
-      const correctedBase64 = cleanInput.replace(/[a-zA-Z]/g, function(c) {
-        return /[a-z]/.test(c) ? c.toUpperCase() : c.toLowerCase();
-      });
-      
-      console.log("Corrected base64:", correctedBase64);
-      
-      try {
-        const saveData = JSON.parse(atob(correctedBase64));
-        this.loadSaveData(saveData);
-      } catch (correctionError) {
-        // If still failing, try a hard-coded approach for this specific save
-        if (cleanInput === "eyjjdxjyzw50u2nlbmuioijodw50zxjzt3v0cg9zdcisinbsyxllcln0yxrzijp7imf0dgfjayi6mtusimrlzmvuc2uiojusimnoyxjpc21hijo1lcjzcgvlzci6nswibhvjayi6nx0simdhbwvtdgf0zsi6e30simludmvudg9yesi6w10simf2ywlsywjszvn0yxrqb2ludhmiojb9") {
-          // Use the correct version of this save
-          const knownCorrectCode = "eyJjdXJyZW50U2NlbmUiOiJodW50ZXJzT3V0cG9zdCIsInBsYXllclN0YXRzIjp7ImF0dGFjayI6MTUsImRlZmVuc2UiOjUsImNoYXJpc21hIjo1LCJzcGVlZCI6NSwibHVjayI6NX0sImdhbWVTdGF0ZSI6e30sImludmVudG9yeSI6W10sImF2YWlsYWJsZVN0YXRQb2ludHMiOjB9";
-          const saveData = JSON.parse(atob(knownCorrectCode));
-          this.loadSaveData(saveData);
-        } else {
-          // Still failed, throw the error to be caught by outer catch
-          throw new Error("Failed to parse save data even after correction attempts");
-        }
-      }
+    // Attempt to parse the save code
+    const saveData = JSON.parse(atob(cleanInput));
+
+    // Restore game state
+    this.currentScene = saveData.currentScene;
+    this.playerStats = saveData.playerStats;
+    this.gameState = saveData.gameState;
+    this.availableStatPoints = saveData.availableStatPoints || 0;
+
+    // Restore inventory if it exists
+    if (saveData.inventory) {
+      this.inventory = saveData.inventory;
     }
+
+    this.print("Game loaded successfully!", "system-message");
+
+    // Clear output before starting loaded game
+    this.clearOutput();
+
+    // Use a flag to prevent double playback
+    this.isLoading = true;
+    
+    // Start the game from the loaded scene once
+    this.ensureSceneLoaded(this.currentScene).then((loaded) => {
+      if (loaded && this.isLoading) {
+        this.isLoading = false; // Reset the flag
+        this.playScene(); // Play the scene just once
+      } else if (!loaded) {
+        this.handleSceneLoadError();
+      }
+    });
   } catch (error) {
     console.error("Load game error:", error);
-    console.log("Raw save code input:", input);
     this.print(
-      "Invalid save code. Please ensure you're using the exact code that was generated. Type 'back' to return to title screen.",
+      "Invalid save code. Please try again or type 'back' to return to title screen.",
       "error-message"
     );
   }
 }
+
 
 // Add this helper method to handle the save data loading
 loadSaveData(saveData) {
