@@ -156,39 +156,39 @@ class TextGame {
   }
 
   async typeText(text) {
-  this.isTyping = true;
-  this.gameInput.disabled = true;
+    this.isTyping = true;
+    this.gameInput.disabled = true;
 
-  // Create a new element for typed text
-  const element = document.createElement("div");
-  element.className = "typed-text";
-  this.gameOutput.appendChild(element);
+    // Create a new element for typed text
+    const element = document.createElement("div");
+    element.className = "typed-text";
+    this.gameOutput.appendChild(element);
 
-  // Type character by character
-  for (let i = 0; i < text.length; i++) {
-    // Check if space was pressed to skip typing
-    if (!this.isTyping) {
-      // Skip typing and show full text
-      element.textContent = text; // Show the full text immediately
+    // Type character by character
+    for (let i = 0; i < text.length; i++) {
+      // Check if space was pressed to skip typing
+      if (!this.isTyping) {
+        // Skip typing and show full text
+        element.textContent = text; // Show the full text immediately
+        this.gameOutput.scrollTop = this.gameOutput.scrollHeight;
+        break;
+      }
+      
+      element.textContent += text.charAt(i);
       this.gameOutput.scrollTop = this.gameOutput.scrollHeight;
-      break;
+      await new Promise((resolve) => setTimeout(resolve, this.typingSpeed));
     }
-    
-    element.textContent += text.charAt(i);
-    this.gameOutput.scrollTop = this.gameOutput.scrollHeight;
-    await new Promise((resolve) => setTimeout(resolve, this.typingSpeed));
+
+    this.isTyping = false;
+    this.gameInput.disabled = false;
+    this.gameInput.focus();
   }
 
-  this.isTyping = false;
-  this.gameInput.disabled = false;
-  this.gameInput.focus();
-}
-
-skipTyping() {
-  this.isTyping = false; // Set isTyping to false to stop typing
-  this.gameInput.disabled = false; // Enable input again
-  this.gameInput.focus(); // Focus back on input
-}
+  skipTyping() {
+    this.isTyping = false; // Set isTyping to false to stop typing
+    this.gameInput.disabled = false; // Enable input again
+    this.gameInput.focus(); // Focus back on input
+  }
 
   handleInput() {
     if (this.isTyping) return; // Don't process input while text is typing
@@ -333,6 +333,14 @@ skipTyping() {
 
   handleStatInput(input) {
     if (input === "done" || input === "confirm") {
+      // Check if there are remaining stat points before confirming
+      if (this.availableStatPoints > 0) {
+        this.print(
+          `You still have ${this.availableStatPoints} point(s) remaining. Please allocate all points before confirming.`,
+          "error-message"
+        );
+        return; // Prevent confirmation
+      }
       // Clear output before moving to next scene
       this.clearOutput();
       this.confirmStats();
@@ -579,6 +587,46 @@ skipTyping() {
         this.currentScene = scene.nextScene;
         this.playScene();
       }, 2000);
+    }  async playScene() {
+    // Ensure the scene is loaded
+    const sceneLoaded = await this.ensureSceneLoaded(this.currentScene);
+    if (!sceneLoaded) {
+      this.handleSceneLoadError();
+      return;
+    }
+
+    const scene = this.storyContent[this.currentScene];
+
+    // Type out the scene text
+    await this.typeText(scene.text);
+
+    // Check if this scene gives the player items
+    if (scene.items) {
+      this.addItemsToInventory(scene.items);
+
+      // Notify about acquired items
+      this.print("\nAcquired items:", "system-message");
+      scene.items.forEach((item) => {
+        this.print(
+          `- ${item.name} ${item.quantity > 1 ? `(x${item.quantity})` : ""}`,
+          "item-name"
+        );
+      });
+      this.print("", ""); // Add a blank line
+    }
+
+    // Handle the next step based on scene type
+    if (scene.type === "stats") {
+      this.showStatAllocation(scene.nextScene);
+    } else if (scene.choices) {
+      this.showChoices(scene.choices);
+    } else if (scene.nextScene) {
+      // Automatically advance to the next scene after a delay
+      setTimeout(() => {
+        this.clearOutput();
+        this.currentScene = scene.nextScene;
+        this.playScene();
+      }, 2000);
     }
   }
 
@@ -598,7 +646,7 @@ skipTyping() {
           name: itemData.name,
           description: itemData.description,
           category: itemData.category || "consumable", // Default to consumable
-          icon: itemData.icon || "📦",          // Default icon
+          icon: itemData.icon || "📦", // Default icon
           quantity: itemData.quantity || 1,
           stackable: itemData.stackable !== false, // Default to stackable
           usable: itemData.usable !== false, // Default to usable
