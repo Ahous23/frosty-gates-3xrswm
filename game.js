@@ -1,4 +1,4 @@
-class Game {
+class TextGame {
   constructor() {
     this.currentScene = null;
     this.playerStats = {
@@ -12,44 +12,60 @@ class Game {
     this.gameState = {};
     this.availableStatPoints = 10;
 
+    // Inventory system
+    this.inventory = [];
+
     // Story content
     this.storyContent = {};
     this.storyIndex = null;
 
-    // Typing variables
+    // Game state flags
     this.isTyping = false;
-    this.fullText = "";
+    this.awaitingInput = false;
+    this.inputMode = "normal"; // Can be: normal, stats, inventory, title, choices, loadGame
+    this.previousMode = null; // To track where to return after inventory/stats viewing
 
     // DOM elements
-    this.titleScreen = document.getElementById("titleScreen");
-    this.gameScreen = document.getElementById("gameScreen");
-    this.storyText = document.getElementById("storyText");
-    this.choicesContainer = document.getElementById("choicesContainer");
-    this.statAllocation = document.getElementById("statAllocation");
-    this.saveCodeOutput = document.getElementById("saveCodeOutput");
-    this.saveCodeDisplay = document.getElementById("saveCodeDisplay");
-    this.skipTypingBtn = document.getElementById("skipTypingBtn");
-    this.newGameBtn = document.getElementById("newGameBtn");
-    this.loadingIndicator = document.getElementById("loadingIndicator");
+    this.gameOutput = document.getElementById("gameOutput");
+    this.gameInput = document.getElementById("gameInput");
 
-    // Load story content
-    this.loadStoryIndex();
+    // Setup event listeners
+    this.gameInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.handleInput();
+      }
+      // Add spacebar listener for skipping text
+      if (e.code === "Space" && this.isTyping) {
+        this.skipTyping();
+      }
+    });
 
-    // Bind event listeners
-    this.newGameBtn.addEventListener("click", () => this.startNewGame());
-    document
-      .getElementById("loadGameBtn")
-      .addEventListener("click", () => this.showLoadGameArea());
-    document
-      .getElementById("submitLoadBtn")
-      .addEventListener("click", () => this.loadGame());
-    document
-      .getElementById("saveGameBtn")
-      .addEventListener("click", () => this.saveGame());
-    document
-      .getElementById("copySaveBtn")
-      .addEventListener("click", () => this.copyToClipboard());
-    this.skipTypingBtn.addEventListener("click", () => this.completeTyping());
+    // Initialize the game
+    this.initialize();
+  }
+
+  async initialize() {
+    // Clear the output
+    this.gameOutput.innerHTML = "";
+
+    // Show welcome message
+    this.print("Welcome to Olaf vs Bears", "system-message");
+    this.print("Loading game content...", "system-message");
+
+    // Load story index
+    await this.loadStoryIndex();
+
+    // Show title screen options
+    this.showTitleScreen();
+  }
+
+  showTitleScreen() {
+    this.print("\n========== OLAF vs BEARS ==========\n", "story-text");
+    this.print("1. New Game", "choice");
+    this.print("2. Load Game", "choice");
+
+    this.awaitingInput = true;
+    this.inputMode = "title";
   }
 
   async loadStoryIndex() {
@@ -63,13 +79,14 @@ class Game {
       // Load initial chapter
       await this.loadChapter("chapter1");
 
-      // Enable start button and hide loading indicator
-      this.newGameBtn.disabled = false;
-      this.loadingIndicator.classList.add("hidden");
+      return true;
     } catch (error) {
       console.error("Failed to load story index:", error);
-      this.loadingIndicator.textContent =
-        "Error loading story content. Please refresh the page.";
+      this.print(
+        `Error loading story content: ${error.message}. Please refresh the page.`,
+        "error-message"
+      );
+      return false;
     }
   }
 
@@ -122,89 +139,526 @@ class Game {
     return null;
   }
 
+  print(text, className = "") {
+    const element = document.createElement("div");
+    if (className) element.className = className;
+    element.textContent = text;
+    this.gameOutput.appendChild(element);
+    this.gameOutput.scrollTop = this.gameOutput.scrollHeight;
+  }
+
+  clearInput() {
+    this.gameInput.value = "";
+  }
+
+  clearOutput() {
+    this.gameOutput.innerHTML = "";
+  }
+
+  async typeText(text) {
+  this.isTyping = true;
+  this.gameInput.disabled = true;
+
+  // Create a new element for typed text
+  const element = document.createElement("div");
+  element.className = "typed-text";
+  this.gameOutput.appendChild(element);
+
+  // Type character by character
+  for (let i = 0; i < text.length; i++) {
+    // Check if space was pressed to skip typing
+    if (!this.isTyping) {
+      // Skip typing and show full text
+      element.textContent = text; // Show the full text immediately
+      this.gameOutput.scrollTop = this.gameOutput.scrollHeight;
+      break;
+    }
+    
+    element.textContent += text.charAt(i);
+    this.gameOutput.scrollTop = this.gameOutput.scrollHeight;
+    await new Promise((resolve) => setTimeout(resolve, this.typingSpeed));
+  }
+
+  this.isTyping = false;
+  this.gameInput.disabled = false;
+  this.gameInput.focus();
+}
+
+skipTyping() {
+  this.isTyping = false; // Set isTyping to false to stop typing
+  this.gameInput.disabled = false; // Enable input again
+  this.gameInput.focus(); // Focus back on input
+}
+
+  handleInput() {
+    if (this.isTyping) return; // Don't process input while text is typing
+
+    const input = this.gameInput.value.trim().toLowerCase();
+    this.clearInput();
+
+    // Print the input with prompt
+    this.print(`> ${input}`, "player-input");
+
+    // Process based on current input mode
+    switch (this.inputMode) {
+      case "title":
+        this.handleTitleInput(input);
+        break;
+      case "normal":
+        this.handleNormalInput(input);
+        break;
+      case "choices":
+        this.handleChoiceInput(input);
+        break;
+      case "stats":
+        this.handleStatInput(input);
+        break;
+      case "inventory":
+        this.handleInventoryInput(input);
+        break;
+      case "loadGame":
+        this.handleLoadGameInput(input);
+        break;
+      case "errorRecovery":
+        this.handleErrorRecoveryInput(input);
+        break;
+    }
+  }
+
+  handleTitleInput(input) {
+    if (input === "1" || input === "new" || input === "new game") {
+      this.startNewGame();
+    } else if (input === "2" || input === "load" || input === "load game") {
+      this.showLoadGamePrompt();
+    } else {
+      this.print(
+        "Invalid option. Please type 1 for New Game or 2 for Load Game.",
+        "error-message"
+      );
+    }
+  }
+
+  handleNormalInput(input) {
+    // Global commands available in normal mode
+    if (input === "save") {
+      this.saveGame();
+    } else if (input === "inventory" || input === "i") {
+      this.showInventory();
+    } else if (input === "stats" || input === "s") {
+      this.showStats();
+    } else if (input === "help" || input === "h" || input === "?") {
+      this.showHelp();
+    } else {
+      this.print(
+        "Type a command or a number to select a choice.",
+        "system-message"
+      );
+    }
+  }
+
+  handleChoiceInput(input) {
+    // Try to parse as a choice number
+    const choiceNum = parseInt(input);
+    const currentScene = this.storyContent[this.currentScene];
+
+    if (
+      !isNaN(choiceNum) &&
+      choiceNum > 0 &&
+      choiceNum <= currentScene.choices.length
+    ) {
+      const choice = currentScene.choices[choiceNum - 1];
+
+      // Check if this choice has requirements
+      let canChoose = true;
+
+      if (choice.requires) {
+        if (choice.requires.item) {
+          const hasItem = this.inventory.some(
+            (item) => item.id === choice.requires.item
+          );
+          if (!hasItem) {
+            canChoose = false;
+            this.print(
+              `You need ${
+                choice.requires.itemName || choice.requires.item
+              } for this choice.`,
+              "error-message"
+            );
+          }
+        }
+
+        if (choice.requires.stat) {
+          for (const [statName, requiredValue] of Object.entries(
+            choice.requires.stat
+          )) {
+            if (this.playerStats[statName] < requiredValue) {
+              canChoose = false;
+              this.print(
+                `You need ${statName}: ${requiredValue} for this choice.`,
+                "error-message"
+              );
+              break;
+            }
+          }
+        }
+      }
+
+      if (canChoose) {
+        // Use item if required
+        if (choice.useItem) {
+          this.useItemById(choice.useItem);
+        }
+
+        // Clear output before moving to next scene
+        this.clearOutput();
+        this.makeChoice(choice.nextScene);
+      }
+    }
+    // Also handle global commands
+    else if (input === "save") {
+      this.saveGame();
+    } else if (input === "inventory" || input === "i") {
+      this.showInventory();
+    } else if (input === "stats" || input === "s") {
+      this.showStats();
+    } else if (input === "help" || input === "h" || input === "?") {
+      this.showHelp();
+    } else {
+      this.print(
+        `Please enter a number between 1 and ${currentScene.choices.length} to make a choice.`,
+        "error-message"
+      );
+    }
+  }
+
+  handleStatInput(input) {
+    if (input === "done" || input === "confirm") {
+      // Clear output before moving to next scene
+      this.clearOutput();
+      this.confirmStats();
+    } else if (input === "back" || input === "b") {
+      // Show the current stats and stay on stat allocation screen
+      this.showStatAllocation(this.nextScene);
+    } else {
+      // Format should be: "stat +/-N" (e.g., "attack +2" or "defense -1")
+      const match = input.match(/^(\w+)\s*([+-])(\d+)$/);
+      if (match) {
+        const [, stat, sign, numStr] = match;
+        const num = parseInt(numStr);
+
+        if (this.playerStats.hasOwnProperty(stat)) {
+          if (sign === "+") {
+            // Check if enough points are available
+            if (num > this.availableStatPoints) {
+              this.print(
+                `Not enough points available. You only have ${this.availableStatPoints} point(s) remaining.`,
+                "error-message"
+              );
+            } else {
+              this.adjustStat(stat, num);
+            }
+          } else {
+            // sign is '-'
+            // Check if stat would go below 1
+            if (this.playerStats[stat] - num < 1) {
+              this.print(`Cannot reduce ${stat} below 1.`, "error-message");
+            } else {
+              this.adjustStat(stat, -num);
+            }
+          }
+        } else {
+          this.print(
+            `Unknown stat: ${stat}. Valid stats are: attack, defense, charisma, speed, luck.`,
+            "error-message"
+          );
+        }
+      } else if (input === "help" || input === "h" || input === "?") {
+        this.showStatHelp();
+      } else {
+        this.print(
+          "Invalid format. Use 'stat +/-N' (e.g., 'attack +2') or 'done' to confirm.",
+          "error-message"
+        );
+      }
+    }
+  }
+
+  handleInventoryInput(input) {
+    if (input === "back" || input === "exit" || input === "b") {
+      // Go back to previous mode
+      this.print("Closed inventory.", "system-message");
+      this.resumeAfterInventory();
+    } else if (input === "help" || input === "h" || input === "?") {
+      this.showInventoryHelp();
+    } else {
+      // Check if it's an item use command: "use X" or just "X"
+      const itemIndex = parseInt(input.replace("use ", "")) - 1;
+
+      if (
+        !isNaN(itemIndex) &&
+        itemIndex >= 0 &&
+        itemIndex < this.inventory.length
+      ) {
+        const item = this.inventory[itemIndex];
+        if (item.usable) {
+          this.useItem(item);
+          this.showInventory(); // Refresh inventory after using item
+        } else {
+          this.print(`${item.name} cannot be used.`, "system-message");
+        }
+      } else {
+        this.print(
+          "Invalid item number. Type 'back' to return.",
+          "error-message"
+        );
+      }
+    }
+  }
+
+  handleLoadGameInput(input) {
+    if (input.toLowerCase() === "back" || input.toLowerCase() === "b") {
+      this.print("Returning to title screen...", "system-message");
+      this.showTitleScreen();
+      return;
+    }
+
+    try {
+      // Attempt to parse the save code
+      const saveData = JSON.parse(atob(input));
+
+      // Restore game state
+      this.currentScene = saveData.currentScene;
+      this.playerStats = saveData.playerStats;
+      this.gameState = saveData.gameState;
+      this.availableStatPoints = saveData.availableStatPoints || 0;
+
+      // Restore inventory if it exists
+      if (saveData.inventory) {
+        this.inventory = saveData.inventory;
+      }
+
+      this.print("Game loaded successfully!", "system-message");
+
+      // Clear output before starting loaded game
+      this.clearOutput();
+
+      // Start the game from the loaded scene
+      this.ensureSceneLoaded(this.currentScene).then((loaded) => {
+        if (loaded) {
+          this.playScene();
+        } else {
+          this.handleSceneLoadError();
+        }
+      });
+    } catch (error) {
+      console.error("Load game error:", error);
+      this.print(
+        "Invalid save code. Please try again or type 'back' to return to title screen.",
+        "error-message"
+      );
+    }
+  }
+
+  // New method to handle error recovery input
+  handleErrorRecoveryInput(input) {
+    if (
+      input.toLowerCase() === "back" ||
+      input.toLowerCase() === "b" ||
+      input.toLowerCase() === "title" ||
+      input.toLowerCase() === "menu"
+    ) {
+      this.print("Returning to title screen...", "system-message");
+      this.showTitleScreen();
+    } else if (input.toLowerCase() === "retry" || input.toLowerCase() === "r") {
+      this.print("Retrying to load the scene...", "system-message");
+      this.ensureSceneLoaded(this.currentScene).then((loaded) => {
+        if (loaded) {
+          this.playScene();
+        } else {
+          this.handleSceneLoadError();
+        }
+      });
+    } else if (input.toLowerCase() === "save") {
+      this.saveGame();
+    } else {
+      this.print(
+        "Please type 'back' to return to title screen, 'retry' to try again, or 'save' to save your game.",
+        "error-message"
+      );
+    }
+  }
+
+  // New method to handle scene load errors
+  handleSceneLoadError() {
+    this.print(
+      "Error loading scene content. This may be due to a missing file or network issue.",
+      "error-message"
+    );
+    this.print(
+      "Your progress up to this point has been preserved.",
+      "system-message"
+    );
+    this.print(
+      "Type 'back' to return to title screen, 'retry' to try again, or 'save' to save your game.",
+      "system-message"
+    );
+
+    // Change to error recovery mode
+    this.inputMode = "errorRecovery";
+    this.awaitingInput = true;
+  }
+
   startNewGame() {
-    this.titleScreen.classList.add("hidden");
-    this.gameScreen.classList.remove("hidden");
+    this.print("\nStarting new game...\n", "system-message");
+
+    // Clear output before starting new game
+    this.clearOutput();
+
+    // Initialize starting inventory
+    this.inventory = [];
+
+    // Reset player stats to default
+    this.playerStats = {
+      attack: 5,
+      defense: 5,
+      charisma: 5,
+      speed: 5,
+      luck: 5,
+    };
+    this.availableStatPoints = 10;
+
     this.currentScene = "intro";
     this.playScene();
   }
 
-  showLoadGameArea() {
-    const loadGameArea = document.getElementById("loadGameArea");
-    loadGameArea.classList.remove("hidden");
-  }
-
-  async typeText(text) {
-    this.storyText.innerHTML = "";
-    this.fullText = text; // Store the full text
-    this.isTyping = true;
-
-    // Show skip button during typing
-    this.skipTypingBtn.classList.remove("hidden");
-
-    for (let i = 0; i < text.length; i++) {
-      // Check if typing was interrupted by skip button
-      if (!this.isTyping) break;
-
-      this.storyText.innerHTML += text.charAt(i);
-      await new Promise((resolve) => setTimeout(resolve, this.typingSpeed));
-    }
-
-    // Ensure full text is displayed and hide skip button
-    this.storyText.innerHTML = this.fullText;
-    this.skipTypingBtn.classList.add("hidden");
-    this.isTyping = false;
-  }
-
-  completeTyping() {
-    // Stop the typing animation and show full text immediately
-    this.isTyping = false;
-    this.storyText.innerHTML = this.fullText;
-    this.skipTypingBtn.classList.add("hidden");
+  showLoadGamePrompt() {
+    this.print(
+      "\nPaste your save code below or type 'back' to return:",
+      "system-message"
+    );
+    this.inputMode = "loadGame";
   }
 
   async playScene() {
     // Ensure the scene is loaded
     const sceneLoaded = await this.ensureSceneLoaded(this.currentScene);
     if (!sceneLoaded) {
-      this.storyText.innerHTML =
-        "Error loading scene content. Please try again.";
+      this.handleSceneLoadError();
       return;
     }
 
     const scene = this.storyContent[this.currentScene];
 
-    // Clear previous content
-    this.choicesContainer.classList.add("hidden");
-    this.choicesContainer.innerHTML = "";
-    this.statAllocation.classList.add("hidden");
-    this.skipTypingBtn.classList.add("hidden"); // Ensure skip button is hidden initially
-
     // Type out the scene text
     await this.typeText(scene.text);
+
+    // Check if this scene gives the player items
+    if (scene.items) {
+      this.addItemsToInventory(scene.items);
+
+      // Notify about acquired items
+      this.print("\nAcquired items:", "system-message");
+      scene.items.forEach((item) => {
+        this.print(
+          `- ${item.name} ${item.quantity > 1 ? `(x${item.quantity})` : ""}`,
+          "item-name"
+        );
+      });
+      this.print("", ""); // Add a blank line
+    }
 
     // Handle the next step based on scene type
     if (scene.type === "stats") {
       this.showStatAllocation(scene.nextScene);
     } else if (scene.choices) {
       this.showChoices(scene.choices);
+    } else if (scene.nextScene) {
+      // Automatically advance to the next scene after a delay
+      setTimeout(() => {
+        this.clearOutput();
+        this.currentScene = scene.nextScene;
+        this.playScene();
+      }, 2000);
+    }
+  }
+
+  addItemsToInventory(items) {
+    for (const itemData of items) {
+      // Check if the item already exists in inventory
+      const existingItem = this.inventory.find((i) => i.id === itemData.id);
+
+      if (existingItem && itemData.stackable !== false) {
+        // If the item is stackable, increment the quantity
+        existingItem.quantity =
+          (existingItem.quantity || 1) + (itemData.quantity || 1);
+      } else {
+        // Otherwise add as a new item
+        const newItem = {
+          id: itemData.id,
+          name: itemData.name,
+          description: itemData.description,
+          category: itemData.category || "consumable", // Default to consumable
+          icon: itemData.icon || "📦",          // Default icon
+          quantity: itemData.quantity || 1,
+          stackable: itemData.stackable !== false, // Default to stackable
+          usable: itemData.usable !== false, // Default to usable
+          effects: itemData.effects || {},
+        };
+
+        this.inventory.push(newItem);
+      }
     }
   }
 
   showChoices(choices) {
-    this.choicesContainer.innerHTML = "";
+    this.print("\nWhat will you do?", "system-message");
 
     choices.forEach((choice, index) => {
-      const button = document.createElement("button");
-      button.className = "choice-btn";
-      button.textContent = choice.text;
-      button.addEventListener("click", () => {
-        this.makeChoice(choice.nextScene);
-      });
-      this.choicesContainer.appendChild(button);
+      // Check if this choice has requirements
+      let canChoose = true;
+      let requirementText = "";
+
+      if (choice.requires) {
+        if (choice.requires.item) {
+          const hasItem = this.inventory.some(
+            (item) => item.id === choice.requires.item
+          );
+          if (!hasItem) {
+            canChoose = false;
+            requirementText = ` (Requires: ${ choice.requires.itemName || choice.requires.item })`;
+          }
+        }
+
+        if (choice.requires.stat) {
+          for (const [statName, requiredValue] of Object.entries(
+            choice.requires.stat
+          )) {
+            if (this.playerStats[statName] < requiredValue) {
+              canChoose = false;
+              requirementText = ` (Requires ${statName}: ${requiredValue})`;
+              break;
+            }
+          }
+        }
+      }
+
+      if (canChoose) {
+        this.print(`${index + 1}. ${choice.text}`, "choice");
+      } else {
+        this.print(
+          `${index + 1}. ${choice.text}${requirementText} (Not available)`,
+          "choice disabled"
+        );
+      }
     });
 
-    this.choicesContainer.classList.remove("hidden");
+    this.print(
+      "\nType a number to choose, 'inventory' to check items, 'stats' to view stats, or 'save' to save game.",
+      "system-message"
+    );
+
+    this.inputMode = "choices";
+    this.awaitingInput = true;
   }
 
   makeChoice(nextScene) {
@@ -213,78 +667,53 @@ class Game {
   }
 
   showStatAllocation(nextScene) {
-    this.statAllocation.innerHTML = "";
+    this.print("\n===== CHARACTER STATS =====", "system-message");
+    this.print(
+      `Remaining points: ${this.availableStatPoints}`,
+      "system-message"
+    );
 
-    // Display remaining points
-    const pointsDiv = document.createElement("div");
-    pointsDiv.className = "points-remaining";
-    pointsDiv.textContent = `Remaining points: ${this.availableStatPoints}`;
-    this.statAllocation.appendChild(pointsDiv);
-
-    // Create UI for each stat
-    for (const stat in this.playerStats) {
-      const statItem = document.createElement("div");
-      statItem.className = "stat-item";
-
-      const statLabel = document.createElement("div");
-      statLabel.className = "stat-label";
-      statLabel.textContent = stat.charAt(0).toUpperCase() + stat.slice(1);
-
-      const statControls = document.createElement("div");
-      statControls.className = "stat-controls";
-
-      const decreaseBtn = document.createElement("button");
-      decreaseBtn.className = "stat-btn";
-      decreaseBtn.textContent = "-";
-      decreaseBtn.addEventListener("click", () => this.adjustStat(stat, -1));
-
-      const statValue = document.createElement("div");
-      statValue.className = "stat-value";
-      statValue.textContent = this.playerStats[stat];
-      statValue.id = `${stat}-value`;
-
-      const increaseBtn = document.createElement("button");
-      increaseBtn.className = "stat-btn";
-      increaseBtn.textContent = "+";
-      increaseBtn.addEventListener("click", () => this.adjustStat(stat, 1));
-
-      statControls.appendChild(decreaseBtn);
-      statControls.appendChild(statValue);
-      statControls.appendChild(increaseBtn);
-
-      statItem.appendChild(statLabel);
-      statItem.appendChild(statControls);
-
-      this.statAllocation.appendChild(statItem);
+    for (const [stat, value] of Object.entries(this.playerStats)) {
+      this.print(
+        `${stat.charAt(0).toUpperCase() + stat.slice(1)}: ${value}`,
+        "player-stat"
+      );
     }
 
-    // Add confirm button
-    const confirmBtn = document.createElement("button");
-    confirmBtn.className = "confirm-stats-btn";
-    confirmBtn.textContent = "Confirm Stats";
-    confirmBtn.addEventListener("click", () => {
-      this.currentScene = nextScene;
-      this.playScene();
-    });
+    this.print(
+      "\nAdjust your stats using 'stat +/-N' (e.g., 'attack +2' or 'defense -1')",
+      "system-message"
+    );
+    this.print("Type 'done' or 'confirm' when finished.", "system-message");
 
-    this.statAllocation.appendChild(confirmBtn);
-    this.statAllocation.classList.remove("hidden");
+    this.nextScene = nextScene;
+    this.inputMode = "stats";
+    this.awaitingInput = true;
   }
 
   adjustStat(stat, change) {
-    // Prevent stats from going below 1 or using more points than available
-    if (change < 0 && this.playerStats[stat] <= 1) return;
-    if (change > 0 && this.availableStatPoints <= 0) return;
+    // Handle positive and negative changes
+    if (change > 0) {
+      // Add points to the stat
+      this.playerStats[stat] += change;
+      this.availableStatPoints -= change;
+    } else {
+      // Remove points from the stat
+      this.playerStats[stat] += change; // change is already negative
+      this.availableStatPoints += Math.abs(change);
+    }
 
-    this.playerStats[stat] += change;
-    this.availableStatPoints -= change;
+    // Show updated stats
+    this.print(
+      `Updated ${stat} to ${this.playerStats[stat]}. Remaining points: ${this.availableStatPoints}`,
+      "system-message"
+    );
+  }
 
-    // Update UI
-    document.getElementById(`${stat}-value`).textContent =
-      this.playerStats[stat];
-    document.querySelector(
-      ".points-remaining"
-    ).textContent = `Remaining points: ${this.availableStatPoints}`;
+  confirmStats() {
+    this.print("Stats confirmed!", "system-message");
+    this.currentScene = this.nextScene;
+    this.playScene();
   }
 
   saveGame() {
@@ -292,51 +721,172 @@ class Game {
       currentScene: this.currentScene,
       playerStats: this.playerStats,
       gameState: this.gameState,
+      inventory: this.inventory,
+      availableStatPoints: this.availableStatPoints,
     };
 
     // Convert to base64 for a more compact representation
     const saveString = btoa(JSON.stringify(saveData));
-    this.saveCodeOutput.value = saveString;
-    this.saveCodeDisplay.classList.remove("hidden");
+
+    this.print("\n===== SAVE GAME =====", "system-message");
+    this.print("Copy the code below to save your game:", "system-message");
+    this.print(saveString, "save-code");
+    this.print("\nType any key to continue...", "system-message");
   }
 
-  loadGame() {
-    try {
-      const saveCode = document.getElementById("saveCodeInput").value;
-      const saveData = JSON.parse(atob(saveCode));
+  showInventory() {
+    // Store current mode to return to later
+    this.previousMode = this.inputMode;
 
-      // Restore game state
-      this.currentScene = saveData.currentScene;
-      this.playerStats = saveData.playerStats;
-      this.gameState = saveData.gameState;
+    this.print("\n===== INVENTORY =====", "system-message");
 
-      // Ensure the scene content is loaded before proceeding
-      this.ensureSceneLoaded(this.currentScene).then((loaded) => {
-        if (loaded) {
-          // Switch to game screen
-          this.titleScreen.classList.add("hidden");
-          this.gameScreen.classList.remove("hidden");
-
-          // Play current scene
-          this.playScene();
-        } else {
-          alert("Error loading game content. Please try again.");
-        }
+    if (this.inventory.length === 0) {
+      this.print("Your inventory is empty.", "system-message");
+    } else {
+      this.inventory.forEach((item, index) => {
+        this.print(
+          `${index + 1}. ${item.icon} ${item.name} ${
+            item.quantity > 1 ? `(x${item.quantity})` : ""
+          }`,
+          "item-name"
+        );
+        this.print(`   ${item.description}`, "");
       });
-    } catch (error) {
-      alert("Invalid save code. Please try again.");
-      console.error(error);
+    }
+
+    this.print(
+      "\nType an item number to use it, or 'back' to return.",
+      "system-message"
+    );
+    this.inputMode = "inventory";
+  }
+
+  showStats() {
+    this.print("\n===== CHARACTER STATS =====", "system-message");
+
+    for (const [stat, value] of Object.entries(this.playerStats)) {
+      this.print(
+        `${stat.charAt(0).toUpperCase() + stat.slice(1)}: ${value}`,
+        "player-stat"
+      );
+    }
+
+    this.print("", ""); // Add a blank line
+  }
+
+  showHelp() {
+    this.print("\n===== HELP =====", "system-message");
+    this.print("Available commands:", "system-message");
+    this.print("- [number]: Select a choice", "");
+    this.print("- inventory (or i): View your inventory", "");
+    this.print("- stats (or s): View your character stats", "");
+    this.print("- save: Save your game", "");
+    this.print("- help (or ? or h): Show this help", "");
+  }
+
+  showStatHelp() {
+    this.print("\n===== STAT ALLOCATION HELP =====", "system-message");
+    this.print("- Use 'stat +N' to add points (e.g., 'attack +2')", "");
+    this.print("- Use 'stat -N' to remove points (e.g., 'defense -1')", "");
+    this.print("- Type 'done' or 'confirm' when finished", "");
+    this.print("- Stats cannot go below 1", "");
+  }
+
+  showInventoryHelp() {
+    this.print("\n===== INVENTORY HELP =====", "system-message");
+    this.print("- Type an item number to use that item", "");
+    this.print("- Type 'back' (or 'b' or 'exit') to return", "");
+  }
+
+  resumeAfterInventory() {
+    // Return to previous input mode
+    this.inputMode = this.previousMode;
+  }
+
+  useItem(item) {
+    // Apply item effects
+    if (item.effects) {
+      // Heal effect
+      if (item.effects.heal) {
+        // In a real game, you'd have health and would apply healing here
+        this.print(
+          `Used ${item.name} and healed for ${item.effects.heal} points.`,
+          "system-message"
+        );
+      }
+
+      // Stat boost
+      if (item.effects.statBoost) {
+        for (const [stat, value] of Object.entries(item.effects.statBoost)) {
+          if (this.playerStats[stat] !== undefined) {
+            this.playerStats[stat] += value;
+            this.print(`Boosted ${stat} by ${value}.`, "system-message");
+          }
+        }
+      }
+
+      // Custom effects can be added for specific items
+      if (item.effects.custom) {
+        // Call a custom function based on the item
+        this.handleCustomItemEffect(item);
+      }
+    }
+
+    // Reduce quantity or remove item
+    this.removeItemFromInventory(item.id, 1);
+  }
+
+  useItemById(itemId) {
+    const item = this.inventory.find((i) => i.id === itemId);
+    if (item) {
+      this.removeItemFromInventory(itemId, 1);
     }
   }
 
-  copyToClipboard() {
-    this.saveCodeOutput.select();
-    document.execCommand("copy");
-    alert("Save code copied to clipboard!");
+  removeItemFromInventory(itemId, quantity = 1) {
+    const itemIndex = this.inventory.findIndex((item) => item.id === itemId);
+
+    if (itemIndex !== -1) {
+      const item = this.inventory[itemIndex];
+
+      if (item.quantity > quantity) {
+        // Reduce quantity
+        item.quantity -= quantity;
+        this.print(
+          `${quantity} ${item.name} used. ${item.quantity} remaining.`,
+          "system-message"
+        );
+      } else {
+        // Remove item completely
+        this.inventory.splice(itemIndex, 1);
+        this.print(`Used last ${item.name}.`, "system-message");
+      }
+    }
+  }
+
+  handleCustomItemEffect(item) {
+    // Handle special item effects here
+    switch (item.id) {
+      case "map":
+        this.print(
+          "You studied the map carefully, making mental notes of the paths ahead.",
+          "system-message"
+        );
+        this.gameState.hasStudiedMap = true;
+        break;
+      case "healingSalve":
+        this.print(
+          "You applied the healing salve to your wounds. They begin to close almost immediately.",
+          "system-message"
+        );
+        this.gameState.isInjured = false;
+        break;
+      // Add more custom effects as needed
+    }
   }
 }
 
 // Initialize the game when the page loads
-window.onload = () => {
-  const game = new Game();
-};
+document.addEventListener("DOMContentLoaded", () => {
+  const game = new TextGame();
+});

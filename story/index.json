@@ -1,18 +1,23 @@
 {
   "chapters": {
     "chapter1": "story/chapters/chapter1.json",
-    "huntersOutpost": "story/locations/huntersOutpost.json"
+    "huntersOutpost": "story/locations/huntersOutpost.json",
+    "forestEncounter": "story/chapters/forestEncounter.json"
   },
   "sceneMapping": {
     "chapter1": {
       "scenes": ["intro", "chapter1"]
     },
     "huntersOutpost": {
+      "scenes": ["huntersOutpost", "recruitKarina", "gatherSupplies", "toCrystalCaves"]
+    },
+    "forestEncounter": {
       "scenes": [
-        "huntersOutpost",
-        "recruitKarina",
-        "gatherSupplies",
-        "toCrystalCaves"
+        "forestPath", "bearEncounter", "bearEncounterSurprise", "circleAround",
+        "observeCeremony", "listenToBears", "afterBearVictory", "examineCrystal",
+        "bearDefeat", "bearCaptive", "communicateWithShaman", "lookForEscape",
+        "examineBigCrystal", "shamanDefeated", "safeReturn", "stealCrystal",
+        "continueJourney", "leaveQuietly"
       ]
     }
   }
