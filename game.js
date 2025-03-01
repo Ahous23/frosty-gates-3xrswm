@@ -588,88 +588,48 @@ loadSaveData(saveData) {
     this.inputMode = "loadGame";
   }
 
-  async playScene() {
-    // Ensure the scene is loaded
-    const sceneLoaded = await this.ensureSceneLoaded(this.currentScene);
-    if (!sceneLoaded) {
-      this.handleSceneLoadError();
-      return;
-    }
-
-    const scene = this.storyContent[this.currentScene];
-
-    // Type out the scene text
-    await this.typeText(scene.text);
-
-    // Check if this scene gives the player items
-    if (scene.items) {
-      this.addItemsToInventory(scene.items);
-
-      // Notify about acquired items
-      this.print("\nAcquired items:", "system-message");
-      scene.items.forEach((item) => {
-        this.print(
-          `- ${item.name} ${item.quantity > 1 ? `(x${item.quantity})` : ""}`,
-          "item-name"
-        );
-      });
-      this.print("", ""); // Add a blank line
-    }
-
-    // Handle the next step based on scene type
-    if (scene.type === "stats") {
-      this.showStatAllocation(scene.nextScene);
-    } else if (scene.choices) {
-      this.showChoices(scene.choices);
-    } else if (scene.nextScene) {
-      // Automatically advance to the next scene after a delay
-      setTimeout(() => {
-        this.clearOutput();
-        this.currentScene = scene.nextScene;
-        this.playScene();
-      }, 2000);
-    }
-    // Ensure the scene is loaded
-    //const sceneLoaded = await this.ensureSceneLoaded(this.currentScene);
-    if (!sceneLoaded) {
-      this.handleSceneLoadError();
-      return;
-    }
-
-    //const scene = this.storyContent[this.currentScene];
-
-    // Type out the scene text
-    await this.typeText(scene.text);
-
-    // Check if this scene gives the player items
-    if (scene.items) {
-      this.addItemsToInventory(scene.items);
-
-      // Notify about acquired items
-      this.print("\nAcquired items:", "system-message");
-      scene.items.forEach((item) => {
-        this.print(
-          `- ${item.name} ${item.quantity > 1 ? `(x${item.quantity})` : ""}`,
-          "item-name"
-        );
-      });
-      this.print("", ""); // Add a blank line
-    }
-
-    // Handle the next step based on scene type
-    if (scene.type === "stats") {
-      this.showStatAllocation(scene.nextScene);
-    } else if (scene.choices) {
-      this.showChoices(scene.choices);
-    } else if (scene.nextScene) {
-      // Automatically advance to the next scene after a delay
-      setTimeout(() => {
-        this.clearOutput();
-        this.currentScene = scene.nextScene;
-        this.playScene();
-      }, 2000);
-    }
+ async playScene() {
+  // Ensure the scene is loaded
+  const sceneLoaded = await this.ensureSceneLoaded(this.currentScene);
+  if (!sceneLoaded) {
+    this.handleSceneLoadError();
+    return;
   }
+
+  const scene = this.storyContent[this.currentScene];
+
+  // Type out the scene text
+  await this.typeText(scene.text);
+
+  // Check if this scene gives the player items
+  if (scene.items) {
+    this.addItemsToInventory(scene.items);
+
+    // Notify about acquired items
+    this.print("\nAcquired items:", "system-message");
+    scene.items.forEach((item) => {
+      this.print(
+        `- ${item.name} ${item.quantity > 1 ? `(x${item.quantity})` : ""}`,
+        "item-name"
+      );
+    });
+    this.print("", ""); // Add a blank line
+  }
+
+  // Handle the next step based on scene type
+  if (scene.type === "stats") {
+    this.showStatAllocation(scene.nextScene);
+  } else if (scene.choices) {
+    this.showChoices(scene.choices);
+  } else if (scene.nextScene) {
+    // Automatically advance to the next scene after a delay
+    setTimeout(() => {
+      this.clearOutput();
+      this.currentScene = scene.nextScene;
+      this.playScene();
+    }, 2000);
+  }
+}
 
   addItemsToInventory(items) {
     for (const itemData of items) {
