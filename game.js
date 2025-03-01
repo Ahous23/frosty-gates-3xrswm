@@ -61,6 +61,7 @@ class TextGame {
 
   showTitleScreen() {
     this.print("\n========== OLAF vs BEARS ==========\n", "story-text");
+	this.print("\n===== For Shawclops, ❤️ Vanilla-Bear =====\n", "story-text");
     this.print("1. New Game", "choice");
     this.print("2. Load Game", "choice");
 
