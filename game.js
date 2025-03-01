@@ -424,48 +424,57 @@ class TextGame {
   }
 
   handleLoadGameInput(input) {
-    if (input.toLowerCase() === "back" || input.toLowerCase() === "b") {
-      this.print("Returning to title screen...", "system-message");
-      this.showTitleScreen();
-      return;
-    }
-
-    try {
-      // Attempt to parse the save code
-      const saveData = JSON.parse(atob(input));
-
-      // Restore game state
-      this.currentScene = saveData.currentScene;
-      this.playerStats = saveData.playerStats;
-      this.gameState = saveData.gameState;
-      this.availableStatPoints = saveData.availableStatPoints || 0;
-
-      // Restore inventory if it exists
-      if (saveData.inventory) {
-        this.inventory = saveData.inventory;
-      }
-
-      this.print("Game loaded successfully!", "system-message");
-
-      // Clear output before starting loaded game
-      this.clearOutput();
-
-      // Start the game from the loaded scene
-      this.ensureSceneLoaded(this.currentScene).then((loaded) => {
-        if (loaded) {
-          this.playScene();
-        } else {
-          this.handleSceneLoadError();
-        }
-      });
-    } catch (error) {
-      console.error("Load game error:", error);
-      this.print(
-        "Invalid save code. Please try again or type 'back' to return to title screen.",
-        "error-message"
-      );
-    }
+  if (input.toLowerCase() === "back" || input.toLowerCase() === "b") {
+    this.print("Returning to title screen...", "system-message");
+    this.showTitleScreen();
+    return;
   }
+
+  try {
+    // Clean the input string of any whitespace
+    const cleanInput = input.trim();
+    
+    // Log the decoded string for debugging
+    const decodedString = atob(cleanInput);
+    console.log("Decoded save string:", decodedString);
+    
+    // Attempt to parse the save code
+    const saveData = JSON.parse(decodedString);
+
+    // Restore game state
+    this.currentScene = saveData.currentScene;
+    this.playerStats = saveData.playerStats;
+    this.gameState = saveData.gameState;
+    this.availableStatPoints = saveData.availableStatPoints || 0;
+
+    // Restore inventory if it exists
+    if (saveData.inventory) {
+      this.inventory = saveData.inventory;
+    }
+
+    this.print("Game loaded successfully!", "system-message");
+
+    // Clear output before starting loaded game
+    this.clearOutput();
+
+    // Start the game from the loaded scene
+    this.ensureSceneLoaded(this.currentScene).then((loaded) => {
+      if (loaded) {
+        this.playScene();
+      } else {
+        this.handleSceneLoadError();
+      }
+    });
+  } catch (error) {
+    console.error("Load game error:", error);
+    // Log the actual input for debugging
+    console.log("Raw save code input:", input);
+    this.print(
+      "Invalid save code. Please try again or type 'back' to return to title screen.",
+      "error-message"
+    );
+  }
+}
 
   // New method to handle error recovery input
   handleErrorRecoveryInput(input) {
