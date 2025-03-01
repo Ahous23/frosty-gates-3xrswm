@@ -587,15 +587,15 @@ class TextGame {
         this.currentScene = scene.nextScene;
         this.playScene();
       }, 2000);
-    }  async playScene() {
+    }
     // Ensure the scene is loaded
-    const sceneLoaded = await this.ensureSceneLoaded(this.currentScene);
+    //const sceneLoaded = await this.ensureSceneLoaded(this.currentScene);
     if (!sceneLoaded) {
       this.handleSceneLoadError();
       return;
     }
 
-    const scene = this.storyContent[this.currentScene];
+    //const scene = this.storyContent[this.currentScene];
 
     // Type out the scene text
     await this.typeText(scene.text);
