@@ -1,0 +1,26 @@
+{
+  "scenes": {
+    "intro": {
+      "text": "The cold morning air stings your face as you awaken. Your head pounds, and the scent of smoke fills your nostrils. Something is wrong. Very wrong. As you stumble out of your small hut, the horrific sight greets you: the village is in ruins. Smoke rises from burned buildings, and deep claw marks scar what remains of the wooden structures.\n\nYou hear whispers among the survivors. 'Bears,' they say. 'Giant bears from the northern mountains.' Your family's hunting lodge has been destroyed, and your father's prized battle axe is missing.\n\nA fire ignites within you. These were no ordinary bears. This was deliberate. This means war.\n\nBefore you embark on your quest for vengeance, you must assess your strengths and weaknesses.",
+      "type": "stats",
+      "nextScene": "chapter1"
+    },
+    "chapter1": {
+      "text": "The village elder approaches you as you prepare your meager belongings for the journey ahead. 'Olaf,' he says, his voice cracking with age and grief. 'Your father was our greatest warrior. These bears... they're not natural. They've been growing in number and boldness for months now.'\n\nHe places a weathered hand on your shoulder. 'If you truly seek to confront them, you must first understand what we're facing. There are three paths before you.'",
+      "choices": [
+        {
+          "text": "Trek to the hunter's outpost to gather information about the bears",
+          "nextScene": "huntersOutpost"
+        },
+        {
+          "text": "Visit the neighboring village to recruit allies for your quest",
+          "nextScene": "neighboringVillage"
+        },
+        {
+          "text": "Follow the bears' tracks immediately while they're still fresh",
+          "nextScene": "followTracks"
+        }
+      ]
+    }
+  }
+}

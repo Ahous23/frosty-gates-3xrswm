@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Debug</title>
+    <style>
+        body {
+            font-family: "Courier New", monospace;
+            background-color: #111;
+            color: #eee;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #222;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        h1 {
+            text-align: center;
+            color: #ff9900;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #333;
+            color: #eee;
+            border: none;
+            outline: none;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #ff9900;
+            color: #111;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #e68a00;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #333;
+            border: 1px dashed #555;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Game Debug</h1>
+        <div class="input-group">
+            <label for="saveData">Enter Save Data:</label>
+            <input type="text" id="saveData" placeholder='{"currentScene":"intro","playerStats":{"attack":5,"defense":5},"inventory":[]}' />
+        </div>
+        <button id="createSave">Create Save Code</button>
+
+        <div class="input-group">
+            <label for="loadCode">Enter Save Code to Load:</label>
+            <input type="text" id="loadCode" placeholder="Paste your save code here" />
+        </div>
+        <button id="loadSave">Load Save Code</button>
+
+        <div class="output" id="output"></div>
+    </div>
+
+    <script>
+        document.getElementById('createSave').addEventListener('click', function() {
+            const saveData = document.getElementById('saveData').value;
+            try {
+                const saveObject = JSON.parse(saveData);
+                const saveString = btoa(JSON.stringify(saveObject));
+                document.getElementById('output').textContent = `Save Code: ${saveString}`;
+            } catch (error) {
+                document.getElementById('output').textContent = 'Error: Invalid JSON format.';
+            }
+        });
+
+        document.getElementById('loadSave').addEventListener('click', function() {
+            const loadCode = document.getElementById('loadCode').value;
+            try {
+                const saveData = JSON.parse(atob(loadCode));
+                document.getElementById('output').textContent = `Loaded Save Data:\n${JSON.stringify(saveData, null, 2)}`;
+            } catch (error) {
+                document.getElementById('output').textContent = 'Error: Invalid save code.';
+            }
+        });
+    </script>
+</body>
+</html>
