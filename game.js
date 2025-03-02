@@ -1105,13 +1105,20 @@ loadSaveData(saveData) {
     // Clear the output
     this.clearOutput();
 
+    // Define the number of loading GIFs available
+    const numberOfLoadingGifs = 5; // Update this number based on the actual number of GIFs you have
+
+    // Randomly select one of the GIFs
+    const randomGifIndex = Math.floor(Math.random() * numberOfLoadingGifs) + 1;
+    const loadingGifPath = `gif/loading/loading${randomGifIndex}.gif`;
+
     // Create a container div for the loading screen
     const loadingContainer = document.createElement("div");
     loadingContainer.className = "loading-screen";
 
     // Add the loading GIF
     const loadingGif = document.createElement("img");
-    loadingGif.src = "gif/loading.gif"; // Path to your loading GIF
+    loadingGif.src = loadingGifPath; // Path to the randomly selected loading GIF
     loadingGif.alt = "Loading...";
     loadingGif.className = "loading-gif";
     loadingContainer.appendChild(loadingGif);
