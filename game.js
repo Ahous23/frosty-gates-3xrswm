@@ -28,7 +28,27 @@ class TextGame {
     // DOM elements
     this.gameOutput = document.getElementById("gameOutput");
     this.gameInput = document.getElementById("gameInput");
-
+	
+	// Audio elements
+  this.titleMusic = new Audio('audio/title.mp3');
+  this.titleMusic.loop = true;
+  this.musicEnabled = false; // Track if music is enabled
+  
+  // Add a one-time interaction listener to enable audio
+  const enableAudio = () => {
+    this.musicEnabled = true;
+    // Try to play music if we're on the title screen
+    if (this.inputMode === "title") {
+      this.playTitleMusic();
+    }
+    // Remove the listener once triggered
+    document.removeEventListener('click', enableAudio);
+    document.removeEventListener('keydown', enableAudio);
+  };
+  
+  document.addEventListener('click', enableAudio);
+  document.addEventListener('keydown', enableAudio);
+	
     // Setup event listeners
     this.gameInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
@@ -42,7 +62,54 @@ class TextGame {
 
     // Initialize the game
     this.initialize();
+	
+	// In your constructor
+	this.musicToggleBtn = document.getElementById("musicToggle");
+		if (this.musicToggleBtn) {
+		this.musicToggleBtn.addEventListener("click", () => {
+			this.toggleMusic();
+		});
+	}
+
   }
+
+	// Add this method
+	toggleMusic() {
+	  if (this.titleMusic.paused) {
+		this.musicEnabled = true;
+		this.playTitleMusic();
+	  } else {
+		this.stopTitleMusic();
+	  }
+	}
+	playTitleMusic() {
+	  // Only play if music is enabled
+	  if (this.musicEnabled) {
+		this.titleMusic.volume = 0.5; // 50% volume
+		this.titleMusic.play().catch(e => {
+		  console.log("Error playing title music:", e);
+		});
+	  }
+	}
+
+	stopTitleMusic() {
+	  if (!this.musicEnabled) return;
+	  
+	  // Simple fade out
+	  const fadeAudio = setInterval(() => {
+		// Only fade if past 0
+		if (this.titleMusic.volume > 0.05) {
+		  this.titleMusic.volume -= 0.05;
+		} else {
+		  this.titleMusic.pause();
+		  this.titleMusic.currentTime = 0;
+		  this.titleMusic.volume = 0.5; // Reset volume for next time
+		  clearInterval(fadeAudio);
+		}
+	  }, 100);
+	}
+	
+
 
   async initialize() {
     // Clear the output
@@ -67,6 +134,16 @@ class TextGame {
 	  const titleContainer = document.createElement("div");
 	  titleContainer.className = "title-banner";
 	  
+	  // Add the campfire GIF
+	  const campfireImg = document.createElement("img");
+	  campfireImg.src = "gif/campfire.gif";
+	  campfireImg.alt = "Campfire";
+	  campfireImg.className = "title-campfire";
+	  titleContainer.appendChild(campfireImg);
+	  
+		// Try to play title music
+		this.playTitleMusic();
+	  
 	  // Add the title content to the container
 	  const titleText = document.createElement("div");
 	  titleText.className = "title-text";
@@ -77,13 +154,6 @@ class TextGame {
 	  
 	  // Use the typeText method for the title banner, but target the titleText element
 	  await this.typeIntoElement(titleText, "\n========== OLAF vs BEARS ==========\n===== For Shawclops, ❤️ Vanilla-Bear =====\n");
-	  
-	  // Add the campfire GIF
-	  const campfireImg = document.createElement("img");
-	  campfireImg.src = "gif/campfire.gif";
-	  campfireImg.alt = "Campfire";
-	  campfireImg.className = "title-campfire";
-	  titleContainer.appendChild(campfireImg);
 	  
 	  // Add the choices without animation
 	  this.print("1. New Game", "choice");
@@ -504,7 +574,10 @@ handleInput() {
   try {
     // Clean the input string of any whitespace
     const cleanInput = input.trim();
-    
+ 
+	// Stop title music when loading a game
+	this.stopTitleMusic();	
+	
     // Attempt to parse the save code
     const saveData = JSON.parse(atob(cleanInput));
 
@@ -625,6 +698,9 @@ loadSaveData(saveData) {
 
   startNewGame() {
     this.print("\nStarting new game...\n", "system-message");
+	
+	// Stop title music
+	this.stopTitleMusic();
 
     // Clear output before starting new game
     this.clearOutput();
