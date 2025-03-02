@@ -67,13 +67,6 @@ class TextGame {
 	  const titleContainer = document.createElement("div");
 	  titleContainer.className = "title-banner";
 	  
-	  // Add the campfire GIF
-	  const campfireImg = document.createElement("img");
-	  campfireImg.src = "gif/campfire.gif";
-	  campfireImg.alt = "Campfire";
-	  campfireImg.className = "title-campfire";
-	  titleContainer.appendChild(campfireImg);
-	  
 	  // Add the title content to the container
 	  const titleText = document.createElement("div");
 	  titleText.className = "title-text";
@@ -84,6 +77,13 @@ class TextGame {
 	  
 	  // Use the typeText method for the title banner, but target the titleText element
 	  await this.typeIntoElement(titleText, "\n========== OLAF vs BEARS ==========\n===== For Shawclops, ❤️ Vanilla-Bear =====\n");
+	  
+	  // Add the campfire GIF
+	  const campfireImg = document.createElement("img");
+	  campfireImg.src = "gif/campfire.gif";
+	  campfireImg.alt = "Campfire";
+	  campfireImg.className = "title-campfire";
+	  titleContainer.appendChild(campfireImg);
 	  
 	  // Add the choices without animation
 	  this.print("1. New Game", "choice");
