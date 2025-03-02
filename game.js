@@ -59,15 +59,20 @@ class TextGame {
     this.showTitleScreen();
   }
 
-  showTitleScreen() {
-    this.print("\n========== OLAF vs BEARS ==========\n", "story-text");
-	this.print("\n===== For Shawclops, ❤️ Vanilla-Bear =====\n", "story-text");
-    this.print("1. New Game", "choice");
-    this.print("2. Load Game", "choice");
+	  async showTitleScreen() {
+	  // Clear any existing content first
+	  this.clearOutput();
+	  
+	  // Use the typeText method for the title banner
+	  await this.typeText("\n========== OLAF vs BEARS ==========\n===== For Shawclops, ❤️ Vanilla-Bear =====\n");
+	  
+	  // Add the choices without animation
+	  this.print("1. New Game", "choice");
+	  this.print("2. Load Game", "choice");
 
-    this.awaitingInput = true;
-    this.inputMode = "title";
-  }
+	  this.awaitingInput = true;
+	  this.inputMode = "title";
+	}
 
   async loadStoryIndex() {
     try {
@@ -90,6 +95,26 @@ class TextGame {
       return false;
     }
   }
+
+	async typeIntoElement(element, text) {
+	  // Clear the element first
+	  element.innerHTML = "";
+	  this.isTyping = true;
+	  
+	  // Type character by character
+	  for (let i = 0; i < text.length; i++) {
+		// Check if typing was interrupted
+		if (!this.isTyping) {
+		  element.textContent = text; // Show the full text immediately
+		  break;
+		}
+		
+		element.textContent += text.charAt(i);
+		await new Promise((resolve) => setTimeout(resolve, this.typingSpeed));
+	  }
+	  
+	  this.isTyping = false;
+	}
 
   async loadChapter(chapterId) {
     if (!this.storyIndex.chapters[chapterId]) {
@@ -581,13 +606,24 @@ loadSaveData(saveData) {
     this.playScene();
   }
 
-  showLoadGamePrompt() {
-    this.print(
-      "\nPaste your save code below or type 'back' to return:",
-      "system-message"
-    );
-    this.inputMode = "loadGame";
-  }
+	async showLoadGamePrompt() {
+	  // Create elements for the typing effect
+	  const titleElement = document.createElement("div");
+	  titleElement.className = "load-title";
+	  this.gameOutput.appendChild(titleElement);
+	  
+	  // Apply typing effect to the title
+	  await this.typeIntoElement(titleElement, "===== LOAD GAME =====");
+	  
+	  // Create subtitle with typing effect
+	  const subtitleElement = document.createElement("div");
+	  subtitleElement.className = "load-subtitle";
+	  this.gameOutput.appendChild(subtitleElement);
+	  
+	  await this.typeIntoElement(subtitleElement, "Paste your save code below or type 'back' to return:");
+	  
+	  this.inputMode = "loadGame";
+	}
 
  async playScene() {
   // Ensure the scene is loaded
@@ -766,23 +802,31 @@ loadSaveData(saveData) {
     this.playScene();
   }
 
-  saveGame() {
-    const saveData = {
-      currentScene: this.currentScene,
-      playerStats: this.playerStats,
-      gameState: this.gameState,
-      inventory: this.inventory,
-      availableStatPoints: this.availableStatPoints,
-    };
+	async saveGame() {
+	  const saveData = {
+		currentScene: this.currentScene,
+		playerStats: this.playerStats,
+		gameState: this.gameState,
+		inventory: this.inventory,
+		availableStatPoints: this.availableStatPoints,
+	  };
 
-    // Convert to base64 for a more compact representation
-    const saveString = btoa(JSON.stringify(saveData));
+	  // Convert to base64 for a more compact representation
+	  const saveString = btoa(JSON.stringify(saveData));
 
-    this.print("\n===== SAVE GAME =====", "system-message");
-    this.print("Copy the code below to save your game:", "system-message");
-    this.print(saveString, "save-code");
-    this.print("\nType any key to continue...", "system-message");
-  }
+	  this.print("\n===== SAVE GAME =====", "system-message");
+	  
+	  // Create elements for the typing effect
+	  const titleElement = document.createElement("div");
+	  titleElement.className = "save-title";
+	  this.gameOutput.appendChild(titleElement);
+	  
+	  // Apply typing effect to the title
+	  await this.typeIntoElement(titleElement, "Copy the code below to save your game:");
+	  
+	  this.print(saveString, "save-code");
+	  this.print("\nType any key to continue...", "system-message");
+	}
 
   showInventory() {
     // Store current mode to return to later
