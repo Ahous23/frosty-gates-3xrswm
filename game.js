@@ -1123,8 +1123,22 @@ loadSaveData(saveData) {
     loadingGif.className = "loading-gif";
     loadingContainer.appendChild(loadingGif);
 
+    // Add the loading text container
+    const loadingTextContainer = document.createElement("div");
+    loadingTextContainer.className = "loading-text";
+    loadingContainer.appendChild(loadingTextContainer);
+
     // Append the container to your game output
     this.gameOutput.appendChild(loadingContainer);
+
+    // Load the loading quips
+    const quips = await this.loadLoadingQuips();
+
+    // Randomly select a quip
+    const randomQuip = quips[Math.floor(Math.random() * quips.length)];
+
+    // Start the typing effect for the loading text
+    this.typeLoadingText(loadingTextContainer, randomQuip);
 
     // Wait for a random duration between 3 to 5 seconds
     const randomDuration = Math.floor(Math.random() * 2000) + 3000;
@@ -1132,6 +1146,44 @@ loadSaveData(saveData) {
 
     // Clear the loading screen
     this.clearOutput();
+  }
+
+  async loadLoadingQuips() {
+    try {
+      const response = await fetch("loadingQuips.json");
+      if (!response.ok) throw new Error(`Failed to fetch loading quips: ${response.status}`);
+      const data = await response.json();
+      return data.quips;
+    } catch (error) {
+      console.error("Failed to load loading quips:", error);
+      return ["Loading..."]; // Fallback text
+    }
+  }
+
+  async typeLoadingText(element, text) {
+    const typingSpeed = 150; // milliseconds per character
+    const backspaceSpeed = 100; // milliseconds per character
+    const pauseDuration = 500; // milliseconds to pause before backspacing
+
+    while (true) {
+      // Type the text
+      for (let i = 0; i < text.length; i++) {
+        element.textContent += text.charAt(i);
+        await new Promise((resolve) => setTimeout(resolve, typingSpeed));
+      }
+
+      // Pause before backspacing
+      await new Promise((resolve) => setTimeout(resolve, pauseDuration));
+
+      // Backspace the text
+      for (let i = text.length; i > 0; i--) {
+        element.textContent = element.textContent.slice(0, -1);
+        await new Promise((resolve) => setTimeout(resolve, backspaceSpeed));
+      }
+
+      // Pause before typing again
+      await new Promise((resolve) => setTimeout(resolve, pauseDuration));
+    }
   }
 }
 
