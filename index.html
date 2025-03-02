@@ -10,22 +10,11 @@
     <div class="game-container">
       <div id="gameOutput" class="game-output"></div>
       <div class="input-container">
-        <span class="prompt">&gt;</span>
-        <input
-          type="text"
-          id="gameInput"
-          class="game-input"
-          autocomplete="off"
-          autofocus
-        />
-		<button id="musicToggle">Toggle Music</button>
+        <div class="prompt">&gt;</div>
+        <input id="gameInput" class="game-input" type="text" autocomplete="off">
+        <button id="musicToggle" class="music-toggle">Toggle Music</button>
       </div>
     </div>
-    <script src="game.js"></script>
-	<audio id="titleMusic" loop preload="auto">
-	<source src="audio/title.mp3" type="audio/mpeg">
-	  Your browser does not support the audio element.
-	</audio>
-	
+    <script type="module" src="game.js"></script>
   </body>
 </html>
