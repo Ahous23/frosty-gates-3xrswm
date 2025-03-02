@@ -1161,9 +1161,9 @@ loadSaveData(saveData) {
   }
 
   async typeLoadingText(element, text) {
-    const typingSpeed = 150; // milliseconds per character
-    const backspaceSpeed = 100; // milliseconds per character
-    const pauseDuration = 500; // milliseconds to pause before backspacing
+    const typingSpeed = 50; // milliseconds per character (faster typing speed)
+    const backspaceSpeed = 50; // milliseconds per character (faster backspacing speed)
+    const pauseDuration = 300; // milliseconds to pause before backspacing (shorter pause duration)
 
     while (true) {
       // Type the text

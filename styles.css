@@ -115,6 +115,7 @@ body {
 .game-output::-webkit-scrollbar-thumb:hover {
   background: #777;
 }
+
 .title-banner {
   display: flex;
   flex-direction: column;
@@ -135,6 +136,7 @@ body {
 
 .loading-screen {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100%;
@@ -143,4 +145,12 @@ body {
 .loading-gif {
   width: 100px; /* Adjust size as needed */
   height: 100px; /* Adjust size as needed */
+}
+
+.loading-text {
+  margin-top: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff; /* Adjust color as needed */
+  text-align: center; /* Ensure text is centered */
 }
