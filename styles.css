@@ -132,3 +132,15 @@ body {
   text-align: center;
   white-space: pre-wrap;
 }
+
+.loading-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.loading-gif {
+  width: 100px; /* Adjust size as needed */
+  height: 100px; /* Adjust size as needed */
+}

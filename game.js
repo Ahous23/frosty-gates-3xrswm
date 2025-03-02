@@ -233,6 +233,9 @@ class TextGame {
     }
 
     try {
+      // Show loading screen before loading the chapter
+      await this.showLoadingScreen();
+
       const path = this.storyIndex.chapters[chapterId];
       const response = await fetch(path);
       if (!response.ok)
@@ -751,6 +754,9 @@ loadSaveData(saveData) {
 
   const scene = this.storyContent[this.currentScene];
 
+  // Show loading screen before playing the scene
+  await this.showLoadingScreen();
+
   // Type out the scene text
   await this.typeText(scene.text);
 
@@ -1093,6 +1099,32 @@ loadSaveData(saveData) {
         break;
       // Add more custom effects as needed
     }
+  }
+
+  async showLoadingScreen() {
+    // Clear the output
+    this.clearOutput();
+
+    // Create a container div for the loading screen
+    const loadingContainer = document.createElement("div");
+    loadingContainer.className = "loading-screen";
+
+    // Add the loading GIF
+    const loadingGif = document.createElement("img");
+    loadingGif.src = "gif/loading.gif"; // Path to your loading GIF
+    loadingGif.alt = "Loading...";
+    loadingGif.className = "loading-gif";
+    loadingContainer.appendChild(loadingGif);
+
+    // Append the container to your game output
+    this.gameOutput.appendChild(loadingContainer);
+
+    // Wait for a random duration between 3 to 5 seconds
+    const randomDuration = Math.floor(Math.random() * 2000) + 3000;
+    await new Promise((resolve) => setTimeout(resolve, randomDuration));
+
+    // Clear the loading screen
+    this.clearOutput();
   }
 }
 
