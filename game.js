@@ -59,12 +59,31 @@ class TextGame {
     this.showTitleScreen();
   }
 
-	  async showTitleScreen() {
+	async showTitleScreen() {
 	  // Clear any existing content first
 	  this.clearOutput();
 	  
-	  // Use the typeText method for the title banner
-	  await this.typeText("\n========== OLAF vs BEARS ==========\n===== For Shawclops, ❤️ Vanilla-Bear =====\n");
+	  // Create a container div for the title banner with campfire
+	  const titleContainer = document.createElement("div");
+	  titleContainer.className = "title-banner";
+	  
+	  // Add the campfire GIF
+	  const campfireImg = document.createElement("img");
+	  campfireImg.src = "gif/campfire.gif";
+	  campfireImg.alt = "Campfire";
+	  campfireImg.className = "title-campfire";
+	  titleContainer.appendChild(campfireImg);
+	  
+	  // Add the title content to the container
+	  const titleText = document.createElement("div");
+	  titleText.className = "title-text";
+	  titleContainer.appendChild(titleText);
+	  
+	  // Append the container to your game output
+	  this.gameOutput.appendChild(titleContainer);
+	  
+	  // Use the typeText method for the title banner, but target the titleText element
+	  await this.typeIntoElement(titleText, "\n========== OLAF vs BEARS ==========\n===== For Shawclops, ❤️ Vanilla-Bear =====\n");
 	  
 	  // Add the choices without animation
 	  this.print("1. New Game", "choice");
@@ -72,6 +91,27 @@ class TextGame {
 
 	  this.awaitingInput = true;
 	  this.inputMode = "title";
+	}
+
+	// Add this helper method if you don't already have it
+	async typeIntoElement(element, text) {
+	  // Clear the element first
+	  element.innerHTML = "";
+	  this.isTyping = true;
+	  
+	  // Type character by character
+	  for (let i = 0; i < text.length; i++) {
+		// Check if typing was interrupted
+		if (!this.isTyping) {
+		  element.innerHTML = text; // Show the full text immediately
+		  break;
+		}
+		
+		element.innerHTML += text.charAt(i);
+		await new Promise((resolve) => setTimeout(resolve, this.typingSpeed));
+	  }
+	  
+	  this.isTyping = false;
 	}
 
   async loadStoryIndex() {
