@@ -153,7 +153,7 @@ class TextGame {
 	  this.gameOutput.appendChild(titleContainer);
 	  
 	  // Use the typeText method for the title banner, but target the titleText element
-	  await this.typeIntoElement(titleText, "\n========== OLAF vs BEARS ==========\n===== For Shawclops, ❤️ Vanilla-Bear =====\n");
+	  await this.typeIntoElement(titleText, "\n==== OLAF vs BEARS ====\n== For Shawclops, ❤️ Vanilla-Bear ==\n");
 	  
 	  // Add the choices without animation
 	  this.print("1. New Game", "choice");
