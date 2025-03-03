@@ -1,6 +1,7 @@
 export class InputHandlers {
   constructor(game) {
     this.game = game;
+    this.isInitialAllocation = false; // Flag to track if we're in initial character creation
   }
 
   // Add a new method to handle combat input
@@ -15,11 +16,16 @@ export class InputHandlers {
   
   // New method for initial stat allocation at game start
   showInitialStatAllocation() {
+    this.isInitialAllocation = true;
     this.game.uiManager.clearOutput();
     this.game.uiManager.print("Welcome, brave adventurer!", "system-message");
     this.game.uiManager.print("Before your journey begins, allocate your character stats:", "system-message");
     this.showStats();
-    this.game.uiManager.print("\nType 'start' or 'done' when you're ready to begin your adventure.", "system-message");
+    this.game.uiManager.print("\nInstructions:", "system-message");
+    this.game.uiManager.print("- Type a stat name to add a point (e.g., 'attack')", "help-text");
+    this.game.uiManager.print("- Type '-' followed by a stat name to remove a point (e.g., '-attack')", "help-text");
+    this.game.uiManager.print("- Type 'help' for stat descriptions", "help-text");
+    this.game.uiManager.print("- Type 'start' or 'done' when you're ready to begin your adventure", "help-text");
   }
   
   handleInput() {
@@ -103,11 +109,13 @@ export class InputHandlers {
   handleStatInput(input) {
     const inputLower = input.toLowerCase();
     
+    // Handle finalizing stats
     if (inputLower === "back" || inputLower === "start" || inputLower === "done") {
-      if (this.game.previousMode === "normal" && !this.game.currentScene) {
+      if (this.isInitialAllocation && !this.game.currentScene) {
         // If this is the initial stat allocation, start the game
         this.game.currentScene = "intro";
         this.game.inputMode = "normal";
+        this.isInitialAllocation = false; // Turn off initial allocation mode
         this.game.uiManager.print("\nYour adventure begins...\n", "system-message");
         setTimeout(() => this.game.playScene(), 1500);
       } else {
@@ -119,6 +127,13 @@ export class InputHandlers {
     
     if (inputLower === "help") {
       this.showStatHelp();
+      return;
+    }
+    
+    // Check for stat reduction command (format: "-stat")
+    if (this.isInitialAllocation && inputLower.startsWith("-")) {
+      const statToReduce = inputLower.substring(1); // Remove the "-" prefix
+      this.reduceStatPoint(statToReduce);
       return;
     }
     
@@ -142,7 +157,7 @@ export class InputHandlers {
         
         // Clear output and refresh stats display to show real-time changes
         this.game.uiManager.clearOutput();
-        if (!this.game.currentScene) {
+        if (this.isInitialAllocation) {
           this.showInitialStatAllocation();
         } else {
           this.game.uiManager.print(`Increased ${inputLower} to ${this.game.playerStats[inputLower]}.`, "system-message");
@@ -153,6 +168,39 @@ export class InputHandlers {
       }
     } else {
       this.game.uiManager.print("Invalid stat. Try 'attack', 'defense', 'charisma', 'speed', or 'luck'.", "error-message");
+    }
+  }
+
+  // New method to reduce a stat point during initial allocation
+  reduceStatPoint(stat) {
+    const validStats = ["attack", "defense", "charisma", "speed", "luck"];
+    
+    if (!this.isInitialAllocation) {
+      this.game.uiManager.print("You can only reallocate points during character creation.", "error-message");
+      return;
+    }
+    
+    if (!validStats.includes(stat)) {
+      this.game.uiManager.print("Invalid stat. Try '-attack', '-defense', '-charisma', '-speed', or '-luck'.", "error-message");
+      return;
+    }
+    
+    // Check if stat is above the initial value
+    if (this.game.playerStats[stat] > this.game.initialPlayerStats[stat]) {
+      this.game.playerStats[stat]--;
+      
+      // Return the point to the available pool
+      if (this.game.gameState.availableStatPoints !== undefined) {
+        this.game.gameState.availableStatPoints++;
+      } else {
+        this.game.availableStatPoints++;
+      }
+      
+      // Update the display
+      this.game.uiManager.clearOutput();
+      this.showInitialStatAllocation();
+    } else {
+      this.game.uiManager.print(`Cannot reduce ${stat} below its initial value (${this.game.initialPlayerStats[stat]}).`, "error-message");
     }
   }
 
@@ -290,6 +338,9 @@ export class InputHandlers {
     
     if (availablePoints > 0) {
       this.game.uiManager.print("Type a stat name to increase it (e.g., 'attack').", "system-message");
+      if (this.isInitialAllocation) {
+        this.game.uiManager.print("Type '-' followed by a stat name to decrease it (e.g., '-attack').", "system-message");
+      }
     }
   }
 

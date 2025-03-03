@@ -7,7 +7,7 @@ export const initialPlayerStats = {
 };
 
 export const typingSpeed = 30; // milliseconds per character
-export const availableStatPoints = 10;
+export const availableStatPoints = 5; // Changed from 10 to 5
 
 // Combat and progression constants
 export const initialPlayerHealth = 100;
