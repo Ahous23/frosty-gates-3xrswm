@@ -1,4 +1,4 @@
-import { maxPlayerHealth, xpPerLevel } from '../js/constants.js';
+import { maxPlayerHealth, xpPerLevel } from './constants.js';
 
 export class CombatSystem {
   constructor(game) {
@@ -12,6 +12,33 @@ export class CombatSystem {
 
   initiateCombat(enemy) {
     this.inCombat = true;
+    
+    // Debug log to see what's being passed
+    console.log("Initiating combat with:", enemy);
+    
+    // If enemy is a string ID, try to fetch from loot system
+    if (typeof enemy === 'string' && this.game.lootSystem) {
+      const enemyData = this.game.lootSystem.getEnemy(enemy);
+      console.log("Fetched enemy data:", enemyData);
+      if (enemyData) {
+        enemy = enemyData;
+      }
+    }
+    
+    // Ensure enemy has all required properties
+    if (!enemy || !enemy.name) {
+      console.error("Invalid enemy data:", enemy);
+      // Create a basic fallback enemy to prevent crashes
+      enemy = {
+        name: "Bear Warrior",
+        description: "A ferocious bear warrior appears!",
+        health: 30,
+        attack: 8,
+        defense: 3,
+        speed: 4
+      };
+    }
+    
     this.currentEnemy = {
       ...enemy,
       currentHealth: enemy.health
@@ -120,19 +147,32 @@ export class CombatSystem {
   processEnemyTurn() {
     if (!this.inCombat) return;
     
-    // Calculate enemy damage
-    let damage = this.currentEnemy.attack;
-    
-    // Apply player defense reduction
-    const defenseReduction = damage * (this.game.playerStats.defense * 0.01);
-    damage = Math.max(1, damage - defenseReduction); // At least 1 damage
-    damage = Math.floor(damage); // Round down to integer
-    
-    // Apply damage to player
-    this.game.gameState.playerHealth -= damage;
-    
-    // Display results
-    this.game.uiManager.print(`${this.currentEnemy.name} attacks you for ${damage} damage!`, "enemy-attack");
+    // Tutorial enemy should be easy to defeat
+    if (this.currentEnemy.isTutorial) {
+      // Make sure the player wins by dealing less damage
+      let damage = Math.max(1, Math.floor(this.game.gameState.playerHealth / 10));
+      
+      // Display results
+      this.game.uiManager.print(`${this.currentEnemy.name} attacks you for ${damage} damage!`, "enemy-attack");
+      
+      // Apply damage to player
+      this.game.gameState.playerHealth -= damage;
+    } else {
+      // Normal enemy combat
+      // Calculate enemy damage
+      let damage = this.currentEnemy.attack;
+      
+      // Apply player defense reduction
+      const defenseReduction = damage * (this.game.playerStats.defense * 0.01);
+      damage = Math.max(1, damage - defenseReduction); // At least 1 damage
+      damage = Math.floor(damage); // Round down to integer
+      
+      // Apply damage to player
+      this.game.gameState.playerHealth -= damage;
+      
+      // Display results
+      this.game.uiManager.print(`${this.currentEnemy.name} attacks you for ${damage} damage!`, "enemy-attack");
+    }
     
     // Check if player defeated
     if (this.game.gameState.playerHealth <= 0) {
@@ -263,11 +303,20 @@ export class CombatSystem {
       this.game.uiManager.print(`\nYou defeated ${this.currentEnemy.name}!`, "victory-message");
       this.game.uiManager.print(`Gained ${xpReward} XP!`, "xp-gain");
       
-      // Add enemy loot if any
-      if (this.currentEnemy.loot) {
-        this.game.addItemsToInventory(this.currentEnemy.loot);
+      // Generate loot using the LootSystem if available
+      let loot = [];
+      if (this.game.lootSystem && this.currentEnemy.id) {
+        loot = this.game.lootSystem.generateLootFromEnemy(this.currentEnemy.id);
+      } else if (this.currentEnemy.loot) {
+        // Fallback to the old loot system
+        loot = this.currentEnemy.loot;
+      }
+      
+      // Add the loot to inventory
+      if (loot && loot.length > 0) {
+        this.game.addItemsToInventory(loot);
         this.game.uiManager.print("\nYou found:", "system-message");
-        this.currentEnemy.loot.forEach(item => {
+        loot.forEach(item => {
           this.game.uiManager.print(`- ${item.name} ${item.quantity > 1 ? `(x${item.quantity})` : ""}`, "item-name");
         });
       }
