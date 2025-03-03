@@ -1,0 +1,41 @@
+{
+  "scenes": {
+    "chapter_two_intro": {
+      "text": "Three months have passed since the battle at the stone circle. Frostpeak has flourished under your leadership, its walls strengthened, its warriors better trained. The surviving bears have returned to their natural behavior, once again mere animals in the forest.\n\nYet peace remains fragile. Rumors spread of strange figures seen in the mountains, and hunters report finding complex symbols carved into ancient trees. The Wild Court that Lyra warned about may have already sent agents to continue their work.\n\nOn a crisp autumn morning, as you oversee training exercises with Magnus, a sentry's horn sounds from the watchtower. A lone rider approaches at breakneck speed, their cloak billowing behind them.",
+      "nextScene": "lyra_returns"
+    },
+    
+    "lyra_returns": {
+      "text": "The gates swing open to admit the rider. As they dismount, you recognize Lyra, the scholar from the Eastern Realms. Her clothes are travel-worn and splattered with blood - not her own, you hope. Her expression is grim as she approaches.\n\n\"They're coming,\" she says without preamble. \"The Wild Court has sent their Beastmaster.\"\n\n\"Inside,\" you reply, gesturing toward the council hall. \"Tell me everything.\"\n\nOnce gathered with your advisors - Karina, Magnus, Thrain, and Elder Hulda - Lyra unrolls a map across the table.\n\n\"The Wild Court was furious when they learned of their ritual's failure,\" she explains. \"They've dispatched Vargoth, their most dangerous agent. He doesn't need the stone circle or the orb - he has other methods of transformation, cruder but effective.\"\n\n\"What exactly is a Beastmaster?\" Thrain asks, frowning.\n\nLyra's expression darkens. \"He binds animals to his will through blood magic. Where the spirit could only influence bears, Vargoth can control multiple species simultaneously - wolves, boars, even birds of prey. And he doesn't just make them intelligent; he warps them, twists their bodies into unnatural forms.\"\n\n\"Where is he now?\" you ask.\n\n\"He's established a lair in the ruins of Blackcrag Keep,\" Lyra points to a location in the mountains west of Wispwood. \"My order has been tracking his movements. He's been capturing wild animals and... changing them. Building an army.\"",
+      "nextScene": "council_discussion"
+    },
+    
+    "council_discussion": {
+      "text": "\"An army of twisted beasts,\" Magnus mutters. \"Just what we need.\"\n\n\"How long do we have?\" you ask.\n\n\"Days, perhaps a week,\" Lyra replies. \"He's waiting for something - a celestial alignment my order believes will enhance his power.\"\n\nElder Hulda speaks up. \"We should warn the other villages immediately.\"\n\n\"I agree,\" you say. \"But we also need to take the fight to him. If he's still gathering his forces, we might have a chance to stop this before it begins.\"\n\n\"Blackcrag Keep is treacherous ground,\" Thrain cautions. \"Ancient ruins, unstable. Many passages and chambers where ambushes could be set.\"\n\n\"And we don't know what kinds of creatures he's created,\" Karina adds. \"We'd be facing unknown threats.\"\n\nLyra nods grimly. \"I've brought something that might help.\" She produces a small, ornate box from her pack and opens it to reveal several vials of shimmering blue liquid. \"Elixir of Clarity. It temporarily allows one to see through magical disguises and illusions. Essential when fighting a Beastmaster's creations.\"\n\nYou consider the options before you. Time is short, and the threat is grave.",
+      "choices": [
+        {
+          "text": "\"We assault Blackcrag Keep immediately with our best warriors.\"",
+          "nextScene": "prepare_assault"
+        },
+        {
+          "text": "\"We need to scout the keep first. I'll lead a small reconnaissance team.\"",
+          "nextScene": "reconnaissance_mission"
+        },
+        {
+          "text": "\"We should strengthen our defenses here and let him come to us.\"",
+          "nextScene": "defensive_preparations"
+        }
+      ]
+    },
+    
+    "prepare_assault": {
+      "text": "\"We strike now, while we still have the element of surprise,\" you decide. \"If we wait, his forces will only grow stronger.\"\n\nThrain pounds the table in agreement. \"Good! I'd rather die on my feet in battle than wait to be torn apart by monsters.\"\n\nYou spend the rest of the day preparing your assault force. Twenty of your best warriors volunteer, including Karina, who insists her healing skills will be needed. Lyra will guide you to the keep and help counter Vargoth's magic.\n\nAs dusk approaches, Magnus returns from the armory with a heavily wrapped bundle. \"This was your father's,\" he says, unveiling Winterbite, your father's great axe. \"We reforged the blade. It's time it was wielded again.\"\n\nYou take the weapon, feeling its perfect balance despite its size. \"Thank you, Magnus.\"\n\nWith final preparations complete, you address your warriors. \"We leave at first light. What we face may be unlike anything we've encountered before. But remember - regardless of how these creatures appear, they were once normal animals, twisted by dark magic. They can be killed like any other beast.\"\n\nThat night, unable to sleep, you visit the village shrine to pay respects to your father's memory. As you kneel before the ceremonial flame, you hear soft footsteps behind you.",
+      "nextScene": "night_visitor"
+    },
+    
+    "reconnaissance_mission": {
+      "text": "\"We need more information before committing to a full assault,\" you announce. \"I'll lead a small team to scout Blackcrag Keep, assess Vargoth's forces, and find potential weaknesses.\"\n\n\"A wise choice,\" Lyra approves. \"Beastmasters are cunning. Rushing in blindly would play into his hands.\"\n\nYou select four companions for the mission: Leif for his archery and tracking skills, Karina for healing, Lyra for her knowledge of the Wild Court, and Tormund for his experience and fighting prowess.\n\nAs you gather supplies, Magnus approaches with a small wooden case. \"Take these,\" he says, opening it to reveal several small, intricately carved stones. \"Whisper stones. Speak into one, and those holding the others will hear you, no matter the distance. My grandfather traded with eastern merchants for them years ago.\"\n\n\"Perfect for coordinating once we're inside the keep,\" you note, distributing the stones among your team.\n\nWith night falling, you set out under cover of darkness, following game trails through the mountains. The journey is arduous, and twice you encounter strange tracks unlike any animal you recognize - massive clawed prints with an unnatural gait.\n\nBy dawn, you've reached a ridge overlooking Blackcrag Keep. The ancient fortress, built into the mountainside, is partially collapsed but still imposing. Smoke rises from several locations within its walls, and movement can be seen along the battlements - creatures patrolling on all fours, but with unnaturally elongated limbs and misshapen heads.",
+      "nextScene": "observing_blackcrag"
+    }
+  }
+}
