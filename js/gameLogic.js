@@ -12,7 +12,7 @@ export class GameLogic {
 
     const scene = this.game.storyContent[this.game.currentScene];
     this.game.uiManager.clearOutput();
-    await this.typeText(scene.text);
+    await this.game.typeText(scene.text);
 
     if (scene.items) {
       this.addItemsToInventory(scene.items);
@@ -21,6 +21,12 @@ export class GameLogic {
         this.game.uiManager.print(`- ${item.name} ${item.quantity > 1 ? `(x${item.quantity})` : ""}`, "item-name");
       });
       this.game.uiManager.print("", ""); // Add a blank line
+    }
+
+    // Check if this scene has combat
+    if (scene.combat) {
+      this.initiateCombat(scene);
+      return; // Combat handler will continue to the next scene
     }
 
     if (scene.type === "stats") {
@@ -34,6 +40,15 @@ export class GameLogic {
         this.playScene();
       }, 2000);
     }
+  }
+
+  initiateCombat(scene) {
+    // Store the scenes to navigate to after combat
+    this.game.nextSceneAfterCombat = scene.combat.nextScene;
+    this.game.defeatSceneAfterCombat = scene.combat.defeatScene;
+    
+    // Start combat with the specified enemy
+    this.game.combatSystem.initiateCombat(scene.combat.enemy);
   }
 
   addItemsToInventory(items) {

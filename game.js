@@ -1,15 +1,20 @@
-import { initialPlayerStats, typingSpeed, availableStatPoints } from './js/constants.js';
+import { initialPlayerStats, typingSpeed, availableStatPoints, initialPlayerHealth, initialPlayerXp } from './js/constants.js';
 import { AudioManager } from './js/audio.js';
 import { UIManager } from './js/ui.js';
 import { GameLogic } from './js/gameLogic.js';
 import { InputHandlers } from './js/inputHandlers.js';
+import { CombatSystem } from './js/combat.js';
 
 class TextGame {
   constructor() {
     this.currentScene = null;
     this.playerStats = { ...initialPlayerStats };
     this.typingSpeed = typingSpeed;
-    this.gameState = {};
+    this.gameState = {
+      playerHealth: initialPlayerHealth,
+      playerXp: initialPlayerXp,
+      availableStatPoints: 0
+    };
     this.availableStatPoints = availableStatPoints;
     this.inventory = [];
     this.storyContent = {};
@@ -24,6 +29,7 @@ class TextGame {
     this.uiManager = new UIManager(this.gameOutput, this.gameInput);
     this.gameLogic = new GameLogic(this);
     this.inputHandlers = new InputHandlers(this);
+    this.combatSystem = new CombatSystem(this);
 
     const enableAudio = () => {
       this.audioManager.enableAudio();
@@ -239,6 +245,7 @@ class TextGame {
     this.uiManager.clearInput();
     this.uiManager.print(`> ${rawInput}`, "player-input");
     const input = this.inputMode === "loadGame" ? rawInput : rawInput.toLowerCase();
+    
     switch (this.inputMode) {
       case "title":
         this.inputHandlers.handleTitleInput(input);
@@ -260,6 +267,12 @@ class TextGame {
         break;
       case "errorRecovery":
         this.inputHandlers.handleErrorRecoveryInput(input);
+        break;
+      case "combat":
+        this.inputHandlers.handleCombatInput(input);
+        break;
+      case "combat-item":
+        this.inputHandlers.handleCombatItemInput(input);
         break;
     }
   }
@@ -318,6 +331,50 @@ class TextGame {
       await new Promise((resolve) => setTimeout(resolve, pauseDuration));
     }
     this.audioManager.stopTypingSound();
+  }
+
+  // Update saveGame to include combat-related data
+  saveGame() {
+    const saveData = {
+      currentScene: this.currentScene,
+      playerStats: this.playerStats,
+      inventory: this.inventory,
+      gameState: this.gameState
+    };
+    
+    const saveString = btoa(JSON.stringify(saveData));
+    this.uiManager.print("\nSave Code (copy this somewhere safe):", "system-message");
+    this.uiManager.print(saveString, "save-code");
+    this.uiManager.print("\nType 'continue' to resume your game.", "system-message");
+  }
+
+  // Update loadSaveData to handle combat-related data
+  loadSaveData(saveData) {
+    try {
+      const data = JSON.parse(atob(saveData));
+      this.currentScene = data.currentScene;
+      this.playerStats = data.playerStats;
+      this.inventory = data.inventory || [];
+      this.gameState = data.gameState || {};
+      
+      // Ensure health is set if not in save data
+      if (this.gameState.playerHealth === undefined) {
+        this.gameState.playerHealth = 100;
+      }
+      
+      // Ensure XP is set if not in save data
+      if (this.gameState.playerXp === undefined) {
+        this.gameState.playerXp = 0;
+      }
+      
+      this.uiManager.print("Game loaded successfully!", "system-message");
+      this.inputMode = "normal";
+      this.playScene();
+      return true;
+    } catch (error) {
+      this.uiManager.print("Failed to load save data. Invalid save code.", "error-message");
+      return false;
+    }
   }
 }
 

@@ -154,3 +154,82 @@ body {
   color: #fff; /* Adjust color as needed */
   text-align: center; /* Ensure text is centered */
 }
+
+.enemy-description {
+  color: #ff6a6a;
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+.enemy-health {
+  color: #ff6a6a;
+  font-weight: bold;
+}
+
+.player-health {
+  color: #6aff6a;
+  font-weight: bold;
+}
+
+.combat-option {
+  color: #ffcc66;
+  cursor: pointer;
+}
+
+.combat-option:hover {
+  text-decoration: underline;
+}
+
+.player-attack {
+  color: #66ccff;
+  font-weight: bold;
+}
+
+.enemy-attack {
+  color: #ff6666;
+  font-weight: bold;
+}
+
+.critical-hit {
+  color: #ffff00;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.victory-message {
+  color: #6aff6a;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.defeat-message {
+  color: #ff6a6a;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.xp-gain {
+  color: #cc99ff;
+  font-weight: bold;
+}
+
+.level-up {
+  color: #ffcc00;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.healing {
+  color: #66ff99;
+  font-weight: bold;
+}
+
+.enemy-stat {
+  color: #ff9999;
+}
+
+.enemy-name {
+  color: #ff6a6a;
+  font-weight: bold;
+  font-size: 1.1em;
+}

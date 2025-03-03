@@ -3,6 +3,16 @@ export class InputHandlers {
     this.game = game;
   }
 
+  // Add a new method to handle combat input
+  handleCombatInput(input) {
+    this.game.combatSystem.processPlayerAction(input);
+  }
+  
+  // Add method to handle combat item selection
+  handleCombatItemInput(input) {
+    this.game.combatSystem.useItem(input);
+  }
+  
   handleInput() {
     if (this.game.isTyping) return; // Don't process input while text is typing
 
@@ -80,31 +90,47 @@ export class InputHandlers {
     this.makeChoice(choice.nextScene);
   }
 
+  // Update handleStatInput to work with the new stat points from leveling
   handleStatInput(input) {
-    if (input === "help") {
+    const inputLower = input.toLowerCase();
+    
+    if (inputLower === "back") {
+      this.game.inputMode = this.game.previousMode || "normal";
+      this.game.uiManager.print("Returning to game.", "system-message");
+      return;
+    }
+    
+    if (inputLower === "help") {
       this.showStatHelp();
       return;
     }
-
-    if (input === "confirm") {
-      this.confirmStats();
-      return;
+    
+    const validStats = ["attack", "defense", "charisma", "speed", "luck"];
+    
+    if (validStats.includes(inputLower)) {
+      // Use availableStatPoints from gameState if it exists, otherwise from game object
+      const availablePoints = this.game.gameState.availableStatPoints !== undefined 
+        ? this.game.gameState.availableStatPoints 
+        : this.game.availableStatPoints;
+      
+      if (availablePoints > 0) {
+        this.game.playerStats[inputLower]++;
+        
+        // Update the correct stat points counter
+        if (this.game.gameState.availableStatPoints !== undefined) {
+          this.game.gameState.availableStatPoints--;
+        } else {
+          this.game.availableStatPoints--;
+        }
+        
+        this.game.uiManager.print(`Increased ${inputLower} to ${this.game.playerStats[inputLower]}.`, "system-message");
+        this.showStats();
+      } else {
+        this.game.uiManager.print("You don't have any stat points available.", "error-message");
+      }
+    } else {
+      this.game.uiManager.print("Invalid stat. Try 'attack', 'defense', 'charisma', 'speed', or 'luck'.", "error-message");
     }
-
-    if (this.game.availableStatPoints <= 0) {
-      this.game.uiManager.print("You have no more stat points to allocate. Type 'confirm' to continue.", "system-message");
-      return;
-    }
-
-    // Check if the input is a valid stat
-    const statKeys = Object.keys(this.game.playerStats);
-    if (!statKeys.includes(input)) {
-      this.game.uiManager.print(`Invalid stat. Available stats: ${statKeys.join(", ")}`, "error-message");
-      return;
-    }
-
-    // Increase the stat
-    this.adjustStat(input, 1);
   }
 
   handleInventoryInput(input) {
@@ -212,14 +238,34 @@ export class InputHandlers {
   }
 
   showStats() {
-    this.game.previousMode = this.game.inputMode;
-    this.game.inputMode = "stats";
-    this.game.uiManager.clearOutput();
-    this.game.uiManager.print("===== YOUR STATS =====", "system-message");
+    // Display current stats
+    this.game.uiManager.print("\nCurrent Stats:", "system-message");
     Object.entries(this.game.playerStats).forEach(([stat, value]) => {
       this.game.uiManager.print(`${stat}: ${value}`, "player-stat");
     });
-    this.game.uiManager.print("\nType 'back' to return", "system-message");
+    
+    // Display health separately since it's in gameState
+    this.game.uiManager.print(`health: ${this.game.gameState.playerHealth || 100}/100`, "player-stat");
+    
+    // Show XP and level if they exist
+    if (this.game.gameState.playerXp !== undefined) {
+      const level = Math.floor(this.game.gameState.playerXp / 100);
+      const nextLevelXp = (level + 1) * 100;
+      this.game.uiManager.print(`XP: ${this.game.gameState.playerXp}/${nextLevelXp} (Level ${level})`, "player-stat");
+    }
+    
+    // Show available points
+    const availablePoints = this.game.gameState.availableStatPoints !== undefined 
+      ? this.game.gameState.availableStatPoints 
+      : this.game.availableStatPoints;
+      
+    this.game.uiManager.print(`\nAvailable Points: ${availablePoints}`, "system-message");
+    
+    if (availablePoints > 0) {
+      this.game.uiManager.print("Type a stat name to increase it (e.g., 'attack').", "system-message");
+    }
+    
+    this.game.uiManager.print("Type 'back' to return to the game.", "system-message");
   }
 
   showHelp() {
