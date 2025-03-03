@@ -1,9 +1,37 @@
 {
   "scenes": {
     "intro": {
-      "text": "The cold morning air stings your face as you awaken. Your head pounds, and the scent of smoke fills your nostrils. Something is wrong. Very wrong. As you stumble out of your small hut, the horrific sight greets you: the village is in ruins. Smoke rises from burned buildings, and deep claw marks scar what remains of the wooden structures.\n\nYou hear whispers among the survivors. 'Bears,' they say. 'Giant bears from the northern mountains.' Your family's hunting lodge has been destroyed, and your father's prized battle axe is missing.\n\nA fire ignites within you. These were no ordinary bears. This was deliberate. This means war.\n\nBefore you embark on your quest for vengeance, you must assess your strengths and weaknesses.",
-      "type": "stats",
-      "nextScene": "chapter1"
+      "text": "The forest is dark and foreboding. You, Olaf, have been tracking these bears for days. They attacked your village last week, killing several people including your best friend. Now, it's time for revenge.\n\nArmed with your wits and determination, you follow the tracks deeper into the woods. The air is thick with the scent of pine and something else... something musky and animal.\n\nSuddenly, you hear a growl from behind a large tree ahead.",
+      "nextScene": "firstBearEncounter"
+    },
+    "firstBearEncounter": {
+      "text": "A young bear warrior emerges from behind the tree. It stands on its hind legs, clutching a crude wooden club. Its eyes meet yours, and a growl escapes its throat.\n\nThis is your chance to test your combat skills against one of the weaker bear warriors before confronting the more dangerous ones deeper in the forest.",
+      "combat": {
+        "enemy": "bear_warrior_weak",
+        "nextScene": "afterFirstBattle",
+        "defeatScene": "gameOver"
+      }
+    },
+    "afterFirstBattle": {
+      "text": "The young bear warrior retreats, wounded and whimpering. You've survived your first encounter with these intelligent bears, but you know there are many more ahead, and they'll be stronger and more cunning.\n\nYou take a moment to catch your breath and check your equipment. That was just a scout - the real challenge still awaits deeper in the forest.",
+      "nextScene": "pathChoice"
+    },
+    "pathChoice": {
+      "text": "The path ahead splits in two directions. To the left, you can see smoke rising above the trees - perhaps a camp or settlement. To the right, the forest grows darker and denser, but you notice fresh bear tracks heading that way.",
+      "choices": [
+        {
+          "text": "Head towards the smoke (might be a friendly outpost)",
+          "nextScene": "huntersOutpost"
+        },
+        {
+          "text": "Follow the bear tracks into the dense forest",
+          "nextScene": "forestPath"
+        }
+      ]
+    },
+    "gameOver": {
+      "text": "The bear warrior's club connects with your head, and everything goes dark. You wake up hours later, your head throbbing, but surprisingly alive.\n\nPerhaps the bear thought you were dead, or perhaps it had other priorities. Either way, you've failed this time, but you're still breathing. You drag yourself back to the edge of the forest, determined to return better prepared.",
+      "nextScene": "intro"
     },
     "chapter1": {
       "text": "The village elder approaches you as you prepare your meager belongings for the journey ahead. 'Olaf,' he says, his voice cracking with age and grief. 'Your father was our greatest warrior. These bears... they're not natural. They've been growing in number and boldness for months now.'\n\nHe places a weathered hand on your shoulder. 'If you truly seek to confront them, you must first understand what we're facing. There are three paths before you.'",

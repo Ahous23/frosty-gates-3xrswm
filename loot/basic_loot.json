@@ -1,0 +1,107 @@
+{
+  "table_name": "basic_loot",
+  "name": "Basic Loot",
+  "description": "Common items that can be found on most enemies",
+  "items": [
+    {
+      "id": "small_healing_potion",
+      "name": "Small Healing Potion",
+      "description": "A small vial containing a red liquid that restores a small amount of health.",
+      "category": "consumable",
+      "icon": "🧪",
+      "quantity": 1,
+      "stackable": true,
+      "chance": 30,
+      "effects": {
+        "heal": 20
+      }
+    },
+    {
+      "id": "crude_dagger",
+      "name": "Crude Dagger",
+      "description": "A roughly made dagger fashioned from sharpened bone.",
+      "category": "weapon",
+      "icon": "🗡️",
+      "damage": 8,
+      "quantity": 1,
+      "stackable": false,
+      "chance": 20
+    },
+    {
+      "id": "bear_fur",
+      "name": "Bear Fur",
+      "description": "A patch of thick bear fur. Could be useful for crafting or trading.",
+      "category": "material",
+      "icon": "🧶",
+      "quantity": 1,
+      "stackable": true,
+      "chance": 40
+    },
+    {
+      "id": "minor_healing_herbs",
+      "name": "Minor Healing Herbs",
+      "description": "Common herbs with mild medicinal properties.",
+      "category": "consumable",
+      "icon": "🌿",
+      "quantity": 2,
+      "stackable": true,
+      "chance": 35,
+      "effects": {
+        "heal": 10
+      }
+    },
+    {
+      "id": "bronze_coin",
+      "name": "Bronze Coins",
+      "description": "A small handful of bronze coins.",
+      "category": "currency",
+      "icon": "🪙",
+      "quantity": 5,
+      "stackable": true,
+      "chance": 50
+    },
+    {
+      "id": "bear_claw",
+      "name": "Bear Claw",
+      "description": "A sharp claw from a bear warrior.",
+      "quantity": 1,
+      "stackable": true,
+      "category": "material",
+      "value": 5
+    },
+    {
+      "id": "crude_bandage",
+      "name": "Crude Bandage",
+      "description": "A simple bandage that can stop bleeding.",
+      "quantity": 1,
+      "stackable": true,
+      "category": "consumable",
+      "effects": {
+        "heal": 10
+      },
+      "value": 5
+    },
+    {
+      "id": "small_potion",
+      "name": "Small Health Potion",
+      "description": "A small vial containing a red liquid that restores a small amount of health.",
+      "quantity": 1,
+      "stackable": true,
+      "category": "consumable",
+      "effects": {
+        "heal": 20
+      },
+      "value": 10
+    },
+    {
+      "id": "wooden_club",
+      "name": "Wooden Club",
+      "description": "A crude wooden club. Better than your fists.",
+      "quantity": 1,
+      "stackable": false,
+      "category": "weapon",
+      "damage": 8,
+      "value": 5
+    }
+  ]
+}

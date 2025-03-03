@@ -1,0 +1,16 @@
+{
+  "name": "Bear Berserker",
+  "description": "A massive bear with scars all over its body. It roars with uncontrolled rage, wielding two spiked wooden clubs.",
+  "health": 80,
+  "attack": 18,
+  "defense": 5,
+  "speed": 10,
+  "lootTables": ["mid_tier_loot", "advanced_loot"],
+  "guaranteedLoot": [
+    {
+      "id": "bear_claw",
+      "quantity": 2
+    }
+  ],
+  "xpReward": 75
+}

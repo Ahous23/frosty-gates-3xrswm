@@ -51,44 +51,57 @@ export class LootSystem {
       if (!response.ok) throw new Error(`Failed to fetch enemy data: ${response.status}`);
       const data = await response.json();
       this.enemies[enemyId] = data;
+      return data;
     } catch (error) {
       console.error(`Failed to load enemy ${enemyId}:`, error);
+      return null;
     }
   }
 
   getEnemy(enemyId) {
-    if (!this.enemies[enemyId]) {
-      console.error(`Enemy ${enemyId} not found in the loaded enemies.`);
-      return null;
+    console.log(`Getting enemy with ID: ${enemyId}`);
+    console.log(`Available enemies: ${Object.keys(this.enemies).join(', ')}`);
+    
+    if (this.enemies[enemyId]) {
+      return { ...this.enemies[enemyId], id: enemyId };
     }
-    return {...this.enemies[enemyId]};
+    
+    console.warn(`Enemy ${enemyId} not found in loaded enemies`);
+    return null;
   }
 
   generateLootFromEnemy(enemyId) {
     const enemy = this.getEnemy(enemyId);
-    if (!enemy) return [];
-    
-    const loot = [];
-    
-    // Add guaranteed loot
-    if (enemy.guaranteedLoot) {
-      for (const item of enemy.guaranteedLoot) {
-        loot.push(this.getItemById(item.id, item.quantity));
-      }
+    if (!enemy || !enemy.lootTables || enemy.lootTables.length === 0) {
+      return [];
     }
+
+    const loot = [];
+    const playerLuck = this.game.playerStats.luck || 5;
     
-    // Generate random loot from loot tables
-    if (enemy.lootTables) {
-      for (const lootTableInfo of enemy.lootTables) {
-        // Apply luck bonus to the roll chance
-        // Each 5 points of luck adds 1% to the chance
-        const luckBonus = Math.floor(this.game.playerStats.luck / 5);
-        const adjustedChance = lootTableInfo.chance + luckBonus;
-        
-        // Roll for the loot table
-        if (Math.random() * 100 <= adjustedChance) {
-          const items = this.rollLootTable(lootTableInfo.table);
-          loot.push(...items);
+    // Calculate luck bonus for rarer loot (1% per 5 points)
+    const rarityBonus = Math.floor(playerLuck / 5) / 100;
+    
+    // Number of items to generate (1-3)
+    const itemCount = Math.floor(Math.random() * 3) + 1;
+    
+    // Try to generate items from each loot table the enemy has access to
+    for (let i = 0; i < itemCount; i++) {
+      // Select a loot table based on rarity chances
+      const table = this.selectLootTable(enemy.lootTables, rarityBonus);
+      if (!table) continue;
+      
+      // Select an item from the table
+      const item = this.selectItemFromTable(table);
+      if (item) {
+        // Check if we already have this item in the loot
+        const existingItem = loot.find(i => i.id === item.id);
+        if (existingItem && item.stackable) {
+          // If stackable, increase quantity
+          existingItem.quantity++;
+        } else {
+          // Add as a new item
+          loot.push({ ...item });
         }
       }
     }
@@ -96,55 +109,72 @@ export class LootSystem {
     return loot;
   }
 
-  rollLootTable(tableName) {
-    const table = this.lootTables[tableName];
-    if (!table) {
-      console.error(`Loot table ${tableName} not found.`);
-      return [];
-    }
+  selectLootTable(availableTables, rarityBonus) {
+    if (!availableTables || availableTables.length === 0) return null;
     
-    const loot = [];
-    const itemsToGenerate = Math.floor(Math.random() * 3) + 1; // 1-3 items
+    // Default probabilities for each tier
+    const baseChances = {
+      'basic_loot': 0.7,
+      'mid_tier_loot': 0.2,
+      'advanced_loot': 0.07,
+      'epic_loot': 0.02,
+      'legendary_loot': 0.01
+    };
     
-    // Create a weighted pool of items based on their chances
-    const itemPool = [];
-    for (const item of table.items) {
-      for (let i = 0; i < item.chance; i++) {
-        itemPool.push(item);
-      }
-    }
+    // Adjust probabilities based on luck bonus
+    let tableChances = [];
     
-    // Pick random items from the pool (without duplicates)
-    const selectedItems = new Set();
-    for (let i = 0; i < itemsToGenerate; i++) {
-      if (itemPool.length === 0) break;
-      
-      const randomIndex = Math.floor(Math.random() * itemPool.length);
-      const selectedItem = itemPool[randomIndex];
-      
-      if (!selectedItems.has(selectedItem.id)) {
-        selectedItems.add(selectedItem.id);
-        loot.push({...selectedItem});
-      }
-    }
-    
-    return loot;
-  }
-  
-  getItemById(itemId, quantity = 1) {
-    // Search through all loot tables for the item
-    for (const tableName in this.lootTables) {
-      const table = this.lootTables[tableName];
-      for (const item of table.items) {
-        if (item.id === itemId) {
-          const itemCopy = {...item};
-          itemCopy.quantity = quantity;
-          return itemCopy;
+    // Only consider tables that the enemy has access to
+    for (const tableId of availableTables) {
+      if (baseChances[tableId]) {
+        let chance = baseChances[tableId];
+        
+        // Higher tier tables get more bonus from luck
+        if (tableId === 'legendary_loot') {
+          chance += rarityBonus * 3;
+        } else if (tableId === 'epic_loot') {
+          chance += rarityBonus * 2;
+        } else if (tableId === 'advanced_loot') {
+          chance += rarityBonus;
         }
+        
+        tableChances.push({ tableId, chance });
       }
     }
     
-    console.error(`Item ${itemId} not found in any loot table.`);
-    return null;
+    // Sort by chance (lowest to highest)
+    tableChances.sort((a, b) => a.chance - b.chance);
+    
+    // Roll for table
+    const roll = Math.random();
+    let accumulatedChance = 0;
+    
+    for (const entry of tableChances) {
+      accumulatedChance += entry.chance;
+      if (roll < accumulatedChance) {
+        return entry.tableId;
+      }
+    }
+    
+    // Fallback to first table in the list
+    return availableTables[0];
+  }
+
+  selectItemFromTable(tableId) {
+    const table = this.lootTables[tableId];
+    if (!table || !table.items || table.items.length === 0) {
+      return null;
+    }
+    
+    // Select a random item from the table
+    const index = Math.floor(Math.random() * table.items.length);
+    const item = table.items[index];
+    
+    // Set quantity if not specified
+    if (!item.quantity) {
+      item.quantity = 1;
+    }
+    
+    return { ...item };
   }
 }

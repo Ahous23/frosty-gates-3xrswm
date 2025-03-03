@@ -12,6 +12,7 @@ import { UIManager } from './js/ui.js';
 import { GameLogic } from './js/gameLogic.js';
 import { InputHandlers } from './js/inputHandlers.js';
 import { CombatSystem } from './js/combat.js';
+import { LootSystem } from './js/lootSystem.js';
 
 class TextGame {
   constructor() {
@@ -41,6 +42,7 @@ class TextGame {
     this.gameInput = document.getElementById("gameInput");
     this.audioManager = new AudioManager();
     this.uiManager = new UIManager(this.gameOutput, this.gameInput);
+    this.lootSystem = new LootSystem(this);
     this.gameLogic = new GameLogic(this);
     this.inputHandlers = new InputHandlers(this);
     this.combatSystem = new CombatSystem(this);
@@ -88,8 +90,19 @@ class TextGame {
     this.uiManager.clearOutput();
     this.uiManager.print("Welcome to Olaf vs Bears", "system-message");
     this.uiManager.print("Loading game content...", "system-message");
-    await this.loadStoryIndex();
-    this.showTitleScreen();
+    
+    try {
+      // Initialize loot system first
+      await this.lootSystem.initialize();
+      console.log("Loot system initialized with enemies:", Object.keys(this.lootSystem.enemies));
+      
+      // Then load story content
+      await this.loadStoryIndex();
+      this.showTitleScreen();
+    } catch (error) {
+      console.error("Error during initialization:", error);
+      this.uiManager.print("Error loading game resources. Please refresh the page.", "error-message");
+    }
   }
 
   async showTitleScreen() {

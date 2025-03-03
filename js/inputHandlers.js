@@ -60,6 +60,12 @@ export class InputHandlers {
       case "errorRecovery":
         this.handleErrorRecoveryInput(input);
         break;
+      case "combat":
+        this.handleCombatInput(input);
+        break;
+      case "combat-item":
+        this.handleCombatItemInput(input);
+        break;
     }
   }
 

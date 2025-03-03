@@ -1,1 +1,50 @@
-{  "table_name": "mid_tier_loot",  "items": [    {      "id": "healing_potion",      "name": "Healing Potion",      "description": "A standard potion that restores a moderate amount of health.",      "category": "consumable",      "icon": "🧪",      "quantity": 1,      "stackable": true,      "chance": 25,      "effects": {        "heal": 40      }    },    {      "id": "bear_claw_dagger",      "name": "Bear Claw Dagger",      "description": "A dagger with a handle made from bone and a blade fashioned from a large bear claw.",      "category": "weapon",      "icon": "🗡️",      "damage": 12,      "quantity": 1,      "stackable": false,      "chance": 18    },    {      "id": "leather_armor_piece",      "name": "Leather Armor Piece",      "description": "A well-crafted piece of leather armor. Offers light protection.",      "category": "armor",      "icon": "🛡️",      "defense": 3,      "quantity": 1,      "stackable": false,      "chance": 20    },    {      "id": "bear_tooth_necklace",      "name": "Bear Tooth Necklace",      "description": "A necklace made from bear teeth. Surprisingly well crafted.",      "category": "accessory",      "icon": "📿",      "quantity": 1,      "stackable": false,      "chance": 15,      "effects": {        "luck": 1      }    },    {      "id": "silver_coin",      "name": "Silver Coins",      "description": "A small handful of silver coins.",      "category": "currency",      "icon": "🪙",      "quantity": 3,      "stackable": true,      "chance": 30    },    {      "id": "crystal_fragment",      "name": "Crystal Fragment",      "description": "A small fragment of a strange blue crystal. It pulses with faint energy.",      "category": "material",      "icon": "💎",      "quantity": 1,      "stackable": true,      "chance": 10    }  ]}
+{
+  "table_name": "mid_tier_loot",
+  "name": "Mid-Tier Loot",
+  "description": "Uncommon items that can be found on stronger enemies",
+  "items": [
+    {
+      "id": "health_potion",
+      "name": "Health Potion",
+      "description": "A standard healing potion that restores health.",
+      "quantity": 1,
+      "stackable": true,
+      "category": "consumable",
+      "effects": {
+        "heal": 40
+      },
+      "value": 25
+    },
+    {
+      "id": "bear_tooth_necklace",
+      "name": "Bear Tooth Necklace",
+      "description": "A necklace made from bear teeth. Increases your intimidation factor.",
+      "quantity": 1,
+      "stackable": false,
+      "category": "accessory",
+      "effects": {
+        "charisma": 1
+      },
+      "value": 30
+    },
+    {
+      "id": "spiked_club",
+      "name": "Spiked Club",
+      "description": "A wooden club with metal spikes embedded in it.",
+      "quantity": 1,
+      "stackable": false,
+      "category": "weapon",
+      "damage": 12,
+      "value": 40
+    },
+    {
+      "id": "bear_pelt",
+      "name": "Bear Pelt",
+      "description": "The hide of a bear warrior. Could be useful for crafting.",
+      "quantity": 1,
+      "stackable": true,
+      "category": "material",
+      "value": 20
+    }
+  ]
+}
