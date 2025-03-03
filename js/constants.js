@@ -8,3 +8,9 @@ export const initialPlayerStats = {
 
 export const typingSpeed = 30; // milliseconds per character
 export const availableStatPoints = 10;
+
+// Combat and progression constants
+export const initialPlayerHealth = 100;
+export const maxPlayerHealth = 100;
+export const initialPlayerXp = 0;
+export const xpPerLevel = 100; // XP needed for each level
