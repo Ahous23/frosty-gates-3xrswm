@@ -314,7 +314,7 @@ export class CombatSystem {
       
       // Add the loot to inventory
       if (loot && loot.length > 0) {
-        this.game.addItemsToInventory(loot);
+        this.addItemsToInventory(loot);
         this.game.uiManager.print("\nYou found:", "system-message");
         loot.forEach(item => {
           this.game.uiManager.print(`- ${item.name} ${item.quantity > 1 ? `(x${item.quantity})` : ""}`, "item-name");
@@ -341,6 +341,33 @@ export class CombatSystem {
     }
   }
 
+  // Add helper method to safely add items to inventory
+  addItemsToInventory(items) {
+    // Make sure inventory exists
+    if (!this.game.inventory) {
+      this.game.inventory = [];
+    }
+    
+    // Add each item to inventory
+    items.forEach(newItem => {
+      // Make sure quantity is defined
+      if (!newItem.quantity) {
+        newItem.quantity = 1;
+      }
+      
+      // Check if item already exists in inventory
+      const existingItem = this.game.inventory.find(item => item.id === newItem.id);
+      
+      if (existingItem) {
+        // If item exists, increment quantity
+        existingItem.quantity += newItem.quantity;
+      } else {
+        // Otherwise add new item
+        this.game.inventory.push({...newItem});
+      }
+    });
+  }
+  
   calculateXpReward() {
     // Base XP based on enemy health and attack
     return Math.floor(
