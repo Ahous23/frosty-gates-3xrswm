@@ -1,4 +1,12 @@
-import { initialPlayerStats, typingSpeed, availableStatPoints, initialPlayerHealth, initialPlayerXp } from './js/constants.js';
+import { 
+  initialPlayerStats, 
+  typingSpeed, 
+  availableStatPoints,
+  initialPlayerHealth, 
+  maxPlayerHealth,
+  initialPlayerXp,
+  xpPerLevel
+} from './js/constants.js';
 import { AudioManager } from './js/audio.js';
 import { UIManager } from './js/ui.js';
 import { GameLogic } from './js/gameLogic.js';
@@ -16,6 +24,12 @@ class TextGame {
       availableStatPoints: 0
     };
     this.availableStatPoints = availableStatPoints;
+    this.initialPlayerStats = initialPlayerStats;
+    this.initialPlayerHealth = initialPlayerHealth;
+    this.maxPlayerHealth = maxPlayerHealth;
+    this.initialPlayerXp = initialPlayerXp;
+    this.xpPerLevel = xpPerLevel;
+    
     this.inventory = [];
     this.storyContent = {};
     this.storyIndex = null;

@@ -13,6 +13,15 @@ export class InputHandlers {
     this.game.combatSystem.useItem(input);
   }
   
+  // New method for initial stat allocation at game start
+  showInitialStatAllocation() {
+    this.game.uiManager.clearOutput();
+    this.game.uiManager.print("Welcome, brave adventurer!", "system-message");
+    this.game.uiManager.print("Before your journey begins, allocate your character stats:", "system-message");
+    this.showStats();
+    this.game.uiManager.print("\nType 'start' or 'done' when you're ready to begin your adventure.", "system-message");
+  }
+  
   handleInput() {
     if (this.game.isTyping) return; // Don't process input while text is typing
 
@@ -94,9 +103,17 @@ export class InputHandlers {
   handleStatInput(input) {
     const inputLower = input.toLowerCase();
     
-    if (inputLower === "back") {
-      this.game.inputMode = this.game.previousMode || "normal";
-      this.game.uiManager.print("Returning to game.", "system-message");
+    if (inputLower === "back" || inputLower === "start" || inputLower === "done") {
+      if (this.game.previousMode === "normal" && !this.game.currentScene) {
+        // If this is the initial stat allocation, start the game
+        this.game.currentScene = "intro";
+        this.game.inputMode = "normal";
+        this.game.uiManager.print("\nYour adventure begins...\n", "system-message");
+        setTimeout(() => this.game.playScene(), 1500);
+      } else {
+        this.game.inputMode = this.game.previousMode || "normal";
+        this.game.uiManager.print("Returning to game.", "system-message");
+      }
       return;
     }
     
@@ -123,8 +140,14 @@ export class InputHandlers {
           this.game.availableStatPoints--;
         }
         
-        this.game.uiManager.print(`Increased ${inputLower} to ${this.game.playerStats[inputLower]}.`, "system-message");
-        this.showStats();
+        // Clear output and refresh stats display to show real-time changes
+        this.game.uiManager.clearOutput();
+        if (!this.game.currentScene) {
+          this.showInitialStatAllocation();
+        } else {
+          this.game.uiManager.print(`Increased ${inputLower} to ${this.game.playerStats[inputLower]}.`, "system-message");
+          this.showStats();
+        }
       } else {
         this.game.uiManager.print("You don't have any stat points available.", "error-message");
       }
@@ -204,10 +227,14 @@ export class InputHandlers {
 
     // Reset player stats to default
     this.game.playerStats = { ...this.game.initialPlayerStats };
-    this.game.availableStatPoints = 10;
+    this.game.availableStatPoints = this.game.availableStatPoints;
+    this.game.gameState.playerHealth = this.game.initialPlayerHealth;
+    this.game.gameState.playerXp = this.game.initialPlayerXp;
 
-    this.game.currentScene = "intro";
-    this.game.gameLogic.playScene();
+    // Show initial stat allocation screen
+    this.game.inputMode = "stats";
+    this.game.previousMode = "normal";
+    this.showInitialStatAllocation();
   }
 
   async showLoadGamePrompt() {
@@ -245,12 +272,12 @@ export class InputHandlers {
     });
     
     // Display health separately since it's in gameState
-    this.game.uiManager.print(`health: ${this.game.gameState.playerHealth || 100}/100`, "player-stat");
+    this.game.uiManager.print(`health: ${this.game.gameState.playerHealth || this.game.initialPlayerHealth}/${this.game.maxPlayerHealth || 100}`, "player-stat");
     
     // Show XP and level if they exist
     if (this.game.gameState.playerXp !== undefined) {
-      const level = Math.floor(this.game.gameState.playerXp / 100);
-      const nextLevelXp = (level + 1) * 100;
+      const level = Math.floor(this.game.gameState.playerXp / (this.game.xpPerLevel || 100));
+      const nextLevelXp = (level + 1) * (this.game.xpPerLevel || 100);
       this.game.uiManager.print(`XP: ${this.game.gameState.playerXp}/${nextLevelXp} (Level ${level})`, "player-stat");
     }
     
@@ -264,8 +291,6 @@ export class InputHandlers {
     if (availablePoints > 0) {
       this.game.uiManager.print("Type a stat name to increase it (e.g., 'attack').", "system-message");
     }
-    
-    this.game.uiManager.print("Type 'back' to return to the game.", "system-message");
   }
 
   showHelp() {
@@ -279,13 +304,13 @@ export class InputHandlers {
   }
 
   showStatHelp() {
-    this.game.uiManager.print("\n===== STAT ALLOCATION =====", "system-message");
-    this.game.uiManager.print("Type a stat name to increase it:", "help-text");
-    Object.keys(this.game.playerStats).forEach((stat) => {
-      this.game.uiManager.print(`- ${stat}`, "help-text");
-    });
-    this.game.uiManager.print("Type 'confirm' when finished", "help-text");
-    this.game.uiManager.print(`Available points: ${this.game.availableStatPoints}`, "system-message");
+    this.game.uiManager.print("\nStat Help:", "system-message");
+    this.game.uiManager.print("- attack: Increases damage dealt with weapons", "help-text");
+    this.game.uiManager.print("- defense: Reduces damage taken from enemies", "help-text");
+    this.game.uiManager.print("- charisma: Improves dialogue options and trading", "help-text");
+    this.game.uiManager.print("- speed: Determines who attacks first in combat", "help-text");
+    this.game.uiManager.print("- luck: Increases critical hit chance and finding items", "help-text");
+    this.game.uiManager.print("\nType a stat name to increase it, or 'back' to return.", "system-message");
   }
 
   showInventoryHelp() {
