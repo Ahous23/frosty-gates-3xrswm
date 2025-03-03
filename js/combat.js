@@ -10,15 +10,39 @@ export class CombatSystem {
     this.maxPlayerHealth = maxPlayerHealth;
   }
 
-  initiateCombat(enemy) {
+  async initiateCombat(enemy) {
     this.inCombat = true;
     
     // Debug log to see what's being passed
     console.log("Initiating combat with:", enemy);
     
-    // If enemy is a string ID, try to fetch from loot system
-    if (typeof enemy === 'string' && this.game.lootSystem) {
-      const enemyData = this.game.lootSystem.getEnemy(enemy);
+    // If enemy is a string ID, try to fetch from loot system first
+    if (typeof enemy === 'string') {
+      let enemyData = null;
+      
+      // Try loot system first
+      if (this.game.lootSystem) {
+        enemyData = this.game.lootSystem.getEnemy(enemy);
+      }
+      
+      // If not found in loot system, try loading directly from file
+      if (!enemyData) {
+        try {
+          const response = await fetch(`/enemies/${enemy}.json`);
+          if (response.ok) {
+            enemyData = await response.json();
+            // Make sure it has an ID
+            if (!enemyData.id) {
+              enemyData.id = enemy;
+            }
+          } else {
+            console.error(`Failed to fetch enemy ${enemy}: ${response.status}`);
+          }
+        } catch (fetchError) {
+          console.error(`Error loading enemy ${enemy}:`, fetchError);
+        }
+      }
+      
       console.log("Fetched enemy data:", enemyData);
       if (enemyData) {
         enemy = enemyData;
@@ -36,6 +60,18 @@ export class CombatSystem {
         attack: 8,
         defense: 3,
         speed: 4
+      };
+    }
+    
+    // Select a random weapon for the enemy if available
+    if (enemy.weapons && enemy.weapons.length > 0) {
+      const randomIndex = Math.floor(Math.random() * enemy.weapons.length);
+      enemy.currentWeapon = enemy.weapons[randomIndex];
+    } else {
+      // Default weapon if none specified
+      enemy.currentWeapon = {
+        name: "fists",
+        damage: enemy.attack || 5
       };
     }
     
@@ -110,6 +146,13 @@ export class CombatSystem {
     const attackBonus = baseDamage * (this.game.playerStats.attack * 0.01);
     let damage = baseDamage + attackBonus;
     
+    // Add damage variation based on attack stat
+    const variationRange = baseDamage * 0.2; // Base range is ±20% of base damage
+    const attackFactor = Math.min(1, this.game.playerStats.attack / 100);
+    const finalVariationRange = variationRange * (1.2 - attackFactor * 0.7); // Higher attack = more consistent
+    const variation = (Math.random() * 2 - 1) * finalVariationRange;
+    damage += variation;
+    
     // Check for critical hit
     const criticalChance = Math.min(this.game.playerStats.luck * 0.008, 0.2); // Max 20% chance
     const isCritical = Math.random() < criticalChance;
@@ -158,9 +201,14 @@ export class CombatSystem {
       // Apply damage to player
       this.game.gameState.playerHealth -= damage;
     } else {
-      // Normal enemy combat
-      // Calculate enemy damage
-      let damage = this.currentEnemy.attack;
+      // Get enemy weapon damage (fallback to attack stat if needed)
+      let baseDamage = this.currentEnemy.currentWeapon ? 
+            this.currentEnemy.currentWeapon.damage : this.currentEnemy.attack;
+      
+      // Add variation based on enemy's attack stat (±15% by default)
+      const variationRange = baseDamage * 0.15;
+      const variation = (Math.random() * 2 - 1) * variationRange;
+      let damage = baseDamage + variation;
       
       // Apply player defense reduction
       const defenseReduction = damage * (this.game.playerStats.defense * 0.01);
@@ -170,8 +218,10 @@ export class CombatSystem {
       // Apply damage to player
       this.game.gameState.playerHealth -= damage;
       
-      // Display results
-      this.game.uiManager.print(`${this.currentEnemy.name} attacks you for ${damage} damage!`, "enemy-attack");
+      // Display results with weapon name if available
+      const weaponName = this.currentEnemy.currentWeapon ? 
+            `with their ${this.currentEnemy.currentWeapon.name}` : "";
+      this.game.uiManager.print(`${this.currentEnemy.name} attacks you ${weaponName} for ${damage} damage!`, "enemy-attack");
     }
     
     // Check if player defeated
@@ -204,6 +254,12 @@ export class CombatSystem {
     this.game.uiManager.print(`Attack: ${this.currentEnemy.attack}`, "enemy-stat");
     this.game.uiManager.print(`Defense: ${this.currentEnemy.defense}`, "enemy-stat");
     this.game.uiManager.print(`Speed: ${this.currentEnemy.speed}`, "enemy-stat");
+    
+    // Show enemy weapon if available
+    if (this.currentEnemy.currentWeapon) {
+      this.game.uiManager.print(`Weapon: ${this.currentEnemy.currentWeapon.name} (${this.currentEnemy.currentWeapon.damage} damage)`, "enemy-stat");
+    }
+    
     this.game.uiManager.print(`${this.currentEnemy.description}\n`, "enemy-description");
     
     // Return to combat options
@@ -307,6 +363,9 @@ export class CombatSystem {
       let loot = [];
       if (this.game.lootSystem && this.currentEnemy.id) {
         loot = this.game.lootSystem.generateLootFromEnemy(this.currentEnemy.id);
+      } else if (this.currentEnemy.guaranteedLoot) {
+        // Use guaranteed loot from enemy definition
+        loot = this.currentEnemy.guaranteedLoot;
       } else if (this.currentEnemy.loot) {
         // Fallback to the old loot system
         loot = this.currentEnemy.loot;

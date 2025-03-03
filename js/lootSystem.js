@@ -6,9 +6,13 @@ export class LootSystem {
   }
 
   async initialize() {
-    await this.loadLootTables();
-    await this.loadEnemies();
-    return true;
+    try {
+      await this.loadEnemies();
+      await this.loadLootTables();
+      return true;
+    } catch (error) {
+      console.error("Error initializing loot system:", error);
+    }
   }
 
   async loadLootTables() {
@@ -27,29 +31,34 @@ export class LootSystem {
 
   async loadEnemies() {
     try {
-      const response = await fetch('enemies/index.json');
+      const response = await fetch('/enemies/index.json');
       if (!response.ok) throw new Error(`Failed to fetch enemy index: ${response.status}`);
       const enemyList = await response.json();
       
-      for (const enemyId of enemyList.enemies) {
-        await this.loadEnemy(enemyId);
+      if (Array.isArray(enemyList.enemies)) {
+        await Promise.all(enemyList.enemies.map(enemyId => this.loadEnemy(enemyId)));
+      } else if (enemyList.enemies && Array.isArray(enemyList.enemies)) {
+        enemyList.enemies.forEach(enemy => {
+          if (enemy.id) {
+            this.enemies[enemy.id] = enemy;
+          }
+        });
       }
     } catch (error) {
       console.error('Failed to load enemy index:', error);
-      // Fallback: Try to load some basic enemy types directly
-      await this.loadEnemy('bear_warrior_weak');
-      await this.loadEnemy('bear_warrior');
-      await this.loadEnemy('bear_berserker');
-      await this.loadEnemy('bear_shaman');
-      await this.loadEnemy('bear_chieftain');
     }
   }
 
   async loadEnemy(enemyId) {
     try {
-      const response = await fetch(`enemies/${enemyId}.json`);
+      const response = await fetch(`/enemies/${enemyId}.json`);
       if (!response.ok) throw new Error(`Failed to fetch enemy data: ${response.status}`);
       const data = await response.json();
+      
+      if (!data.id) {
+        data.id = enemyId;
+      }
+      
       this.enemies[enemyId] = data;
       return data;
     } catch (error) {
