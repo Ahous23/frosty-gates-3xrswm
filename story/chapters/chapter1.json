@@ -23,7 +23,33 @@
     },
     "preparation_vengeance": {
       "text": "\"I will hunt them down,\" you declare, your voice steady despite the rage burning inside. \"I will make them pay for what they've done.\"\n\nElder Hulda nods gravely. \"Vengeance is a path that can consume you, Olaf. But these are not normal times.\"\n\nMagnus approaches, offering you a hunting knife. \"Your father taught you well, but you'll need more than skill to face these bears. Take this - it was your father's skinning knife. Sharp enough to pierce bear hide.\"\n\nKarina, the village healer and your childhood friend, pushes through the crowd. Her eyes are red from crying - her father was also killed in the attack.\n\n\"You're not going alone,\" she insists, pressing a small pouch of herbs into your hand. \"Healing salve. And...\" she hesitates, \"I'm coming with you.\"\n\nBefore you can respond, Thrain the blacksmith's hammer rings out against the meeting table. \"If you're hunting bear warriors, you'll need a proper weapon.\" He produces a gleaming axe, smaller than your father's but expertly crafted. \"I was making this for your naming day next month. Take it now, with my blessing.\"",
-      "nextScene": "departure_choices"
+      "loot": [
+        {
+          "id": "fathers_knife",
+          "name": "Father's Skinning Knife",
+          "category": "weapon",
+          "damage": 7,
+          "description": "A well-maintained hunting knife that belonged to your father."
+        },
+        {
+          "id": "healing_salve_minor",
+          "name": "Minor Healing Salve",
+          "category": "consumable",
+          "quantity": 3,
+          "description": "A herbal paste that can treat wounds.",
+          "effects": {
+            "heal": 15
+          }
+        },
+        {
+          "id": "steel_hand_axe",
+          "name": "Steel Hand Axe",
+          "category": "weapon",
+          "damage": 10,
+          "description": "A finely crafted axe from Thrain's forge."
+        }
+      ],
+      "nextScene": "village_outskirts"
     },
     "preparation_investigation": {
       "text": "\"We can't fight what we don't understand,\" you say thoughtfully. \"There must be a reason for this change in the bears. If we discover the cause, perhaps we can stop it.\"\n\nElder Hulda smiles faintly. \"Wisdom beyond your years, Olaf. Your mother would be proud.\"\n\nSigrid the Sage, an old woman who lives at the edge of the village, speaks up. \"The bears' transformation is unnatural. In my scrolls, there are tales of ancient magics that can twist beasts into something more. I can help you understand what we're facing.\"\n\nMagnus scoffs. \"Scrolls won't stop bear claws, old woman.\"\n\n\"But they might tell us where to look,\" you counter. \"I'll need both knowledge and strength for this journey.\"\n\nKarina joins the conversation. \"The western traders spoke of a hermit living in the mountains who studies the wild creatures. He might know something about these bears.\"\n\nThrain approaches with a sturdy shield. \"Knowledge is well and good, but take this too. It was your father's when he was younger - light enough to carry on a long journey, strong enough to stop a bear's swing.\"",
@@ -50,9 +76,48 @@
         }
       ]
     },
+    "village_outskirts": {
+      "text": "As you and Karina leave Frostpeak, you notice fresh tracks in the mud - large paw prints walking on two legs rather than four. A bear scout may have been watching the village.\n\n\"They're monitoring us,\" you mutter, kneeling to examine the prints.\n\nKarina readies her crossbow nervously. \"How close do you think—\"\n\nA growl interrupts her as a young bear warrior emerges from the treeline, crude spear in hand. Its eyes widen with surprise - it wasn't expecting anyone to leave the village.\n\n\"It must be a scout,\" you whisper, readying your new axe. \"We can't let it report back to the others.\"",
+      "combat": {
+        "enemy": "bear_warrior_weak",
+        "nextScene": "after_scout_battle",
+        "defeatScene": "game_over_village_outskirts"
+      }
+    },
+    "after_scout_battle": {
+      "text": "The young bear warrior collapses, its final breath escaping in a strange, almost human sound. You search its crude pack, finding some useful items.\n\n\"We should move quickly,\" Karina says, looking nervously toward the forest. \"There may be more nearby.\"\n\nYou nod, pocketing what you've found. \"If they have scouts watching the village, they're more organized than we thought. We need to be careful.\"",
+      "loot": [
+        {
+          "id": "bear_scout_map",
+          "name": "Bear Scout Map",
+          "category": "quest",
+          "description": "A crude map showing patrol routes and village locations."
+        },
+        {
+          "id": "strength_paste",
+          "name": "Bear Warrior Strength Paste",
+          "category": "consumable",
+          "quantity": 1,
+          "description": "A pungent paste bears use before battle.",
+          "effects": {
+            "temp_attack_boost": 5,
+            "duration": "battle"
+          }
+        }
+      ],
+      "nextScene": "departure_choices"
+    },
     "hunters_outpost_approach": {
       "text": "You and Karina travel east through sparse woodlands toward the hunter's outpost. Normally bustling with activity before hunting season, the outpost should have at least a dozen experienced trackers who patrol these borders.\n\n\"My brother Jorik was stationed here,\" Karina says as you crest the final hill. \"He hasn't been home in two months, but that's normal for—\"\n\nShe stops mid-sentence. Below you, the outpost is in disarray. No smoke rises from the chimney. The gate hangs open, splintered.\n\n\"Something's wrong,\" you whisper, drawing your weapon.\n\nAs you approach cautiously, you notice large tracks in the mud - bear prints, but deeper than normal, as if the creatures were walking on two legs, carrying something heavy. The prints lead both to and from the outpost.\n\n\"Olaf...\" Karina points to a dark stain on the ground. Blood, not fresh but not old either.\n\nThe attack here may have happened days before your village was raided.",
-      "nextScene": "hunters_outpost_investigation"
+      "nextScene": "hunters_outpost_exterior"
+    },
+    "hunters_outpost_exterior": {
+      "text": "As you approach the outpost's broken gate, a low growl freezes you in your tracks. Two transformed wolves prowl the perimeter, likely left by the bears to guard against survivors or rescuers.\n\nThey spot you immediately, baring teeth as unnaturally intelligent eyes assess the threat you pose. These are no ordinary wolves - they move with coordinated precision as they fan out to surround you.\n\n\"Back to back!\" you tell Karina, as the larger wolf lunges forward.",
+      "combat": {
+        "enemy": "wolf_scout",
+        "nextScene": "hunters_outpost_investigation",
+        "defeatScene": "game_over_outpost_exterior"
+      }
     },
     "hunters_outpost_investigation": {
       "text": "The outpost is eerily silent as you enter through the broken gate. The main lodge shows signs of a fierce struggle - overturned tables, broken weapons, and more bloodstains. But strangely, you find no bodies.\n\n\"They took them,\" Karina whispers, her voice tight with fear. \"The bears took the hunters.\"\n\nIn one corner, you find a journal belonging to the outpost captain. The last entry, dated just five days ago, mentions increased bear sightings with unusual behavior - bears watching the outpost from a distance, seemingly communicating with each other, and carrying crude spears.\n\n\"Listen to this,\" you say, reading aloud. \"'Sent Rolfson and two others to track the bears back to their den. They should have returned yesterday. Fear the worst. Will send another party at dawn if they don't return tonight.'\"\n\nA sudden noise from the back room makes both of you freeze. Someone - or something - is still here.",
@@ -85,6 +150,36 @@
     },
     "jorik_information": {
       "text": "With Jorik's wounds treated, you help him sit up against the wall. Though pale and weak, his eyes are clear as he shares what he knows.\n\n\"The bears have established a main camp deep in Wispwood Forest, near the ancient stone circle. They're organized into different... I suppose you'd call them castes or roles. Warriors, hunters, even what seemed like shamans.\"\n\nHe takes a painful breath before continuing. \"They took most of our hunters alive. I escaped during the journey because they were... distracted by something. I think they're collecting people from all the surrounding settlements.\"\n\nKarina gives her brother more water. \"But why? What do they want with prisoners?\"\n\nJorik shakes his head. \"I don't know. But they're taking them all to the stone circle. And there's someone leading them - a massive bear they seem to revere. Twice the size of the others, with a coat as white as snow. The others bow to it.\"\n\nHe grabs your arm suddenly. \"And Olaf - I saw your father's medallion around its neck. The one with your family's crest.\"",
+      "nextScene": "outpost_supplies"
+    },
+    "outpost_supplies": {
+      "text": "\"Before we make any decisions,\" you say to Karina, \"let's see if there are any supplies left that might help us.\"\n\nSearching through the outpost, you find the storage room partially ransacked. Most of the weapons are gone, but the bears overlooked a hidden compartment beneath a loose floorboard where the hunters kept emergency supplies.\n\n\"Jorik showed me this hiding spot last time I visited,\" Karina explains, pulling up the board.\n\nInside, you find several useful items that could aid your mission.",
+      "loot": [
+        {
+          "id": "hunters_bow",
+          "name": "Hunter's Composite Bow",
+          "category": "weapon",
+          "damage": 12,
+          "description": "A finely crafted bow made for hunting large game."
+        },
+        {
+          "id": "stamina_potion",
+          "name": "Stamina Potion",
+          "category": "consumable",
+          "quantity": 2,
+          "description": "A bitter potion that sustains energy on long hunts.",
+          "effects": {
+            "temp_speed_boost": 3,
+            "duration": "battle"
+          }
+        },
+        {
+          "id": "tracking_kit",
+          "name": "Hunter's Tracking Kit",
+          "category": "quest",
+          "description": "Tools for tracking beasts through difficult terrain."
+        }
+      ],
       "nextScene": "outpost_decision"
     },
     "outpost_decision": {
@@ -183,6 +278,204 @@
           "nextScene": "escape_to_ridge"
         }
       ]
+    },
+    "defending_varric": {
+      "text": "\"I won't leave you to face them alone,\" you tell Varric, readying your weapon.\n\nThe hermit looks surprised but nods gratefully. \"The center bear is the leader,\" he whispers. \"Take him down first.\"\n\nWith Karina providing covering fire from the rocks above, you and Varric prepare to meet the approaching bears. To your surprise, the old hermit pulls a gnarled staff from his back, gripping it with practiced ease.\n\n\"I wasn't always a hermit,\" he explains with a wry smile, seeing your expression.\n\nThe three bear warriors burst into the clearing, and the largest - a scarred veteran with a necklace of human teeth - lets out a roar of triumph upon seeing you.",
+      "combat": {
+        "enemy": "bear_captain",
+        "nextScene": "after_defending_varric",
+        "defeatScene": "game_over_mountain"
+      }
+    },
+    "after_defending_varric": {
+      "text": "The last bear falls under Varric's surprisingly powerful staff strike. The hermit is breathing hard but unharmed.\n\n\"Been some time since I've had to do that,\" he says, leaning on his staff. \"Before I chose the hermit's path, I was a warrior-monk in the eastern temples.\"\n\nKarina climbs down from her position. \"That explains a lot.\"\n\nVarric kneels beside the dead bear leader, removing a pouch from its belt. \"Here,\" he says, handing it to you. \"These might prove useful. Bearsbane roots, already prepared. And take this too - it will help against their shaman's magic.\"",
+      "loot": [
+        {
+          "id": "bearsbane_pouch",
+          "name": "Prepared Bearsbane",
+          "category": "consumable",
+          "quantity": 3,
+          "description": "Processed roots that disorient bears when burned.",
+          "effects": {
+            "bear_confusion": true,
+            "duration": "encounter"
+          }
+        },
+        {
+          "id": "warding_amulet",
+          "name": "Hermit's Warding Amulet",
+          "category": "accessory",
+          "description": "A simple stone amulet that offers magical protection.",
+          "effects": {
+            "magic_resistance": 20
+          }
+        }
+      ],
+      "nextScene": "hermit_final_advice"
+    },
+    "escape_to_ridge": {
+      "text": "You follow Varric's advice, slipping away while the bears are distracted by his diversion. The path ahead is treacherous, but you move quickly, knowing the bears will soon realize the ruse.\n\nKarina keeps pace beside you, her crossbow at the ready. \"I hope Varric knows what he's doing,\" she mutters.\n\nThe forest grows denser as you descend into a narrow ravine, the sound of rushing water growing louder. You follow the stream, using it to mask your scent and cover your tracks.\n\nBy dawn, you reach the western ridge, exhausted but unharmed. Varric is already there, waiting with his eagle perched on his shoulder.\n\n\"You made it,\" he says with a relieved smile. \"Good. Now we can focus on the task at hand.\"",
+      "nextScene": "hermit_final_advice"
+    },
+    "hermit_final_advice": {
+      "text": "\"The stone circle is heavily guarded,\" Varric tells you as you gather your belongings. \"But there's an underground passage the bears don't know about - an ancient tunnel that leads directly beneath the circle.\"\n\nHe sketches a rough map on a piece of bark. \"Here, at the base of the great oak to the east of the circle. The entrance is hidden under roots and stones. It was used by the original builders for secret ceremonies.\"\n\nKarina studies the map. \"This could be our way in without fighting through all their guards.\"\n\nVarric nods. \"I'll create a distraction to the west. When you hear the eagle's cry three times, that's your signal to enter the tunnel.\" He hands you a final gift. \"And take this. It's the last of my spirit essence - drinking it will temporarily allow you to understand their speech perfectly. Choose when to use it wisely.\"",
+      "loot": [
+        {
+          "id": "spirit_essence",
+          "name": "Spirit Essence",
+          "category": "consumable",
+          "quantity": 1,
+          "description": "A shimmering blue liquid that connects to the bear spirit.",
+          "effects": {
+            "bear_speech": true,
+            "duration": "scene"
+          }
+        },
+        {
+          "id": "tunnel_map",
+          "name": "Secret Tunnel Map",
+          "category": "quest",
+          "description": "A map showing a hidden passage under the stone circle."
+        }
+      ],
+      "nextScene": "approach_to_stone_circle"
+    },
+    "approach_to_stone_circle": {
+      "text": "Following Varric's map, you and Karina make your way through the deepest part of Wispwood Forest. The ancient trees tower overhead, blocking out most of the sunlight.\n\n\"There,\" Karina whispers, pointing ahead. \"The great oak he mentioned.\"\n\nAs you approach the massive tree, you suddenly hear movement in the underbrush. A bear patrol emerges from the trees - four warriors led by a particularly fierce-looking bear wearing decorative armor made from human shields and helmets.\n\n\"Down!\" you hiss, pulling Karina behind a fallen log.\n\nToo late. The lead bear sniffs the air and looks directly at your hiding place, letting out a warning growl to alert its companions.",
+      "combat": {
+        "enemy": "bear_berserker",
+        "nextScene": "finding_tunnel_entrance",
+        "defeatScene": "game_over_forest"
+      }
+    },
+    "finding_tunnel_entrance": {
+      "text": "With the bear patrol defeated, you quickly search for the tunnel entrance Varric described. Karina finds it first - a narrow opening beneath the massive roots of the great oak, cleverly concealed by stones and moss.\n\n\"They were guarding it,\" you realize. \"They must know about the tunnel after all.\"\n\n\"Then we need to hurry,\" Karina says, already slipping into the opening. \"There may be more inside.\"\n\nYou squeeze through after her, finding yourself in a cool, damp passage that slopes gently downward. Ancient roots form a natural ceiling, and the walls are lined with strange, faded carvings.\n\nA faint light glows ahead, illuminating what appears to be a small chamber. As you approach, you hear a low growling from within.",
+      "nextScene": "tunnel_guardian"
+    },
+    "tunnel_guardian": {
+      "text": "The chamber opens before you, illuminated by phosphorescent fungi growing along the walls. At its center stands what can only be described as a guardian - a bear warrior wearing ceremonial robes adorned with glowing runes, its eyes shining with an unnatural blue light.\n\n\"Desecrators,\" it growls in a voice that sounds almost human. \"You shall not pass the sacred threshold.\"\n\nUnlike the other bears you've encountered, this one seems calmer, more deliberate in its movements. It raises a staff topped with a glowing crystal, and the air around you grows heavy with strange energy.\n\n\"A shaman,\" Karina whispers. \"Like Varric described.\"\n\nThe bear guardian steps forward, blocking the passage beyond. \"Turn back, humans, or face the wrath of the ancient ones.\"",
+      "combat": {
+        "enemy": "bear_shaman",
+        "nextScene": "sacred_chamber",
+        "defeatScene": "game_over_tunnel"
+      }
+    },
+    "sacred_chamber": {
+      "text": "The bear shaman falls, its staff clattering to the stone floor. The blue light fades from its eyes, leaving them dull and lifeless.\n\n\"That was no ordinary bear,\" Karina says, kneeling to examine it. \"The magic that changed them runs deepest in creatures like this one.\"\n\nYou pick up the fallen staff, feeling a strange tingling sensation as your fingers close around it. The crystal at its tip pulses faintly in response to your touch.\n\nBeyond the chamber, the tunnel continues, eventually opening into a much larger space. Ancient stone pillars support a domed ceiling, and at the center stands a small altar covered in runes matching those on the bear shaman's robes.\n\n\"We must be directly beneath the stone circle now,\" you whisper, your voice echoing slightly despite your effort to keep quiet.\n\nOn the altar lies a collection of items that appear to be ceremonial in nature.",
+      "loot": [
+        {
+          "id": "shaman_staff",
+          "name": "Bear Shaman Staff",
+          "category": "weapon",
+          "damage": 15,
+          "description": "A staff imbued with primal magic.",
+          "effects": {
+            "magic_damage": 5
+          }
+        },
+        {
+          "id": "ritual_components",
+          "name": "Blood Moon Ritual Components",
+          "category": "quest",
+          "description": "Items needed for the bears' transformation ritual.",
+          "quantity": 1
+        },
+        {
+          "id": "spirit_protection_potion",
+          "name": "Spirit Protection Potion",
+          "category": "consumable",
+          "quantity": 2,
+          "description": "A potion that shields against spiritual attacks.",
+          "effects": {
+            "magic_defense_boost": 10,
+            "duration": "battle"
+          }
+        }
+      ],
+      "nextScene": "beneath_the_circle"
+    },
+    "beneath_the_circle": {
+      "text": "Examining the chamber more carefully, you notice a narrow staircase carved into the far wall, spiraling upward toward a faint source of light.\n\n\"That must lead up to the circle,\" you say, pointing.\n\nKarina nods, but hesitates. \"Wait, listen...\"\n\nFrom above, you hear the rhythmic pounding of drums and the chanting of many voices - or rather, many growls forming a pattern that approximates speech. The ritual must be beginning already.\n\n\"We need to disrupt it before it's complete,\" you say, moving toward the stairs.\n\nSuddenly, the chamber shakes as something heavy lands at the top of the staircase. Dust and small rocks shower down as heavy footsteps begin descending toward you.",
+      "nextScene": "staircase_defender"
+    },
+    "staircase_defender": {
+      "text": "A massive bear warrior appears on the stairs, nearly twice the size of the others you've faced. Its fur is decorated with bone fragments and small skulls, and it carries a huge maul fashioned from a tree trunk.\n\n\"The white one said someone might try to come this way,\" it growls, its voice surprisingly clear. \"I am Grommash, protector of the sacred ground.\"\n\nIt takes another step down, and you can see that one of its eyes is milky white - blind - while the other gleams with fierce intelligence.\n\n\"No one passes to disrupt the ritual,\" Grommash declares. \"The transformation will be complete tonight, and the age of humans will end.\"",
+      "combat": {
+        "enemy": "bear_berserker",
+        "nextScene": "ascend_to_circle",
+        "defeatScene": "game_over_staircase"
+      }
+    },
+    "ascend_to_circle": {
+      "text": "Grommash falls with a thunderous crash, his massive body blocking part of the staircase. You're breathing hard from the fierce battle, but there's no time to rest.\n\n\"The drums are getting faster,\" Karina observes, listening to the sounds from above. \"I think the ritual is reaching its climax.\"\n\nYou search Grommash's body quickly, finding a key fashioned from bone hanging around his neck. \"This might be important,\" you say, pocketing it.\n\nClimbing the stairs, you emerge through a hidden door set into one of the stone monoliths of the circle. From your concealed position, you can see the entire ritual unfolding.\n\nDozens of bears surround the central altar where the white bear stands, arms raised toward the darkening sky where the blood moon is beginning to rise. Human prisoners kneel in a smaller circle, bound and terrified.\n\n\"We need to free them,\" Karina whispers, \"but there are so many guards...\"\n\nYou notice a bear shaman moving among the prisoners, selecting the first sacrifice - an older man who struggles weakly against his bonds.",
+      "loot": [
+        {
+          "id": "bone_key",
+          "name": "Ritual Chamber Key",
+          "category": "quest",
+          "description": "A key that unlocks the prisoner cages.",
+          "quantity": 1
+        },
+        {
+          "id": "berserker_heart",
+          "name": "Berserker Heart",
+          "category": "quest",
+          "description": "The still-warm heart of a bear berserker.",
+          "quantity": 1
+        }
+      ],
+      "nextScene": "distraction_plan"
+    },
+    "distraction_plan": {
+      "text": "\"We need a distraction,\" you whisper to Karina. \"Something to draw away some of the guards so we can reach the prisoners.\"\n\nYou remember the bearsbane Varric gave you. If ignited near the edge of the clearing, the smoke could create confusion among the bears.\n\n\"I'll circle around and light the bearsbane,\" Karina offers. \"When they go to investigate, you can free the prisoners.\"\n\nBefore you can respond, a commotion erupts at the far side of the clearing. Flames suddenly leap up among the bears' supply tents, and familiar battle cries ring out.\n\n\"That's Thrain's voice!\" you exclaim in surprise. \"The village must have sent warriors!\"\n\nIndeed, fighting has broken out as a group of villagers attacks from the forest's edge. The bears roar in confusion and anger, many rushing to meet the new threat.\n\n\"This is our chance,\" you tell Karina. \"But we'll need to deal with the guards still watching the prisoners.\"",
+      "nextScene": "cage_guards"
+    },
+    "cage_guards": {
+      "text": "You slip from the stone monolith's shadow, circling toward the prisoner cage. Two bear warriors remain on guard, watching the battle unfolding at the edge of the clearing with obvious tension.\n\nOne of them spots you approaching and lets out a warning growl to its companion. Both turn to face you, the larger one stepping forward with a spiked club raised threateningly.\n\n\"For my father,\" you mutter, tightening your grip on your weapon as you charge forward.",
+      "combat": {
+        "enemy": "bear_warrior",
+        "nextScene": "freeing_prisoners",
+        "defeatScene": "game_over_cage"
+      }
+    },
+    "freeing_prisoners": {
+      "text": "The guards defeated, you quickly use the bone key to unlock the prisoner cage. Inside, terrified villagers from Frostpeak and surrounding settlements huddle together.\n\n\"Quickly,\" you urge them. \"Head for the forest's edge where our warriors are fighting. Stay low and move fast.\"\n\nAs the prisoners scramble to freedom, you scan the chaotic battlefield. The white bear still stands at the center of the stone circle, seemingly undisturbed by the fighting around it. A blue glow emanates from its paws where it holds what appears to be a glowing orb.\n\nKarina joins you, her crossbow at the ready. \"The ritual continues despite the battle,\" she says grimly. \"We need to stop the white bear directly.\"\n\nYou nod, but your path to the center is blocked by another bear - this one adorned with elaborate bone armor and wielding dual axes. Behind it stand two more warriors, their eyes fixed on you with obvious hatred.",
+      "nextScene": "honor_guard"
+    },
+    "honor_guard": {
+      "text": "\"The white bear's honor guard,\" Karina whispers. \"Elite warriors tasked with protecting their leader during the ritual.\"\n\nThe lead bear steps forward, its movements fluid and practiced. Unlike the other bears you've faced, this one shows no fear or hesitation - only cold determination.\n\n\"You have interfered in matters beyond your understanding, son of Bjorn,\" it growls, its speech clearer than any bear you've encountered. \"The transformation cannot be stopped. The forest will reclaim what was taken.\"\n\n\"How do you know who I am?\" you demand, raising your weapon.\n\nThe bear's mouth forms what might be a smile. \"Your father fought well before he fell. Perhaps you will provide more sport.\"",
+      "combat": {
+        "enemy": "bear_berserker",
+        "nextScene": "approaching_white_bear",
+        "defeatScene": "game_over_honor_guard"
+      }
+    },
+    "approaching_white_bear": {
+      "text": "The honor guard captain falls, and its companions retreat, melting into the chaos of the larger battle. Your path to the white bear now lies open.\n\nSearching the fallen captain, you find several useful items.",
+      "loot": [
+        {
+          "id": "honor_guard_axe",
+          "name": "Honor Guard Battle Axe",
+          "category": "weapon",
+          "damage": 18,
+          "description": "A fearsome axe wielded by the white bear's elite guard.",
+          "effects": {
+            "critical_chance": 5
+          }
+        },
+        {
+          "id": "battle_stimulant",
+          "name": "Bear Warrior Battle Stimulant",
+          "category": "consumable",
+          "quantity": 2,
+          "description": "A powerful concoction that enhances combat abilities.",
+          "effects": {
+            "temp_all_stats_boost": 5,
+            "duration": "battle"
+          }
+        }
+      ],
+      "nextScene": "stone_circle_battle"
     },
     "following_tracks": {
       "text": "\"The bears have our people,\" you say firmly. \"Every moment we waste, they're in greater danger.\"\n\nKarina nods, though you can see concern in her eyes. \"The tracks lead into the densest part of Wispwood. Few hunters venture there even in normal times.\"\n\nThe forest grows darker and more oppressive as you follow the trail left by the bear raiding party. What begins as broken branches and footprints soon becomes more disturbing evidence - torn clothing, abandoned weapons, and occasional blood splatters. The bears dragged their captives this way, but were organized enough to clean up most signs of their passage.\n\nBy midday, you've reached an area where the ancient trees grow so close together that little sunlight penetrates to the forest floor. The air is thick with moisture and the musty smell of decaying vegetation.\n\n\"Olaf, look,\" Karina whispers, pointing ahead.\n\nThrough the trees, you glimpse what appears to be a structure - too regular to be natural. As you creep closer, you realize it's a crude wooden watchtower, clearly built by the bears to monitor the approach to their territory.",
