@@ -188,8 +188,13 @@ export class InputHandlers {
       } else if (inputLower === "no" || inputLower === "cancel") {
         // User wants to go back to stat allocation
         this.awaitingUnspentPointsConfirmation = false;
-        this.game.uiManager.print("\nReturning to stat allocation.", "system-message");
-        this.showStats();
+        this.game.uiManager.clearOutput(); // Clear the output first
+        if (this.isInitialAllocation) {
+          this.showInitialStatAllocation(); // Show complete initial allocation screen
+        } else {
+          this.game.uiManager.print("Returning to stat allocation.", "system-message");
+          this.showStats(); // Show regular stats screen
+        }
       } else {
         this.game.uiManager.print("Please type 'confirm' to continue with unspent points or 'cancel' to go back.", "system-message");
       }
