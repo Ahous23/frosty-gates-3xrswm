@@ -2,6 +2,7 @@ export class InputHandlers {
   constructor(game) {
     this.game = game;
     this.isInitialAllocation = false; // Flag to track if we're in initial character creation
+    this.awaitingUnspentPointsConfirmation = false; // New flag to track if we're waiting for confirmation
   }
 
   // Add a new method to handle combat input
@@ -178,19 +179,40 @@ export class InputHandlers {
       return;
     }
     
+    // Check if we're waiting for confirmation about unspent points
+    if (this.awaitingUnspentPointsConfirmation) {
+      if (inputLower === "confirm" || inputLower === "yes" || inputLower === "continue") {
+        // User confirmed they want to proceed with unspent points
+        this.awaitingUnspentPointsConfirmation = false;
+        this.proceedAfterStatAllocation();
+      } else if (inputLower === "no" || inputLower === "cancel") {
+        // User wants to go back to stat allocation
+        this.awaitingUnspentPointsConfirmation = false;
+        this.game.uiManager.print("\nReturning to stat allocation.", "system-message");
+        this.showStats();
+      } else {
+        this.game.uiManager.print("Please type 'confirm' to continue with unspent points or 'cancel' to go back.", "system-message");
+      }
+      return;
+    }
+    
     // Handle finalizing stats
     if (inputLower === "start" || inputLower === "done") {
-      if (this.isInitialAllocation) {
-        // If this is the initial stat allocation, start the game
-        this.isInitialAllocation = false; // Turn off initial allocation mode
-        this.game.currentScene = "intro";
-        this.game.inputMode = "normal"; // Important: change mode to normal
-        this.game.uiManager.print("\nYour adventure begins...\n", "system-message");
-        setTimeout(() => this.game.playScene(), 1500);
-      } else {
-        this.game.inputMode = this.game.previousMode || "normal";
-        this.game.uiManager.print("Returning to game.", "system-message");
+      // Check if player has unspent points
+      const availablePoints = this.isInitialAllocation 
+        ? this.game.availableStatPoints 
+        : (this.game.gameState.availableStatPoints || 0);
+      
+      if (availablePoints > 0) {
+        this.awaitingUnspentPointsConfirmation = true;
+        this.game.uiManager.print(`\nYou have ${availablePoints} unspent stat points!`, "warning-message");
+        this.game.uiManager.print("You can access your stats at any time by typing 'stats' during gameplay.", "system-message");
+        this.game.uiManager.print("Type 'confirm' to continue anyway or 'cancel' to go back and spend your points.", "system-message");
+        return;
       }
+      
+      // No unspent points, proceed normally
+      this.proceedAfterStatAllocation();
       return;
     }
     
@@ -237,6 +259,21 @@ export class InputHandlers {
       }
     } else {
       this.game.uiManager.print("Invalid stat. Try 'attack', 'defense', 'charisma', 'speed', or 'luck'.", "error-message");
+    }
+  }
+
+  // New helper method to handle proceeding after stat allocation
+  proceedAfterStatAllocation() {
+    if (this.isInitialAllocation) {
+      // If this is the initial stat allocation, start the game
+      this.isInitialAllocation = false; // Turn off initial allocation mode
+      this.game.currentScene = "intro";
+      this.game.inputMode = "normal"; // Important: change mode to normal
+      this.game.uiManager.print("\nYour adventure begins...\n", "system-message");
+      setTimeout(() => this.game.playScene(), 1500);
+    } else {
+      this.game.inputMode = this.game.previousMode || "normal";
+      this.game.uiManager.print("Returning to game.", "system-message");
     }
   }
 
