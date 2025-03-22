@@ -15,6 +15,28 @@
         <button id="musicToggle" class="music-toggle">Toggle Music</button>
       </div>
     </div>
+    <div id="notes-panel" class="notes-panel hidden">
+      <div class="notes-header">
+        <h3>Notes</h3>
+        <button id="close-notes">×</button>
+      </div>
+      <div class="notes-toolbar">
+        <button class="format-btn" data-command="bold" title="Bold">B</button>
+        <button class="format-btn" data-command="italic" title="Italic"><i>I</i></button>
+        <button class="format-btn" data-command="underline" title="Underline"><u>U</u></button>
+        <button class="format-btn" data-command="strikeThrough" title="Strike through"><s>S</s></button>
+        <select class="format-select" data-command="foreColor" title="Text color">
+          <option value="" disabled selected>Color</option>
+          <option value="#ffffff">White</option>
+          <option value="#ff9999">Red</option>
+          <option value="#99ff99">Green</option>
+          <option value="#9999ff">Blue</option>
+          <option value="#ffff99">Yellow</option>
+        </select>
+        <button class="format-btn" data-command="removeFormat" title="Clear formatting">Clear</button>
+      </div>
+      <div id="notes-editor" contenteditable="true" class="notes-editor"></div>
+    </div>
     <script type="module" src="game.js"></script>
   </body>
 </html>

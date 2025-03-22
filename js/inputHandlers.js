@@ -6,11 +6,25 @@ export class InputHandlers {
 
   // Add a new method to handle combat input
   handleCombatInput(input) {
+    // Add notes command check at the beginning
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+    
+    // Then continue with existing combat input handling
     this.game.combatSystem.processPlayerAction(input);
   }
   
   // Add method to handle combat item selection
   handleCombatItemInput(input) {
+    // Add notes command check at the beginning
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+    
+    // Then continue with existing combat item input handling
     this.game.combatSystem.useItem(input);
   }
   
@@ -38,6 +52,13 @@ export class InputHandlers {
 
     const input = this.game.inputMode === "loadGame" ? rawInput : rawInput.toLowerCase();
 
+    // Handle global commands that should work in ANY mode
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+
+    // Continue with mode-specific handling
     switch (this.game.inputMode) {
       case "title":
         this.handleTitleInput(input);
@@ -80,6 +101,12 @@ export class InputHandlers {
   }
 
   handleNormalInput(input) {
+    // Add notes command check at the beginning
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+    
     if (input === "help") {
       this.showHelp();
     } else if (input === "inventory" || input === "i") {
@@ -99,6 +126,28 @@ export class InputHandlers {
   }
 
   handleChoiceInput(input) {
+    // Handle global commands that should work in choices mode too
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+
+    if (input === "save") {
+      this.saveGame();
+      return;
+    }
+
+    if (input === "load") {
+      this.showLoadGamePrompt();
+      return;
+    }
+
+    if (input === "help") {
+      this.showHelp();
+      return;
+    }
+
+    // Handle choice selection (existing code)
     const scene = this.game.storyContent[this.game.currentScene];
     const choiceIndex = parseInt(input) - 1;
 
@@ -114,6 +163,12 @@ export class InputHandlers {
 
   // Update handleStatInput to work with the new stat points from leveling
   handleStatInput(input) {
+    // Add notes command check at the beginning
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+    
     const inputLower = input.toLowerCase();
     
     // Special handling for "back" during initial allocation
@@ -219,6 +274,12 @@ export class InputHandlers {
   }
 
   handleInventoryInput(input) {
+    // Add notes command check at the beginning
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+    
     if (input === "back" || input === "exit") {
       this.resumeAfterInventory();
       return;
@@ -373,6 +434,7 @@ export class InputHandlers {
     this.game.uiManager.print("help - Show this help message", "help-text");
     this.game.uiManager.print("inventory, i - Show your inventory", "help-text");
     this.game.uiManager.print("stats, s - Show your stats", "help-text");
+    this.game.uiManager.print("notes, note - Open/close the notes panel", "help-text");
     this.game.uiManager.print("save - Save your game", "help-text");
     this.game.uiManager.print("load - Load a saved game", "help-text");
     this.game.uiManager.print("quit, exit, title - Return to title screen", "help-text");
@@ -506,11 +568,17 @@ export class InputHandlers {
   }
 
   saveGame() {
+    // Save notes before generating save data
+    if (this.game.saveNotes) {
+      this.game.saveNotes();
+    }
+    
     const saveData = {
       currentScene: this.game.currentScene,
       playerStats: this.game.playerStats,
       inventory: this.game.inventory,
       gameState: this.game.gameState,
+      notes: this.game.notesContent // Add notes to save data
     };
     
     const saveCode = btoa(JSON.stringify(saveData));
@@ -527,6 +595,11 @@ export class InputHandlers {
       this.game.playerStats = saveData.playerStats;
       this.game.inventory = saveData.inventory;
       this.game.gameState = saveData.gameState;
+      
+      // Add notes handling
+      if (saveData.notes && this.game.loadNotes) {
+        this.game.loadNotes(saveData.notes);
+      }
       
       this.game.uiManager.print("Game loaded successfully!", "system-message");
       setTimeout(() => {

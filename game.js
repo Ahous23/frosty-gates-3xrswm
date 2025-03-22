@@ -65,6 +65,15 @@ class TextGame {
       }
     });
 
+    // Add document-level event listener for spacebar to skip typing
+    document.addEventListener("keydown", (e) => {
+      // Check if Space is pressed and typing is in progress
+      if (e.code === "Space" && this.isTyping) {
+        e.preventDefault(); // Prevent page scrolling
+        this.skipTyping();
+      }
+    });
+
     this.initialize();
 
     this.musicToggleBtn = document.getElementById("musicToggle");
@@ -75,6 +84,9 @@ class TextGame {
     }
 
     this.uiManager.focusInput();
+
+    // Initialize notes system
+    this.initNotes();
   }
 
   toggleMusic() {
@@ -360,16 +372,26 @@ class TextGame {
     this.audioManager.stopTypingSound();
   }
 
-  // Update saveGame to include combat-related data
+  // Update saveGame to properly include notes
   saveGame() {
+    // Make sure notes are captured immediately before saving
+    this.saveNotes();
+    
+    console.log("Saving notes content:", this.notesContent); // Add this debug line
+    
     const saveData = {
       currentScene: this.currentScene,
       playerStats: this.playerStats,
       inventory: this.inventory,
-      gameState: this.gameState
+      gameState: this.gameState,
+      notes: this.notesContent // Use the captured notes content directly
     };
     
+    console.log("Full save data:", saveData); // Add this to see the complete object
+    
     const saveString = btoa(JSON.stringify(saveData));
+    console.log("Save string length:", saveString.length); // Check if the save string is being created correctly
+    
     this.uiManager.print("\nSave Code (copy this somewhere safe):", "system-message");
     this.uiManager.print(saveString, "save-code");
     this.uiManager.print("\nType 'continue' to resume your game.", "system-message");
@@ -394,6 +416,11 @@ class TextGame {
         this.gameState.playerXp = 0;
       }
       
+      // Load notes
+      if (data.notes) {
+        this.loadNotes(data.notes);
+      }
+      
       this.uiManager.print("Game loaded successfully!", "system-message");
       this.inputMode = "normal";
       this.playScene();
@@ -401,6 +428,109 @@ class TextGame {
     } catch (error) {
       this.uiManager.print("Failed to load save data. Invalid save code.", "error-message");
       return false;
+    }
+  }
+
+  initNotes() {
+    // Set up notes panel
+    this.notesVisible = false;
+    this.notesContent = "";
+    
+    // Get DOM elements
+    this.notesPanel = document.getElementById('notes-panel');
+    this.notesEditor = document.getElementById('notes-editor');
+    const closeNotesBtn = document.getElementById('close-notes');
+    
+    // Ensure the panel is hidden initially (display: none)
+    if (!this.notesVisible) {
+      this.notesPanel.style.display = 'none';
+    }
+    
+    // Setup event listeners
+    closeNotesBtn.addEventListener('click', () => this.toggleNotes());
+    
+    // Setup rich text formatting
+    this.setupRichTextEditing();
+    
+    // Auto-save notes when content changes (with debounce)
+    let timeout = null;
+    this.notesEditor.addEventListener('input', () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        this.notesContent = this.notesEditor.innerHTML;
+      }, 500);
+    });
+  }
+
+  setupRichTextEditing() {
+    // Get all formatting buttons and selects
+    const formatButtons = document.querySelectorAll('.format-btn');
+    const formatSelects = document.querySelectorAll('.format-select');
+    
+    // Add event listeners to buttons
+    formatButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const command = button.dataset.command;
+        document.execCommand(command, false, null);
+        this.notesEditor.focus();
+      });
+    });
+    
+    // Add event listeners to selects
+    formatSelects.forEach(select => {
+      select.addEventListener('change', () => {
+        const command = select.dataset.command;
+        const value = select.value;
+        document.execCommand(command, false, value);
+        select.selectedIndex = 0; // Reset to default option
+        this.notesEditor.focus();
+      });
+    });
+    
+    // Focus the editor when clicking on it
+    this.notesEditor.addEventListener('focus', () => {
+      // This ensures we're editing in the correct context
+    });
+  }
+
+  toggleNotes() {
+    this.notesVisible = !this.notesVisible;
+    
+    if (this.notesVisible) {
+      // Show notes
+      this.notesPanel.style.display = 'flex';
+      // Use requestAnimationFrame to ensure display change takes effect before removing transform
+      requestAnimationFrame(() => {
+        this.notesPanel.classList.remove('hidden');
+      });
+    } else {
+      // Hide notes - first start the transition
+      this.notesPanel.classList.add('hidden');
+      
+      // Add transitionend listener to set display to none after animation
+      const hidePanel = () => {
+        this.notesPanel.style.display = 'none';
+        this.notesPanel.removeEventListener('transitionend', hidePanel);
+      };
+      
+      this.notesPanel.addEventListener('transitionend', hidePanel);
+    }
+  }
+
+  saveNotes() {
+    // Capture current notes content
+    const notesContent = this.notesEditor.innerHTML;
+    console.log("Notes content before saving:", notesContent);
+    this.notesContent = notesContent;
+    return this.notesContent;
+  }
+
+  // Make sure the loadNotes method properly handles the content
+  loadNotes(notesContent) {
+    if (notesContent) {
+      this.notesContent = notesContent;
+      this.notesEditor.innerHTML = this.notesContent;
+      console.log("Notes loaded:", notesContent.substring(0, 50) + "..."); // Debug log
     }
   }
 }
