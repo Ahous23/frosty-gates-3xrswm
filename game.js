@@ -87,6 +87,11 @@ class TextGame {
 
     // Initialize notes system
     this.initNotes();
+
+    // Initialize map properties
+    this.mapVisible = false;
+    this.mapLocations = {};
+    this.currentMapLocation = null;
   }
 
   toggleMusic() {
@@ -110,6 +115,10 @@ class TextGame {
       
       // Then load story content
       await this.loadStoryIndex();
+      
+      // Initialize map elements AFTER story index is loaded
+      this.initMapElements();
+      
       this.showTitleScreen();
     } catch (error) {
       console.error("Error during initialization:", error);
@@ -533,9 +542,187 @@ class TextGame {
       console.log("Notes loaded:", notesContent.substring(0, 50) + "..."); // Debug log
     }
   }
+
+  // Initialize map location data
+  initMapLocations() {
+    // Define map locations (coordinates are percentages of the map container)
+    this.mapLocations = {
+      "intro": { x: 20, y: 15, name: "Starting Point" },
+      "huntersOutpost": { x: 35, y: 25, name: "Hunter's Outpost" },
+      "forestPath": { x: 50, y: 30, name: "Forest Path" },
+      "riverCrossing": { x: 65, y: 40, name: "River Crossing" },
+      "mountainBase": { x: 75, y: 55, name: "Mountain Base" },
+      "crystalRidge": { x: 85, y: 70, name: "Crystal Ridge" },
+      "bearCave": { x: 90, y: 80, name: "Bear Cave" }
+    };
+    
+    // Set initial location
+    this.updatePlayerMapLocation();
+  }
+  
+  // Update player's location on the map based on currentScene
+  updatePlayerMapLocation() {
+    // Add a safety check for storyIndex
+    if (!this.storyIndex || !this.currentScene) {
+      console.log("Story index or current scene not available yet");
+      return;
+    }
+    
+    // Get current chapter/location from the scene ID
+    const currentChapter = this.getChapterForScene(this.currentScene);
+    
+    if (currentChapter) {
+      // Extract location name from chapter (e.g., "huntersOutpost" from "locations/huntersOutpost")
+      const locationMatch = currentChapter.match(/locations\/(\w+)/);
+      if (locationMatch && locationMatch[1]) {
+        this.currentMapLocation = locationMatch[1];
+      }
+    }
+    
+    // If we're showing the map, update the display
+    if (this.mapVisible) {
+      this.renderMap();
+    }
+  }
+  
+  // Render the map with locations
+  renderMap() {
+    if (!this.mapContainer) return;
+    
+    // Clear existing map markers
+    this.mapContainer.innerHTML = '';
+    
+    // Add all known locations
+    Object.entries(this.mapLocations).forEach(([locationId, location]) => {
+      const marker = document.createElement('div');
+      marker.className = 'map-landmark';
+      marker.style.left = `${location.x}%`;
+      marker.style.top = `${location.y}%`;
+      marker.title = location.name;
+      
+      // If this is the player's current location, make it red
+      if (locationId === this.currentMapLocation) {
+        marker.style.backgroundColor = '#ff0000';
+        marker.style.width = '12px';
+        marker.style.height = '12px';
+        marker.style.zIndex = '10';
+        marker.title = `Your Location: ${location.name}`;
+      }
+      
+      this.mapContainer.appendChild(marker);
+    });
+  }
+  
+  // Toggle map visibility
+  toggleMap() {
+    console.log("Toggle map called, current visibility:", this.mapVisible);
+    
+    if (!this.mapPanel) {
+      console.error("Map panel not found when toggling map");
+      return;
+    }
+    
+    this.mapVisible = !this.mapVisible;
+    
+    if (this.mapVisible) {
+      // Show map
+      console.log("Showing map panel");
+      this.mapPanel.style.display = 'flex';
+      
+      // Use requestAnimationFrame to ensure display change takes effect before removing transform
+      requestAnimationFrame(() => {
+        this.mapPanel.classList.remove('hidden');
+        // Render the map when opened
+        this.renderMap();
+      });
+    } else {
+      // Hide map - first start the transition
+      console.log("Hiding map panel");
+      this.mapPanel.classList.add('hidden');
+      
+      // Add transitionend listener to set display to none after animation
+      const hidePanel = () => {
+        this.mapPanel.style.display = 'none';
+        this.mapPanel.removeEventListener('transitionend', hidePanel);
+        console.log("Map panel hidden completely via transitionend");
+      };
+      
+      this.mapPanel.addEventListener('transitionend', hidePanel);
+    }
+  }
+
+  // New method specifically for closing the map (not toggling)
+  closeMap() {
+    console.log("Close map button clicked, explicitly closing map");
+    
+    if (!this.mapPanel) {
+      console.error("Map panel not found when closing map");
+      return;
+    }
+    
+    // Always set to false
+    this.mapVisible = false;
+    
+    // Hide map - start the transition
+    console.log("Hiding map panel via close button");
+    this.mapPanel.classList.add('hidden');
+    
+    // Use setTimeout instead of transitionend for reliability
+    setTimeout(() => {
+      if (!this.mapVisible) { // Double-check state
+        this.mapPanel.style.display = 'none';
+        console.log("Map panel hidden completely via timeout");
+      }
+    }, 300); // 300ms to match the CSS transition duration
+  }
+
+  // Change the initMapElements method to use the new closeMap method
+  initMapElements() {
+    console.log("Initializing map elements");
+    this.mapPanel = document.getElementById('map-panel');
+    this.mapContainer = document.getElementById('map-container');
+    const closeMapBtn = document.getElementById('close-map');
+    
+    if (!this.mapPanel) {
+      console.error("Map panel element not found!");
+      return;
+    }
+    
+    if (!this.mapContainer) {
+      console.error("Map container element not found!");
+      return;
+    }
+    
+    // Setup map event listeners with a direct close method
+    if (closeMapBtn) {
+      // Use the dedicated close method, not toggle
+      closeMapBtn.addEventListener('click', () => this.closeMap());
+      console.log("Close map button event listener attached with dedicated close method");
+    } else {
+      console.error("Close map button not found!");
+    }
+    
+    // Ensure initial state
+    if (!this.mapVisible) {
+      this.mapPanel.style.display = 'none';
+    }
+    
+    // Only initialize locations if everything else succeeded
+    this.initMapLocations();
+  }
 }
 
 // Initialize the game when the page loads
 document.addEventListener("DOMContentLoaded", () => {
-  const game = new TextGame();
+  console.log("DOM Content loaded, initializing game");
+  window.game = new TextGame(); // Store game in global variable for debugging
+  
+  // Don't need to call initMapElements again since it's called in initialize()
+  // The reason we keep this is in case the async initialize() method hasn't finished yet
+  setTimeout(() => {
+    if (!window.game.mapPanel || !window.game.mapContainer) {
+      console.log("Map elements not initialized after 2 seconds, initializing now");
+      window.game.initMapElements();
+    }
+  }, 2000);
 });

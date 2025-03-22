@@ -13,6 +13,12 @@ export class InputHandlers {
       return;
     }
     
+    // Add map command check
+    if (input === "map" || input === "m") {
+      this.game.toggleMap();
+      return;
+    }
+    
     // Then continue with existing combat input handling
     this.game.combatSystem.processPlayerAction(input);
   }
@@ -22,6 +28,12 @@ export class InputHandlers {
     // Add notes command check at the beginning
     if (input === "notes" || input === "note") {
       this.game.toggleNotes();
+      return;
+    }
+    
+    // Add map command check
+    if (input === "map" || input === "m") {
+      this.game.toggleMap();
       return;
     }
     
@@ -56,6 +68,12 @@ export class InputHandlers {
     // Handle global commands that should work in ANY mode
     if (input === "notes" || input === "note") {
       this.game.toggleNotes();
+      return;
+    }
+    
+    // Add global map command check
+    if (input === "map" || input === "m") {
+      this.game.toggleMap();
       return;
     }
 
@@ -132,6 +150,12 @@ export class InputHandlers {
       this.game.toggleNotes();
       return;
     }
+    
+    // Add map command handling for choices mode
+    if (input === "map" || input === "m") {
+      this.game.toggleMap();
+      return;
+    }
 
     if (input === "save") {
       this.saveGame();
@@ -167,6 +191,12 @@ export class InputHandlers {
     // Add notes command check at the beginning
     if (input === "notes" || input === "note") {
       this.game.toggleNotes();
+      return;
+    }
+    
+    // Add map command check
+    if (input === "map" || input === "m") {
+      this.game.toggleMap();
       return;
     }
     
@@ -322,6 +352,12 @@ export class InputHandlers {
       return;
     }
     
+    // Add map command check
+    if (input === "map" || input === "m") {
+      this.game.toggleMap();
+      return;
+    }
+    
     if (input === "back" || input === "exit") {
       this.resumeAfterInventory();
       return;
@@ -354,6 +390,18 @@ export class InputHandlers {
   }
 
   handleLoadGameInput(input) {
+    // Add global command checks
+    if (input.toLowerCase() === "notes" || input.toLowerCase() === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+    
+    // Add map command check
+    if (input.toLowerCase() === "map" || input.toLowerCase() === "m") {
+      this.game.toggleMap();
+      return;
+    }
+    
     if (input.toLowerCase() === "back") {
       this.game.showTitleScreen();
       return;
@@ -368,6 +416,18 @@ export class InputHandlers {
   }
 
   handleErrorRecoveryInput(input) {
+    // Add global command checks
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+    
+    // Add map command check
+    if (input === "map" || input === "m") {
+      this.game.toggleMap();
+      return;
+    }
+    
     if (input === "restart") {
       this.game.showTitleScreen();
     } else if (input === "continue") {
@@ -477,6 +537,7 @@ export class InputHandlers {
     this.game.uiManager.print("inventory, i - Show your inventory", "help-text");
     this.game.uiManager.print("stats, s - Show your stats", "help-text");
     this.game.uiManager.print("notes, note - Open/close the notes panel", "help-text");
+    this.game.uiManager.print("map, m - Open/close the map", "help-text");
     this.game.uiManager.print("save - Save your game", "help-text");
     this.game.uiManager.print("load - Load a saved game", "help-text");
     this.game.uiManager.print("quit, exit, title - Return to title screen", "help-text");

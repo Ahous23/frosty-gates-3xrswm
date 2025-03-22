@@ -321,3 +321,122 @@ body {
   padding: 3px;
   cursor: pointer;
 }
+
+/* Map Panel Styles */
+.map-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 400px;
+  height: 100%;
+  background-color: #222;
+  border-right: 2px solid #444;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%); /* Start off-screen */
+  transition: transform 0.3s ease-in-out;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Make sure there's actually a difference between these two states */
+.map-panel.hidden {
+  transform: translateX(-100%); /* Move off-screen to the left */
+}
+
+.map-panel:not(.hidden) {
+  transform: translateX(0); /* Move on-screen */
+}
+
+.map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #333;
+  border-bottom: 1px solid #444;
+}
+
+.map-header h3 {
+  margin: 0;
+  color: #eee;
+}
+
+#close-map {
+  background: none;
+  border: none;
+  color: #eee;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px 12px;
+  position: relative;
+  z-index: 1001; /* Ensure button is above other elements */
+}
+
+#close-map:hover {
+  color: #ff6b6b;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.map-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.map-container {
+  flex: 1;
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 4px;
+  min-height: 400px;
+  position: relative;
+  margin-bottom: 15px;
+  background-image: url('img/map-background.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.map-landmark {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #4285f4;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.player-location {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-color: #ff0000;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.map-legend {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #333;
+  border-radius: 4px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  color: #eee;
+}
+
+.map-landmark.visible {
+  width: 10px;
+  height: 10px;
+  background-color: #4285f4;
+  border-radius: 50%;
+  margin-right: 5px;
+}
