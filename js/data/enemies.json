@@ -1,0 +1,77 @@
+{
+  "bear_warrior": {
+    "id": "bear_warrior",
+    "name": "Bear Warrior",
+    "description": "A ferocious bear warrior with thick fur and fierce eyes.",
+    "health": 30,
+    "attack": 8,
+    "defense": 3,
+    "speed": 4,
+    "weapons": [
+      {
+        "id": "bear_claws",
+        "name": "bear claws",
+        "damage": 7,
+        "description": "Sharp and deadly claws"
+      },
+      {
+        "id": "wooden_club",
+        "name": "wooden club",
+        "damage": 9,
+        "description": "A heavy wooden club"
+      }
+    ]
+  },
+  "wolf_hunter": {
+    "id": "wolf_hunter",
+    "name": "Wolf Hunter",
+    "description": "A swift and agile wolf hunter stalking its prey.",
+    "health": 25,
+    "attack": 10,
+    "defense": 2,
+    "speed": 7,
+    "weapons": [
+      {
+        "id": "wolf_fangs",
+        "name": "sharp fangs",
+        "damage": 8,
+        "description": "Razor-sharp fangs"
+      },
+      {
+        "id": "bone_dagger",
+        "name": "bone dagger",
+        "damage": 10,
+        "description": "A jagged dagger made from animal bone"
+      }
+    ]
+  },
+  "frost_troll": {
+    "id": "frost_troll",
+    "name": "Frost Troll",
+    "description": "A massive troll with blue-tinted skin and icy breath.",
+    "health": 45,
+    "attack": 12,
+    "defense": 5,
+    "speed": 3,
+    "weapons": [
+      {
+        "id": "troll_fists",
+        "name": "massive fists",
+        "damage": 10,
+        "description": "Enormous fists capable of crushing bone"
+      },
+      {
+        "id": "ice_club",
+        "name": "ice-encrusted club",
+        "damage": 14,
+        "description": "A club formed of wood and magical ice"
+      },
+      {
+        "id": "uprooted_tree",
+        "name": "uprooted tree",
+        "damage": 16,
+        "description": "An entire small tree used as a weapon"
+      }
+    ]
+  }
+}

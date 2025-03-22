@@ -1,0 +1,16 @@
+{
+  "name": "Bear Warrior",
+  "description": "A fully grown bear standing on its hind legs, wielding a crude wooden club. Its eyes gleam with intelligence and hatred.",
+  "health": 60,
+  "attack": 12,
+  "defense": 8,
+  "speed": 6,
+  "lootTables": ["basic_loot", "mid_tier_loot"],
+  "guaranteedLoot": [
+    {
+      "id": "bear_claw",
+      "quantity": 1
+    }
+  ],
+  "xpReward": 50
+}

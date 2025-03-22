@@ -1,16 +1,36 @@
-import { initialPlayerStats, typingSpeed, availableStatPoints } from './js/constants.js';
+import { 
+  initialPlayerStats, 
+  typingSpeed, 
+  availableStatPoints,
+  initialPlayerHealth, 
+  maxPlayerHealth,
+  initialPlayerXp,
+  xpPerLevel
+} from './js/constants.js';
 import { AudioManager } from './js/audio.js';
 import { UIManager } from './js/ui.js';
 import { GameLogic } from './js/gameLogic.js';
 import { InputHandlers } from './js/inputHandlers.js';
+import { CombatSystem } from './js/combat.js';
+import { LootSystem } from './js/lootSystem.js';
 
 class TextGame {
   constructor() {
     this.currentScene = null;
     this.playerStats = { ...initialPlayerStats };
     this.typingSpeed = typingSpeed;
-    this.gameState = {};
+    this.gameState = {
+      playerHealth: initialPlayerHealth,
+      playerXp: initialPlayerXp,
+      availableStatPoints: 0
+    };
     this.availableStatPoints = availableStatPoints;
+    this.initialPlayerStats = initialPlayerStats;
+    this.initialPlayerHealth = initialPlayerHealth;
+    this.maxPlayerHealth = maxPlayerHealth;
+    this.initialPlayerXp = initialPlayerXp;
+    this.xpPerLevel = xpPerLevel;
+    
     this.inventory = [];
     this.storyContent = {};
     this.storyIndex = null;
@@ -22,8 +42,10 @@ class TextGame {
     this.gameInput = document.getElementById("gameInput");
     this.audioManager = new AudioManager();
     this.uiManager = new UIManager(this.gameOutput, this.gameInput);
+    this.lootSystem = new LootSystem(this);
     this.gameLogic = new GameLogic(this);
     this.inputHandlers = new InputHandlers(this);
+    this.combatSystem = new CombatSystem(this);
 
     const enableAudio = () => {
       this.audioManager.enableAudio();
@@ -80,8 +102,19 @@ class TextGame {
     this.uiManager.clearOutput();
     this.uiManager.print("Welcome to Olaf vs Bears", "system-message");
     this.uiManager.print("Loading game content...", "system-message");
-    await this.loadStoryIndex();
-    this.showTitleScreen();
+    
+    try {
+      // Initialize loot system first
+      await this.lootSystem.initialize();
+      console.log("Loot system initialized with enemies:", Object.keys(this.lootSystem.enemies));
+      
+      // Then load story content
+      await this.loadStoryIndex();
+      this.showTitleScreen();
+    } catch (error) {
+      console.error("Error during initialization:", error);
+      this.uiManager.print("Error loading game resources. Please refresh the page.", "error-message");
+    }
   }
 
   async showTitleScreen() {
@@ -251,6 +284,7 @@ class TextGame {
     this.uiManager.clearInput();
     this.uiManager.print(`> ${rawInput}`, "player-input");
     const input = this.inputMode === "loadGame" ? rawInput : rawInput.toLowerCase();
+    
     switch (this.inputMode) {
       case "title":
         this.inputHandlers.handleTitleInput(input);
@@ -272,6 +306,12 @@ class TextGame {
         break;
       case "errorRecovery":
         this.inputHandlers.handleErrorRecoveryInput(input);
+        break;
+      case "combat":
+        this.inputHandlers.handleCombatInput(input);
+        break;
+      case "combat-item":
+        this.inputHandlers.handleCombatItemInput(input);
         break;
     }
   }
@@ -331,8 +371,6 @@ class TextGame {
     }
     this.audioManager.stopTypingSound();
   }
-<<<<<<< Updated upstream
-=======
 
   // Update saveGame to properly include notes
   saveGame() {
@@ -495,7 +533,6 @@ class TextGame {
       console.log("Notes loaded:", notesContent.substring(0, 50) + "..."); // Debug log
     }
   }
->>>>>>> Stashed changes
 }
 
 // Initialize the game when the page loads

@@ -1,0 +1,11 @@
+{
+  "name": "Young Bear Warrior",
+  "description": "A smaller, less experienced bear warrior. It's still quite dangerous, but seems unsure of its movements.",
+  "health": 30,
+  "attack": 8,
+  "defense": 3,
+  "speed": 4,
+  "isTutorial": true,
+  "lootTables": ["basic_loot"],
+  "defeatedText": "The young bear warrior falls to the ground, defeated. It whimpers softly before retreating into the forest."
+}

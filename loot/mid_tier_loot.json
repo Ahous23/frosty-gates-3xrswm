@@ -1,0 +1,50 @@
+{
+  "table_name": "mid_tier_loot",
+  "name": "Mid-Tier Loot",
+  "description": "Uncommon items that can be found on stronger enemies",
+  "items": [
+    {
+      "id": "health_potion",
+      "name": "Health Potion",
+      "description": "A standard healing potion that restores health.",
+      "quantity": 1,
+      "stackable": true,
+      "category": "consumable",
+      "effects": {
+        "heal": 40
+      },
+      "value": 25
+    },
+    {
+      "id": "bear_tooth_necklace",
+      "name": "Bear Tooth Necklace",
+      "description": "A necklace made from bear teeth. Increases your intimidation factor.",
+      "quantity": 1,
+      "stackable": false,
+      "category": "accessory",
+      "effects": {
+        "charisma": 1
+      },
+      "value": 30
+    },
+    {
+      "id": "spiked_club",
+      "name": "Spiked Club",
+      "description": "A wooden club with metal spikes embedded in it.",
+      "quantity": 1,
+      "stackable": false,
+      "category": "weapon",
+      "damage": 12,
+      "value": 40
+    },
+    {
+      "id": "bear_pelt",
+      "name": "Bear Pelt",
+      "description": "The hide of a bear warrior. Could be useful for crafting.",
+      "quantity": 1,
+      "stackable": true,
+      "category": "material",
+      "value": 20
+    }
+  ]
+}

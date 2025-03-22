@@ -1,0 +1,9 @@
+{
+  "enemies": [
+    "bear_warrior_weak",
+    "bear_warrior",
+    "bear_berserker",
+    "bear_shaman",
+    "bear_chieftain"
+  ]
+}

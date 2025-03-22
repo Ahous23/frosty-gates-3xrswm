@@ -153,8 +153,6 @@ body {
   font-weight: bold;
   color: #fff; /* Adjust color as needed */
   text-align: center; /* Ensure text is centered */
-<<<<<<< Updated upstream
-=======
 }
 
 .enemy-description {
@@ -322,5 +320,4 @@ body {
   margin: 0 2px;
   padding: 3px;
   cursor: pointer;
->>>>>>> Stashed changes
 }

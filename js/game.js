@@ -36,6 +36,8 @@ playScene()
   this.processSceneActions(scene);
 }
 
+// Update your handleInput method to include note commands
+
 handleInput(input) 
 {
   const trimmedInput = input.trim().toLowerCase();
@@ -73,8 +75,10 @@ handleInput(input)
       this.uiManager.print("Type 'continue', 'next', or 'done' when you're ready to proceed.", "hint-text");
     }
     return;
+  } else if (this.inputMode === "choice") {
+    // This is likely where the "enter a number between 1 and 3" message is coming from
+    // Your existing choice handling code
   }
-  
   // ...other input mode handlers...
 }
 
