@@ -395,10 +395,9 @@ body {
   min-height: 400px;
   position: relative;
   margin-bottom: 15px;
-  background-image: url('img/map-background.png');
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
+  /* Remove the background-image property to use our programmatic map */
+  /* background-image: url('img/map-background.png'); */
+  overflow: hidden;
 }
 
 .map-landmark {
@@ -408,6 +407,29 @@ body {
   background-color: #4285f4;
   border-radius: 50%;
   transform: translate(-50%, -50%);
+  z-index: 5;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease;
+}
+
+.map-landmark:hover {
+  transform: translate(-50%, -50%) scale(1.3);
+  z-index: 6;
+}
+
+.map-legend {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: rgba(51, 51, 51, 0.7);
+  border-radius: 4px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  color: #eee;
 }
 
 .player-location {
@@ -417,20 +439,7 @@ body {
   background-color: #ff0000;
   border-radius: 50%;
   margin-right: 5px;
-}
-
-.map-legend {
-  margin-top: 10px;
-  padding: 10px;
-  background-color: #333;
-  border-radius: 4px;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 5px;
-  color: #eee;
+  box-shadow: 0 0 3px #fff;
 }
 
 .map-landmark.visible {

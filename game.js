@@ -568,14 +568,27 @@ class TextGame {
       return;
     }
     
+    console.log("Updating player location for scene:", this.currentScene);
+    
     // Get current chapter/location from the scene ID
     const currentChapter = this.getChapterForScene(this.currentScene);
+    console.log("Current chapter:", currentChapter);
     
     if (currentChapter) {
-      // Extract location name from chapter (e.g., "huntersOutpost" from "locations/huntersOutpost")
+      // Try to extract location name from chapter (e.g., "huntersOutpost" from "locations/huntersOutpost")
       const locationMatch = currentChapter.match(/locations\/(\w+)/);
       if (locationMatch && locationMatch[1]) {
         this.currentMapLocation = locationMatch[1];
+        console.log("Matched location:", this.currentMapLocation);
+      } else {
+        // If we can't extract from the chapter path, try to match to a known map location
+        for (const locationId in this.mapLocations) {
+          if (this.currentScene.includes(locationId)) {
+            this.currentMapLocation = locationId;
+            console.log("Matched location from scene name:", this.currentMapLocation);
+            break;
+          }
+        }
       }
     }
     
@@ -592,7 +605,45 @@ class TextGame {
     // Clear existing map markers
     this.mapContainer.innerHTML = '';
     
-    // Add all known locations
+    // Create the base map SVG
+    const mapSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    mapSvg.setAttribute("width", "100%");
+    mapSvg.setAttribute("height", "100%");
+    mapSvg.setAttribute("viewBox", "0 0 100 100");
+    mapSvg.style.position = "absolute";
+    mapSvg.style.top = "0";
+    mapSvg.style.left = "0";
+    
+    // Add background
+    const background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    background.setAttribute("width", "100");
+    background.setAttribute("height", "100");
+    background.setAttribute("fill", "#2a392a");
+    mapSvg.appendChild(background);
+    
+    // Add forest areas
+    this.addForestArea(mapSvg, 10, 10, 40, 40, "#1a2e1a");
+    this.addForestArea(mapSvg, 40, 20, 30, 25, "#1a2e1a");
+    
+    // Add mountain ranges
+    this.addMountainRange(mapSvg, 70, 50, 30, 35, "#3a3a3a");
+    
+    // Add river paths
+    const riverPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    riverPath.setAttribute("d", "M 65 10 C 60 20, 55 30, 60 40 C 65 50, 60 60, 65 70");
+    riverPath.setAttribute("stroke", "#4a81b0");
+    riverPath.setAttribute("stroke-width", "2");
+    riverPath.setAttribute("fill", "none");
+    mapSvg.appendChild(riverPath);
+    
+    // Add path connections
+    this.addPathConnections(mapSvg);
+    
+    // Add the map SVG to the container
+    this.mapContainer.appendChild(mapSvg);
+    
+    // Add location markers (these will be HTML divs, not SVG elements)
+    console.log("Current map location:", this.currentMapLocation);
     Object.entries(this.mapLocations).forEach(([locationId, location]) => {
       const marker = document.createElement('div');
       marker.className = 'map-landmark';
@@ -600,19 +651,151 @@ class TextGame {
       marker.style.top = `${location.y}%`;
       marker.title = location.name;
       
+      // Debug
+      console.log(`Rendering location: ${locationId} (${location.name})`);
+      
       // If this is the player's current location, make it red
       if (locationId === this.currentMapLocation) {
+        console.log(`This is the player's location! ${locationId}`);
         marker.style.backgroundColor = '#ff0000';
         marker.style.width = '12px';
         marker.style.height = '12px';
         marker.style.zIndex = '10';
+        marker.style.boxShadow = '0 0 5px #fff, 0 0 10px #ff0000';
         marker.title = `Your Location: ${location.name}`;
+      } else {
+        marker.style.backgroundColor = '#4285f4';
       }
       
+      // Add location label
+      const label = document.createElement('div');
+      label.className = 'map-label';
+      label.textContent = location.name;
+      label.style.position = 'absolute';
+      label.style.left = `${location.x}%`;
+      label.style.top = `${location.y + 5}%`;
+      label.style.transform = 'translateX(-50%)';
+      label.style.color = '#ddd';
+      label.style.fontSize = '10px';
+      label.style.textShadow = '1px 1px 1px #000';
+      label.style.whiteSpace = 'nowrap';
+      
       this.mapContainer.appendChild(marker);
+      this.mapContainer.appendChild(label);
     });
   }
   
+  // Helper method to add forest areas
+  addForestArea(svg, x, y, width, height, color) {
+    // Create a group for the forest
+    const forestGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    
+    // Create the forest base
+    const forestBase = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    forestBase.setAttribute("x", x);
+    forestBase.setAttribute("y", y);
+    forestBase.setAttribute("width", width);
+    forestBase.setAttribute("height", height);
+    forestBase.setAttribute("fill", color);
+    forestBase.setAttribute("opacity", "0.7");
+    forestGroup.appendChild(forestBase);
+    
+    // Add some tree symbols
+    for (let i = 0; i < 15; i++) {
+      const treeX = x + Math.random() * width;
+      const treeY = y + Math.random() * height;
+      const treeSize = 1 + Math.random() * 1.5;
+      
+      const tree = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      tree.setAttribute("cx", treeX);
+      tree.setAttribute("cy", treeY);
+      tree.setAttribute("r", treeSize);
+      tree.setAttribute("fill", "#1d4d1d");
+      forestGroup.appendChild(tree);
+    }
+    
+    svg.appendChild(forestGroup);
+  }
+  
+  // Helper method to add mountain ranges
+  addMountainRange(svg, x, y, width, height, color) {
+    // Create a group for the mountains
+    const mountainGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    
+    // Create a polygon for the mountain range
+    const mountainBase = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    
+    // Create points for a jagged mountain range
+    let points = `${x},${y + height} `;
+    
+    const peakCount = 5 + Math.floor(Math.random() * 5);
+    const segmentWidth = width / peakCount;
+    
+    for (let i = 0; i <= peakCount; i++) {
+      const peakX = x + i * segmentWidth;
+      // Vary the height of each peak
+      const peakFactor = Math.random() * 0.8 + 0.2; // Between 0.2 and 1.0
+      const peakY = y + height - (height * peakFactor);
+      points += `${peakX},${peakY} `;
+    }
+    
+    points += `${x + width},${y + height}`;
+    
+    mountainBase.setAttribute("points", points);
+    mountainBase.setAttribute("fill", color);
+    mountainGroup.appendChild(mountainBase);
+    
+    // Add snow caps to peaks
+    const peaks = points.split(' ').slice(1, -1); // Remove first and last points
+    
+    for (const peak of peaks) {
+      const [peakX, peakY] = peak.split(',').map(Number);
+      
+      // Only add snow to higher peaks
+      if (peakY < y + height * 0.4) {
+        const snow = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        snow.setAttribute("cx", peakX);
+        snow.setAttribute("cy", peakY);
+        snow.setAttribute("r", 1.5);
+        snow.setAttribute("fill", "#eee");
+        mountainGroup.appendChild(snow);
+      }
+    }
+    
+    svg.appendChild(mountainGroup);
+  }
+  
+  // Helper method to add path connections between locations
+  addPathConnections(svg) {
+    // Define connections between locations
+    const connections = [
+      ["intro", "huntersOutpost"],
+      ["huntersOutpost", "forestPath"],
+      ["forestPath", "riverCrossing"],
+      ["riverCrossing", "mountainBase"],
+      ["mountainBase", "crystalRidge"],
+      ["crystalRidge", "bearCave"]
+    ];
+    
+    // Add path for each connection
+    for (const [from, to] of connections) {
+      if (this.mapLocations[from] && this.mapLocations[to]) {
+        const fromX = this.mapLocations[from].x;
+        const fromY = this.mapLocations[from].y;
+        const toX = this.mapLocations[to].x;
+        const toY = this.mapLocations[to].y;
+        
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", `M ${fromX} ${fromY} L ${toX} ${toY}`);
+        path.setAttribute("stroke", "#a37c40");
+        path.setAttribute("stroke-width", "1");
+        path.setAttribute("stroke-dasharray", "2,1");
+        path.setAttribute("fill", "none");
+        svg.appendChild(path);
+      }
+    }
+  }
+
   // Toggle map visibility
   toggleMap() {
     console.log("Toggle map called, current visibility:", this.mapVisible);
