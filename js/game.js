@@ -1,6 +1,7 @@
 // ...existing code...
 
-playScene() {
+playScene() 
+{
   // Get the current scene data
   const scene = this.getCurrentScene();
   if (!scene) {
@@ -27,7 +28,8 @@ playScene() {
   this.processSceneActions(scene);
 }
 
-handleInput(input) {
+handleInput(input) 
+{
   const trimmedInput = input.trim().toLowerCase();
   
   // Handle special input modes
@@ -46,7 +48,8 @@ handleInput(input) {
   // ...existing code for handling other input modes...
 }
 
-processSceneActions(scene) {
+processSceneActions(scene) 
+{
   // Process scene actions like combat, choices, etc.
   if (scene.combat) {
     this.initiateCombat(scene.combat);
