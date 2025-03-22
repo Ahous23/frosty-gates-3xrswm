@@ -3,6 +3,48 @@ export class InputHandlers {
     this.game = game;
   }
 
+<<<<<<< Updated upstream
+=======
+  // Add a new method to handle combat input
+  handleCombatInput(input) {
+    // Add notes command check at the beginning
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+    
+    // Then continue with existing combat input handling
+    this.game.combatSystem.processPlayerAction(input);
+  }
+  
+  // Add method to handle combat item selection
+  handleCombatItemInput(input) {
+    // Add notes command check at the beginning
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+    
+    // Then continue with existing combat item input handling
+    this.game.combatSystem.useItem(input);
+  }
+  
+  // New method for initial stat allocation at game start
+  showInitialStatAllocation() {
+    this.isInitialAllocation = true;
+    this.game.uiManager.clearOutput();
+    this.game.uiManager.print("Welcome, brave adventurer!", "system-message");
+    this.game.uiManager.print("Before your journey begins, allocate your character stats:", "system-message");
+    this.showStats();
+    this.game.uiManager.print("\nInstructions:", "system-message");
+    this.game.uiManager.print("- Type a stat name to add a point (e.g., 'attack')", "help-text");
+    this.game.uiManager.print("- Type '-' followed by a stat name to remove a point (e.g., '-attack')", "help-text");
+    this.game.uiManager.print("- Type 'help' for stat descriptions", "help-text");
+    this.game.uiManager.print("- Type 'start' or 'done' when you're ready to begin your adventure", "help-text");
+    this.game.uiManager.print("- Type 'back' to return to the title screen", "help-text");
+  }
+  
+>>>>>>> Stashed changes
   handleInput() {
     if (this.game.isTyping) return; // Don't process input while text is typing
 
@@ -12,6 +54,13 @@ export class InputHandlers {
 
     const input = this.game.inputMode === "loadGame" ? rawInput : rawInput.toLowerCase();
 
+    // Handle global commands that should work in ANY mode
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+
+    // Continue with mode-specific handling
     switch (this.game.inputMode) {
       case "title":
         this.handleTitleInput(input);
@@ -48,6 +97,12 @@ export class InputHandlers {
   }
 
   handleNormalInput(input) {
+    // Add notes command check at the beginning
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+    
     if (input === "help") {
       this.showHelp();
     } else if (input === "inventory" || input === "i") {
@@ -67,6 +122,28 @@ export class InputHandlers {
   }
 
   handleChoiceInput(input) {
+    // Handle global commands that should work in choices mode too
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+
+    if (input === "save") {
+      this.saveGame();
+      return;
+    }
+
+    if (input === "load") {
+      this.showLoadGamePrompt();
+      return;
+    }
+
+    if (input === "help") {
+      this.showHelp();
+      return;
+    }
+
+    // Handle choice selection (existing code)
     const scene = this.game.storyContent[this.game.currentScene];
     const choiceIndex = parseInt(input) - 1;
 
@@ -81,7 +158,42 @@ export class InputHandlers {
   }
 
   handleStatInput(input) {
+<<<<<<< Updated upstream
     if (input === "help") {
+=======
+    // Add notes command check at the beginning
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+    
+    const inputLower = input.toLowerCase();
+    
+    // Special handling for "back" during initial allocation
+    if (inputLower === "back" && this.isInitialAllocation) {
+      this.isInitialAllocation = false;
+      this.game.showTitleScreen(); // Go back to title screen
+      return;
+    }
+    
+    // Handle finalizing stats
+    if (inputLower === "start" || inputLower === "done") {
+      if (this.isInitialAllocation) {
+        // If this is the initial stat allocation, start the game
+        this.isInitialAllocation = false; // Turn off initial allocation mode
+        this.game.currentScene = "intro";
+        this.game.inputMode = "normal"; // Important: change mode to normal
+        this.game.uiManager.print("\nYour adventure begins...\n", "system-message");
+        setTimeout(() => this.game.playScene(), 1500);
+      } else {
+        this.game.inputMode = this.game.previousMode || "normal";
+        this.game.uiManager.print("Returning to game.", "system-message");
+      }
+      return;
+    }
+    
+    if (inputLower === "help") {
+>>>>>>> Stashed changes
       this.showStatHelp();
       return;
     }
@@ -108,6 +220,12 @@ export class InputHandlers {
   }
 
   handleInventoryInput(input) {
+    // Add notes command check at the beginning
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+    
     if (input === "back" || input === "exit") {
       this.resumeAfterInventory();
       return;
@@ -227,6 +345,7 @@ export class InputHandlers {
     this.game.uiManager.print("help - Show this help message", "help-text");
     this.game.uiManager.print("inventory, i - Show your inventory", "help-text");
     this.game.uiManager.print("stats, s - Show your stats", "help-text");
+    this.game.uiManager.print("notes, note - Open/close the notes panel", "help-text");
     this.game.uiManager.print("save - Save your game", "help-text");
     this.game.uiManager.print("load - Load a saved game", "help-text");
     this.game.uiManager.print("quit, exit, title - Return to title screen", "help-text");
@@ -354,11 +473,15 @@ export class InputHandlers {
   }
 
   saveGame() {
+    // Save notes before generating save data
+    this.game.saveNotes();
+    
     const saveData = {
       currentScene: this.game.currentScene,
       playerStats: this.game.playerStats,
       inventory: this.game.inventory,
       gameState: this.game.gameState,
+      notes: this.game.notesContent // Add notes to save data
     };
     
     const saveCode = btoa(JSON.stringify(saveData));
@@ -375,6 +498,11 @@ export class InputHandlers {
       this.game.playerStats = saveData.playerStats;
       this.game.inventory = saveData.inventory;
       this.game.gameState = saveData.gameState;
+      
+      // Add notes handling
+      if (saveData.notes) {
+        this.game.loadNotes(saveData.notes);
+      }
       
       this.game.uiManager.print("Game loaded successfully!", "system-message");
       setTimeout(() => {

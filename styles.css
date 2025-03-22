@@ -153,4 +153,174 @@ body {
   font-weight: bold;
   color: #fff; /* Adjust color as needed */
   text-align: center; /* Ensure text is centered */
+<<<<<<< Updated upstream
+=======
+}
+
+.enemy-description {
+  color: #ff6a6a;
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+.enemy-health {
+  color: #ff6a6a;
+  font-weight: bold;
+}
+
+.player-health {
+  color: #6aff6a;
+  font-weight: bold;
+}
+
+.combat-option {
+  color: #ffcc66;
+  cursor: pointer;
+}
+
+.combat-option:hover {
+  text-decoration: underline;
+}
+
+.player-attack {
+  color: #66ccff;
+  font-weight: bold;
+}
+
+.enemy-attack {
+  color: #ff6666;
+  font-weight: bold;
+}
+
+.critical-hit {
+  color: #ffff00;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.victory-message {
+  color: #6aff6a;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.defeat-message {
+  color: #ff6a6a;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.xp-gain {
+  color: #cc99ff;
+  font-weight: bold;
+}
+
+.level-up {
+  color: #ffcc00;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.healing {
+  color: #66ff99;
+  font-weight: bold;
+}
+
+.enemy-stat {
+  color: #ff9999;
+}
+
+.enemy-name {
+  color: #ff6a6a;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+/* Notes Panel Styles */
+.notes-panel {
+  position: fixed; /* Change from absolute to fixed */
+  right: 0;
+  top: 0;
+  width: 35%; /* Increase from 30% to give more space for the editor */
+  height: 100%;
+  background-color: #1a1a1a;
+  border-left: 2px solid #333;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+  z-index: 100;
+}
+
+.notes-panel.hidden {
+  transform: translateX(100%);
+  /* Will be set to display: none via JavaScript after transition */
+}
+
+.notes-header {
+  padding: 10px;
+  background-color: #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notes-header h3 {
+  margin: 0;
+  color: #ddd;
+}
+
+.notes-editor {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  background-color: #222;
+  color: #ddd;
+  font-family: 'Courier New', monospace;
+  line-height: 1.5;
+}
+
+#close-notes {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Notes Toolbar Styles */
+.notes-toolbar {
+  display: flex;
+  background-color: #2a2a2a;
+  padding: 5px;
+  border-bottom: 1px solid #444;
+}
+
+.format-btn {
+  background-color: #333;
+  color: #ddd;
+  border: 1px solid #555;
+  margin: 0 2px;
+  padding: 3px 8px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+.format-btn:hover {
+  background-color: #444;
+}
+
+.format-btn.active {
+  background-color: #555;
+  color: #fff;
+}
+
+.format-select {
+  background-color: #333;
+  color: #ddd;
+  border: 1px solid #555;
+  margin: 0 2px;
+  padding: 3px;
+  cursor: pointer;
+>>>>>>> Stashed changes
 }
