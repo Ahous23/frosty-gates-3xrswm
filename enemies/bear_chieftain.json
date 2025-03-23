@@ -1,1 +1,20 @@
-{  "name": "Bear Chieftain",  "description": "The leader of the bear warriors. Much larger than others of its kind, it wears elaborate armor and carries weapons of superior craftsmanship.",  "health": 200,  "attack": 22,  "defense": 12,  "speed": 7,  "lootTables": [    {      "table": "epic_loot",      "chance": 100    },    {      "table": "legendary_loot",      "chance": 40    }  ],  "guaranteedLoot": [    {      "id": "chieftain_medallion",      "quantity": 1    },    {      "id": "magic_crystal",      "quantity": 3    }  ],  "xpReward": 200}
+{
+  "id": "bear_chieftain",
+  "name": "Bear Chieftain",
+  "description": "The imposing leader of the bear clan. Wears ornate armor and wields ancestral weapons.",
+  "health": 85,
+  "attack": 10,
+  "defense": 8,
+  "speed": 3,
+  "weapons": [
+    {
+      "name": "ancestral great axe",
+      "damage": 20
+    },
+    {
+      "name": "crystal-tipped spear",
+      "damage": 16
+    }
+  ],
+  "lootTables": ["advanced_loot", "epic_loot"]
+}

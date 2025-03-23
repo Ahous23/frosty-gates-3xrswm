@@ -1,16 +1,20 @@
 {
+  "id": "bear_warrior",
   "name": "Bear Warrior",
-  "description": "A fully grown bear standing on its hind legs, wielding a crude wooden club. Its eyes gleam with intelligence and hatred.",
-  "health": 60,
-  "attack": 12,
-  "defense": 8,
-  "speed": 6,
-  "lootTables": ["basic_loot", "mid_tier_loot"],
-  "guaranteedLoot": [
+  "description": "A muscular bear warrior wielding a battle axe. His fur shows scars from many battles.",
+  "health": 45,
+  "attack": 8,
+  "defense": 5,
+  "speed": 4,
+  "weapons": [
     {
-      "id": "bear_claw",
-      "quantity": 1
+      "name": "battle axe",
+      "damage": 12
+    },
+    {
+      "name": "spiked club",
+      "damage": 10
     }
   ],
-  "xpReward": 50
+  "lootTables": ["basic_loot", "mid_tier_loot"]
 }

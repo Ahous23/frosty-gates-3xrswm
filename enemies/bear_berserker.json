@@ -1,16 +1,20 @@
 {
+  "id": "bear_berserker",
   "name": "Bear Berserker",
-  "description": "A massive bear with scars all over its body. It roars with uncontrolled rage, wielding two spiked wooden clubs.",
-  "health": 80,
-  "attack": 18,
-  "defense": 5,
-  "speed": 10,
-  "lootTables": ["mid_tier_loot", "advanced_loot"],
-  "guaranteedLoot": [
+  "description": "A frenzied bear warrior with bloodshot eyes. He's covered in war paint and screams with rage.",
+  "health": 60,
+  "attack": 12,
+  "defense": 3,
+  "speed": 6,
+  "weapons": [
     {
-      "id": "bear_claw",
-      "quantity": 2
+      "name": "dual axes",
+      "damage": 15
+    },
+    {
+      "name": "spiked maul",
+      "damage": 18
     }
   ],
-  "xpReward": 75
+  "lootTables": ["mid_tier_loot", "advanced_loot"]
 }
