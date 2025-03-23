@@ -5,6 +5,11 @@
     "bear_berserker", 
     "bear_chieftain", 
     "bear_shaman",
+    "bear_hunter",
+    "polar_bear_guardian",
+    "bear_cub",
+    "elder_bear",
+    "corrupted_bear",
     "wolf_scout",
     "frost_spider"
   ],
@@ -14,7 +19,12 @@
       "bear_warrior_weak", 
       "bear_berserker", 
       "bear_chieftain", 
-      "bear_shaman"
+      "bear_shaman",
+      "bear_hunter",
+      "polar_bear_guardian",
+      "bear_cub",
+      "elder_bear",
+      "corrupted_bear"
     ],
     "wolves": [
       "wolf_scout"

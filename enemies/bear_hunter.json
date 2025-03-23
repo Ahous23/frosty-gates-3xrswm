@@ -1,0 +1,20 @@
+{
+  "id": "bear_hunter",
+  "name": "Bear Hunter",
+  "description": "A stealthy bear warrior with keen senses. Specializes in tracking prey through the forest.",
+  "health": 40,
+  "attack": 7,
+  "defense": 4,
+  "speed": 6,
+  "weapons": [
+    {
+      "name": "hunting bow",
+      "damage": 11
+    },
+    {
+      "name": "skinning knife",
+      "damage": 8
+    }
+  ],
+  "lootTables": ["basic_loot", "mid_tier_loot"]
+}

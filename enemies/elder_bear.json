@@ -1,0 +1,21 @@
+{
+  "id": "elder_bear",
+  "name": "Elder Bear",
+  "description": "An ancient bear with graying fur and glowing eyes. Despite its age, it possesses formidable wisdom and power.",
+  "health": 90,
+  "attack": 9,
+  "defense": 7,
+  "speed": 2,
+  "weapons": [
+    {
+      "name": "ancient claws",
+      "damage": 14
+    },
+    {
+      "name": "primal roar",
+      "damage": 16
+    }
+  ],
+  "specialAbilities": ["nature's blessing", "ancestral wisdom"],
+  "lootTables": ["advanced_loot", "epic_loot"]
+}

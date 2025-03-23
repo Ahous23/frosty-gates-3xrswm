@@ -1,0 +1,21 @@
+{
+  "id": "corrupted_bear",
+  "name": "Corrupted Bear",
+  "description": "A once-noble bear warrior now twisted by dark magic. Its fur has patches of decay and its eyes glow with an unnatural light.",
+  "health": 55,
+  "attack": 11,
+  "defense": 4,
+  "speed": 5,
+  "weapons": [
+    {
+      "name": "corrupted claws",
+      "damage": 14
+    },
+    {
+      "name": "shadow strike",
+      "damage": 17
+    }
+  ],
+  "specialAbilities": ["corrupt", "life drain"],
+  "lootTables": ["mid_tier_loot", "dark_loot"]
+}
