@@ -6,10 +6,7 @@
     "bear_chieftain", 
     "bear_shaman",
     "wolf_scout",
-    "wolf_alpha",
-    "frost_spider",
-    "ice_elemental",
-    "snow_troll"
+    "frost_spider"
   ],
   "categories": {
     "bears": [
@@ -20,13 +17,10 @@
       "bear_shaman"
     ],
     "wolves": [
-      "wolf_scout",
-      "wolf_alpha"
+      "wolf_scout"
     ],
     "creatures": [
-      "frost_spider",
-      "ice_elemental",
-      "snow_troll"
+      "frost_spider"
     ]
   }
 }
