@@ -37,7 +37,7 @@
       "description": "A roughly made dagger. It's not much, but it's better than bare hands.",
       "chance": 0.02, 
       "type": "weapon", 
-      "damage": 2, 
+      "damage": 4, 
       "stackable": false,
       "usable": false,
       "equipable": true

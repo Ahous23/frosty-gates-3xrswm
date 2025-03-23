@@ -34,18 +34,44 @@ export class EquipmentManager {
     const currentEquipped = this.equipment[slot];
     
     // Equip the new item
-    this.equipment[slot] = { ...item, equipped: true };
+    this.equipment[slot] = { ...item, equipped: true, quantity: 1 };
     
     // Handle inventory if this is coming from there
     if (fromInventory && this.game.inventoryManager) {
-      // Remove the item from inventory
-      this.game.inventoryManager.removeItem(item.id, 1);
+      // Remove only 1 from inventory
+      // Make a copy before removal to avoid modifying the original item
+      const itemCopy = { ...item };
+      this.game.inventoryManager.removeItem(itemCopy.id, 1);
       
       // Add the previously equipped item back to inventory if it exists
       if (currentEquipped) {
         // Reset equipped state
         const returnItem = { ...currentEquipped, equipped: false };
         this.game.inventoryManager.addItem(returnItem);
+      }
+    } else if (fromInventory) {
+      // Fallback for direct inventory manipulation
+      const itemIndex = this.game.inventory.findIndex(i => i.id === item.id);
+      if (itemIndex !== -1) {
+        // Just reduce quantity by 1 if more than one
+        if (this.game.inventory[itemIndex].quantity > 1) {
+          this.game.inventory[itemIndex].quantity--;
+        } else {
+          // Remove the item if it's the last one
+          this.game.inventory.splice(itemIndex, 1);
+        }
+      }
+      
+      // Add previously equipped item back to inventory
+      if (currentEquipped) {
+        const returnItem = { ...currentEquipped, equipped: false };
+        const existingIndex = this.game.inventory.findIndex(i => i.id === returnItem.id);
+        
+        if (existingIndex !== -1 && returnItem.stackable !== false) {
+          this.game.inventory[existingIndex].quantity++;
+        } else {
+          this.game.inventory.push({...returnItem, quantity: 1});
+        }
       }
     }
     
