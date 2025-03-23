@@ -136,6 +136,10 @@ export class InputHandlers {
       this.showHelp();
     } else if (input === "inventory" || input === "i") {
       this.showInventory();
+      return;
+    } else if (input === "equipment" || input === "equip") {
+      this.showEquipment();
+      return;
     } else if (input === "stats" || input === "s") {
       this.showStats();
     } else if (input === "save") {
@@ -351,6 +355,7 @@ export class InputHandlers {
     }
   }
 
+  // Update the handleInventoryInput method to use the new managers
   handleInventoryInput(input) {
     // Add notes command check at the beginning
     if (input === "notes" || input === "note") {
@@ -378,7 +383,7 @@ export class InputHandlers {
     const examineMatch = input.match(/^examine\s+(.+)$|^look\s+(.+)$|^inspect\s+(.+)$/);
     if (examineMatch) {
       const itemName = (examineMatch[1] || examineMatch[2] || examineMatch[3]).toLowerCase();
-      // Find the item by name (case insensitive)
+      // Find the item by name using the existing inventory array
       const item = this.game.inventory.find(
         (i) => i.name.toLowerCase() === itemName || i.id.toLowerCase() === itemName
       );
@@ -392,11 +397,11 @@ export class InputHandlers {
       return;
     }
 
-    // Check if trying to use an item
-    const useMatch = input.match(/^use\s+(.+)$/);
-    if (useMatch) {
-      const itemName = useMatch[1].toLowerCase();
-      // Find the item by name (case insensitive)
+    // Check if trying to equip an item
+    const equipMatch = input.match(/^equip\s+(.+)$/);
+    if (equipMatch) {
+      const itemName = equipMatch[1].toLowerCase();
+      // Find the item by name using the existing inventory array
       const item = this.game.inventory.find(
         (i) => i.name.toLowerCase() === itemName || i.id.toLowerCase() === itemName
       );
@@ -406,7 +411,35 @@ export class InputHandlers {
         return;
       }
 
-      this.useItem(item);
+      this.equipItem(item);
+      return;
+    }
+
+    // Check if trying to use an item
+    const useMatch = input.match(/^use\s+(.+)$/);
+    if (useMatch) {
+      const itemName = useMatch[1].toLowerCase();
+      // Find the item by name using the existing inventory array
+      const item = this.game.inventory.find(
+        (i) => i.name.toLowerCase() === itemName || i.id.toLowerCase() === itemName
+      );
+
+      if (!item) {
+        this.game.uiManager.print(`You don't have an item called "${itemName}"`, "error-message");
+        return;
+      }
+
+      // Call the useConsumable method directly
+      const result = this.game.useConsumable(item);
+      
+      // Display the message to the player (not just console)
+      this.game.uiManager.print(result.message, result.success ? "system-message" : "error-message");
+      
+      // If the use was successful, remove the item from inventory
+      if (result.success) {
+        this.removeItemFromInventory(item.id, 1);
+      }
+      
       return;
     }
 
@@ -586,7 +619,8 @@ export class InputHandlers {
   showInventoryHelp() {
     this.game.uiManager.print("\n===== INVENTORY COMMANDS =====", "system-message");
     this.game.uiManager.print("examine [item] - Examine an item in detail", "help-text");
-    this.game.uiManager.print("use [item] - Use an item", "help-text");
+    this.game.uiManager.print("use [item] - Use a consumable item", "help-text");
+    this.game.uiManager.print("equip [item] - Equip a weapon or armor", "help-text");
     this.game.uiManager.print("back, exit - Exit inventory view", "help-text");
   }
 
@@ -620,24 +654,66 @@ export class InputHandlers {
       });
     }
     
-    this.game.uiManager.print("\nType 'examine [item]' to inspect details, 'use [item]' to use an item, or 'back' to return", "system-message");
+    this.game.uiManager.print("\nType 'examine [item]' to inspect details, 'use [item]' to use an item, 'equip [item]' to equip an item, or 'back' to return", "system-message");
   }
 
   useItem(item) {
-    this.game.uiManager.print(`Using ${item.name}...`, "system-message");
-    
-    if (item.effect) {
-      this.handleCustomItemEffect(item);
-      this.game.uiManager.print(item.effectDescription || "Item used.", "system-message");
-    } else {
-      this.game.uiManager.print("This item has no effect right now.", "system-message");
+    // Handle different item types
+    if (item.type === "weapon" || item.category === "weapon" || 
+        item.type === "armor" || item.category === "armor") {
+      // Redirect to equip method
+      this.equipItem(item);
+      return;
     }
     
-    if (item.consumable) {
+    if (item.type === "consumable" || item.category === "consumable") {
+      this.game.uiManager.print(`Using ${item.name}...`, "system-message");
+      
+      // Handle healing items
+      if ((item.effects && item.effects.heal) || item.effect === "heal") {
+        const healAmount = item.effects?.heal || item.value;
+        this.game.gameState.playerHealth = Math.min(
+          this.game.gameState.playerMaxHealth || 100,
+          this.game.gameState.playerHealth + healAmount
+        );
+        this.game.uiManager.print(`You restored ${healAmount} health!`, "healing");
+      }
+      // Handle status effect items
+      else if (item.effect === "resist_frost" || (item.effects && item.effects.resistFrost)) {
+        this.game.uiManager.print(`You gain frost resistance for ${item.duration || 300} seconds.`, "system-message");
+        // Add status effect tracking
+        if (!this.game.gameState.statusEffects) {
+          this.game.gameState.statusEffects = {};
+        }
+        this.game.gameState.statusEffects.frostResistance = {
+          duration: item.duration || 300,
+          startTime: Date.now()
+        };
+      }
+      // Custom effects
+      else if (item.effect === "custom" || item.id === "healingSalve") {
+        this.handleCustomItemEffect(item);
+      }
+      // Generic message for other consumables
+      else {
+        this.game.uiManager.print(item.effectDescription || "Item used.", "system-message");
+      }
+      
+      // Remove the consumable from inventory
       this.removeItemFromInventory(item.id);
+      
+      // Refresh inventory view
+      this.showInventory();
+      return;
     }
     
-    this.showInventory(); // Refresh inventory view
+    if (item.type === "material" || item.category === "material") {
+      this.game.uiManager.print(`${item.name} is a crafting material. It can't be used directly.`, "system-message");
+      return;
+    }
+    
+    // Default message for other item types
+    this.game.uiManager.print(`You can't use ${item.name} right now.`, "error-message");
   }
 
   useItemById(itemId) {
@@ -841,38 +917,187 @@ export class InputHandlers {
   examineItem(item) {
     this.game.uiManager.print(`\n${item.name}`, "item-name");
     
+    // Display description if it exists
     if (item.description) {
       this.game.uiManager.print(item.description, "item-description");
+    } else {
+      this.game.uiManager.print("There's nothing special about this item.", "item-description");
     }
     
     // Show item stats based on type
     if (item.type === "weapon" || item.category === "weapon") {
-      this.game.uiManager.print(`Damage: ${item.damage}`, "item-stat");
+      this.game.uiManager.print(`Damage: ${item.damage || 0}`, "item-stat");
     } else if (item.type === "armor" || item.category === "armor") {
-      this.game.uiManager.print(`Defense: ${item.defense}`, "item-stat");
+      this.game.uiManager.print(`Defense: ${item.defense || 0}`, "item-stat");
     } else if (item.type === "consumable" || item.category === "consumable") {
-      if (item.effects && item.effects.heal) {
-        this.game.uiManager.print(`Healing: ${item.effects.heal}`, "item-stat");
-      } else if (item.effect === "heal") {
-        this.game.uiManager.print(`Healing: ${item.value}`, "item-stat");
+      if (item.effect === "heal") {
+        this.game.uiManager.print(`Healing: ${item.value || 0}`, "item-stat");
       }
     }
     
-    // Show if it's equipable
-    if (item.equipable) {
-      this.game.uiManager.print("This item can be equipped.", "item-stat");
+    // Show if equipable
+    if (item.type === "weapon" || item.category === "weapon" || 
+        item.type === "armor" || item.category === "armor") {
+      this.game.uiManager.print(`Type 'equip ${item.name}' to equip this item.`, "hint-text");
+    }
+    
+    // Show if usable
+    if (item.type === "consumable" || item.category === "consumable") {
+      this.game.uiManager.print(`Type 'use ${item.name}' to use this item.`, "hint-text");
+    }
+  }
+
+  // Add these helper methods to calculate attack and defense properly
+  getCalculatedAttack() {
+    const baseAttack = this.game.playerStats.attack || 0;
+    const weapon = this.game.gameState.equipment?.weapon;
+    return weapon ? baseAttack + (weapon.damage || 0) : baseAttack + 5; // Default 5 for fists
+  }
+
+  getCalculatedDefense() {
+    const baseDefense = this.game.playerStats.defense || 0;
+    const armor = this.game.gameState.equipment?.armor;
+    return armor ? baseDefense + (armor.defense || 0) : baseDefense;
+  }
+
+  // Update the equipItem method
+  equipItem(item) {
+    // Check if the item is a weapon or armor
+    if (item.type !== "weapon" && item.category !== "weapon" && 
+        item.type !== "armor" && item.category !== "armor") {
+      this.game.uiManager.print(`You can't equip ${item.name}.`, "error-message");
+      return;
+    }
+    
+    // Initialize equipment if it doesn't exist
+    if (!this.game.gameState.equipment) {
+      this.game.gameState.equipment = {};
+    }
+    
+    const equipmentType = (item.type === "weapon" || item.category === "weapon") ? "weapon" : "armor";
+    
+    // Calculate current stats before equipping
+    const oldAttack = this.getCalculatedAttack();
+    const oldDefense = this.getCalculatedDefense();
+    
+    // Get the currently equipped item
+    const currentEquipped = this.game.gameState.equipment[equipmentType];
+    
+    if (currentEquipped) {
+      // Add the currently equipped item back to inventory
+      this.game.uiManager.print(`You unequip your ${currentEquipped.name}.`, "system-message");
       
-      // Show if it's currently equipped
-      if (item.equipped) {
-        this.game.uiManager.print("Currently equipped.", "item-stat");
+      // Mark it as unequipped
+      currentEquipped.equipped = false;
+      
+      // Add it back to inventory
+      const existingItem = this.game.inventory.find(i => i.id === currentEquipped.id);
+      if (existingItem && existingItem.stackable) {
+        existingItem.quantity++;
+      } else {
+        this.game.inventory.push({...currentEquipped, quantity: 1});
       }
     }
     
-    // Show if it's stackable
-    if (item.stackable) {
-      this.game.uiManager.print(`Quantity: ${item.quantity}`, "item-stat");
+    // Equip the new item - create a copy to avoid modifying the original
+    this.game.gameState.equipment[equipmentType] = {...item, equipped: true};
+    
+    // Remove the equipped item from inventory
+    const itemIndex = this.game.inventory.findIndex(i => i.id === item.id);
+    if (itemIndex !== -1) {
+      if (item.stackable && item.quantity > 1) {
+        // Just reduce the quantity by 1 for stackable items
+        this.game.inventory[itemIndex].quantity--;
+      } else {
+        // Remove non-stackable items or last item in stack
+        this.game.inventory.splice(itemIndex, 1);
+      }
     }
     
-    this.game.uiManager.print("\nType 'back' to return to inventory.", "system-message");
+    // Create a message container that won't get erased by inventory refresh
+    this.game.uiManager.clearOutput();
+    
+    // First print the basic equip message
+    this.game.uiManager.print(`You equip ${item.name}.`, "system-message");
+    
+    // Calculate new stats after equipping
+    const newAttack = this.getCalculatedAttack();
+    const newDefense = this.getCalculatedDefense();
+    
+    // Show attack change for weapons
+    if (equipmentType === "weapon" && newAttack !== oldAttack) {
+      const difference = newAttack - oldAttack;
+      const changeText = difference > 0 ? `increased by ${difference}` : `decreased by ${Math.abs(difference)}`;
+      this.game.uiManager.print(`Your attack rating has ${changeText}!`, "stat-change");
+    }
+    
+    // Show defense change for armor
+    if (equipmentType === "armor" && newDefense !== oldDefense) {
+      const difference = newDefense - oldDefense;
+      const changeText = difference > 0 ? `increased by ${difference}` : `decreased by ${Math.abs(difference)}`;
+      this.game.uiManager.print(`Your defense rating has ${changeText}!`, "stat-change");
+    }
+    
+    // Add a "press any key to continue" instruction
+    this.game.uiManager.print("\nPress Enter to continue...", "hint-text");
+    
+    // Store the original input mode to restore it later
+    const originalInputMode = this.game.inputMode;
+    
+    // Change to a special mode to wait for continuation
+    this.game.inputMode = "equip-confirm";
+    
+    // Override the input handler temporarily to show inventory after any key press
+    const originalHandleInput = this.game.handleInput;
+    this.game.handleInput = () => {
+      // Restore original input handler
+      this.game.handleInput = originalHandleInput;
+      
+      // Restore original input mode
+      this.game.inputMode = originalInputMode;
+      
+      // Now show the inventory
+      this.showInventory();
+    };
+  }
+
+  // Add helper methods to calculate attack and defense
+  getCalculatedAttack() {
+    const baseAttack = Math.floor(this.game.playerStats.attack / 2);
+    const weapon = this.game.gameState.equipment?.weapon;
+    return baseAttack + (weapon ? weapon.damage || 0 : 5); // Default 5 for fists
+  }
+
+  getCalculatedDefense() {
+    const baseDefense = Math.floor(this.game.playerStats.defense / 2);
+    const armor = this.game.gameState.equipment?.armor;
+    return baseDefense + (armor ? armor.defense || 0 : 0);
+  }
+
+  // Update the showEquipment method to use equipment manager
+  showEquipment() {
+    this.game.uiManager.print("\n===== EQUIPMENT =====", "system-message");
+    
+    const equipment = this.game.equipmentManager.getAllEquipment();
+    
+    if (equipment.weapon) {
+      this.game.uiManager.print(`Weapon: ${equipment.weapon.name} (${equipment.weapon.damage} damage)`, "item-stat");
+    } else {
+      this.game.uiManager.print("Weapon: None (5 damage with fists)", "item-stat");
+    }
+    
+    if (equipment.armor) {
+      this.game.uiManager.print(`Armor: ${equipment.armor.name} (${equipment.armor.defense} defense)`, "item-stat");
+    } else {
+      this.game.uiManager.print("Armor: None", "item-stat");
+    }
+    
+    if (equipment.accessory) {
+      this.game.uiManager.print(`Accessory: ${equipment.accessory.name}`, "item-stat");
+    } else {
+      this.game.uiManager.print("Accessory: None", "item-stat");
+    }
+    
+    this.game.uiManager.print("\nType 'inventory' to manage your equipment.", "system-message");
   }
 }

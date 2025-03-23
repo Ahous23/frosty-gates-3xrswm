@@ -15,6 +15,8 @@ import { CombatSystem } from './js/combat.js';
 import { LootSystem } from './js/lootSystem.js';
 import { NotesManager } from './js/notes.js';
 import { MapManager } from './js/map.js';
+import { InventoryManager } from './js/inventoryManager.js';
+import { EquipmentManager } from './js/equipmentManager.js';
 
 class TextGame {
   constructor() {
@@ -33,7 +35,23 @@ class TextGame {
     this.initialPlayerXp = initialPlayerXp;
     this.xpPerLevel = xpPerLevel;
     
+    // Initialize inventory and equipment managers
+    this.inventoryManager = new InventoryManager(this);
+    this.equipmentManager = new EquipmentManager(this);
+    
+    // For backward compatibility
     this.inventory = [];
+    
+    // Define a property that syncs the inventory array with the inventoryManager
+    Object.defineProperty(this, 'inventory', {
+      get: () => this.inventoryManager ? this.inventoryManager.items : [],
+      set: (items) => {
+        if (this.inventoryManager) {
+          this.inventoryManager.items = items || [];
+        }
+      }
+    });
+    
     this.storyContent = {};
     this.storyIndex = null;
     this.isTyping = false;
@@ -624,6 +642,71 @@ class TextGame {
       await new Promise((resolve) => setTimeout(resolve, pauseDuration));
     }
     this.audioManager.stopTypingSound();
+  }
+
+  // Add this method to handle consumable usage
+  useConsumable(item) {
+    if (!item) return { success: false, message: "No item to use." };
+    
+    // Handle different item types
+    if (item.type === "consumable" || item.category === "consumable") {
+      if (item.effect === "heal" || (item.effects && item.effects.heal)) {
+        const healAmount = item.effects?.heal || item.value;
+        const oldHealth = this.gameState.playerHealth;
+        this.gameState.playerHealth = Math.min(
+          this.gameState.playerMaxHealth || 100,
+          this.gameState.playerHealth + healAmount
+        );
+        const actualHeal = this.gameState.playerHealth - oldHealth;
+        
+        return {
+          success: true,
+          message: `You used ${item.name} and restored ${actualHeal} health!`,
+          effect: { type: "heal", value: actualHeal }
+        };
+      }
+      
+      // Generic consumable response if no specific effect is defined
+      return { 
+        success: true, 
+        message: item.useMessage || `You used ${item.name}.` 
+      };
+    }
+    
+    // Add specific messaging for different item types
+    else if (item.type === "weapon" || item.category === "weapon") {
+      return { 
+        success: false, 
+        message: `You examine the ${item.name}. Try equipping it instead of using it.` 
+      };
+    }
+    
+    else if (item.type === "armor" || item.category === "armor") {
+      return { 
+        success: false, 
+        message: `You examine the ${item.name}. Try equipping it instead of using it.` 
+      };
+    }
+    
+    else if (item.type === "material" || item.category === "material") {
+      return { 
+        success: false, 
+        message: `${item.name} is a crafting material. Nothing interesting happens.` 
+      };
+    }
+    
+    else if (item.type === "key" || item.category === "key") {
+      return { 
+        success: false, 
+        message: `The ${item.name} might be useful somewhere specific.` 
+      };
+    }
+    
+    // Default response for any other item type
+    return { 
+      success: false, 
+      message: `Nothing interesting happens when you try to use the ${item.name}.` 
+    };
   }
 
   // Rest of the TextGame class methods...

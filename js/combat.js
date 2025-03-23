@@ -135,55 +135,48 @@ export class CombatSystem {
     }
   }
 
+  // Update the playerAttack method to use equipment manager
   playerAttack() {
-    // Get equipped weapon or use default
     const weapon = this.getEquippedWeapon();
+    const weaponDamage = this.game.equipmentManager ? 
+      this.game.equipmentManager.getWeaponDamage() : 
+      (weapon.damage + Math.floor(this.game.playerStats.attack / 2));
     
-    // Calculate base damage
-    let baseDamage = weapon.damage || 5; // Default damage if no weapon
+    // Critical hit chance based on luck (5% base + 1% per 5 points of luck)
+    const critChance = 0.05 + (Math.floor((this.game.playerStats.luck || 0) / 5) * 0.01);
+    const isCritical = Math.random() < critChance;
     
-    // Apply attack stat bonus
-    const attackBonus = baseDamage * (this.game.playerStats.attack * 0.01);
-    let damage = baseDamage + attackBonus;
-    
-    // Add damage variation based on attack stat
-    const variationRange = baseDamage * 0.2; // Base range is ±20% of base damage
-    const attackFactor = Math.min(1, this.game.playerStats.attack / 100);
-    const finalVariationRange = variationRange * (1.2 - attackFactor * 0.7); // Higher attack = more consistent
-    const variation = (Math.random() * 2 - 1) * finalVariationRange;
-    damage += variation;
-    
-    // Check for critical hit
-    const criticalChance = Math.min(this.game.playerStats.luck * 0.008, 0.2); // Max 20% chance
-    const isCritical = Math.random() < criticalChance;
-    
+    // Calculate damage
+    let damage = weaponDamage;
     if (isCritical) {
-      damage += baseDamage * 0.5; // Critical adds 50% of base damage
-      this.game.uiManager.print("Critical hit!", "critical-hit");
+      damage = Math.floor(damage * 1.5);
     }
     
-    // Apply enemy defense reduction
-    const defenseReduction = damage * (this.currentEnemy.defense * 0.01);
-    damage = Math.max(1, damage - defenseReduction); // At least 1 damage
-    damage = Math.floor(damage); // Round down to integer
+    // Apply enemy defense reduction if it exists
+    if (this.currentEnemy.defense) {
+      damage = Math.max(1, damage - Math.floor(this.currentEnemy.defense / 2));
+    }
     
-    // Apply damage to enemy
-    this.currentEnemy.currentHealth -= damage;
+    // Update enemy health
+    this.currentEnemy.currentHealth = Math.max(0, this.currentEnemy.currentHealth - damage);
     
-    // Display results
-    this.game.uiManager.print(`You attack ${this.currentEnemy.name} with your ${weapon.name} for ${damage} damage!`, "player-attack");
+    // Display attack message
+    this.game.uiManager.print(
+      `You attack with your ${weapon.name} and deal ${isCritical ? 'a critical hit for ' : ''}${damage} damage!`,
+      isCritical ? "critical-hit" : "player-attack"
+    );
     
-    // Check if enemy defeated
+    // Update combat status
+    this.displayCombatStatus();
+    
+    // Check if enemy is defeated
     if (this.currentEnemy.currentHealth <= 0) {
       this.endCombat(true);
       return;
     }
     
-    // End player turn
+    // Set up enemy turn after a delay
     this.playerTurn = false;
-    this.displayCombatStatus();
-    
-    // Enemy turn after delay
     setTimeout(() => this.processEnemyTurn(), 1500);
   }
 
@@ -236,13 +229,18 @@ export class CombatSystem {
     this.showCombatOptions();
   }
 
+  // Update the getEquippedWeapon method
   getEquippedWeapon() {
-    // Find equipped weapon in inventory or return default fists
-    const equippedWeapon = this.game.inventory.find(item => 
-      item.category === "weapon" && item.equipped === true
-    );
+    // Use the equipment manager to get the weapon
+    if (this.game.equipmentManager) {
+      return this.game.equipmentManager.equipment.weapon || {
+        name: "fists",
+        damage: 5
+      };
+    }
     
-    return equippedWeapon || {
+    // Fallback for backward compatibility
+    return {
       name: "fists",
       damage: 5
     };
