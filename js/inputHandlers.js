@@ -671,17 +671,15 @@ export class InputHandlers {
   }
 
   saveGame() {
-    // Save notes before generating save data
-    if (this.game.saveNotes) {
-      this.game.saveNotes();
-    }
+    // Get notes content directly from the saveNotes method which calls notesManager.save()
+    const notesContent = this.game.saveNotes();
     
     const saveData = {
       currentScene: this.game.currentScene,
       playerStats: this.game.playerStats,
       inventory: this.game.inventory,
       gameState: this.game.gameState,
-      notes: this.game.notesContent // Add notes to save data
+      notes: notesContent // Now correctly using the return value from saveNotes()
     };
     
     const saveCode = btoa(JSON.stringify(saveData));

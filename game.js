@@ -13,6 +13,8 @@ import { GameLogic } from './js/gameLogic.js';
 import { InputHandlers } from './js/inputHandlers.js';
 import { CombatSystem } from './js/combat.js';
 import { LootSystem } from './js/lootSystem.js';
+import { NotesManager } from './js/notes.js';
+import { MapManager } from './js/map.js';
 
 class TextGame {
   constructor() {
@@ -67,7 +69,6 @@ class TextGame {
 
     // Add document-level event listener for spacebar to skip typing
     document.addEventListener("keydown", (e) => {
-      // Check if Space is pressed and typing is in progress
       if (e.code === "Space" && this.isTyping) {
         e.preventDefault(); // Prevent page scrolling
         this.skipTyping();
@@ -85,13 +86,9 @@ class TextGame {
 
     this.uiManager.focusInput();
 
-    // Initialize notes system
-    this.initNotes();
-
-    // Initialize map properties
-    this.mapVisible = false;
-    this.mapLocations = {};
-    this.currentMapLocation = null;
+    // Initialize the managers
+    this.notesManager = new NotesManager(this);
+    this.mapManager = new MapManager(this);
   }
 
   toggleMusic() {
@@ -115,9 +112,6 @@ class TextGame {
       
       // Then load story content
       await this.loadStoryIndex();
-      
-      // Initialize map elements AFTER story index is loaded
-      this.initMapElements();
       
       this.showTitleScreen();
     } catch (error) {
@@ -381,25 +375,50 @@ class TextGame {
     this.audioManager.stopTypingSound();
   }
 
+  // Toggle notes panel
+  toggleNotes() {
+    this.notesManager.toggle();
+  }
+
+  // Save notes content
+  saveNotes() {
+    return this.notesManager.save();
+  }
+
+  // Load notes content
+  loadNotes(notesContent) {
+    this.notesManager.load(notesContent);
+  }
+
+  // Toggle map panel
+  toggleMap() {
+    this.mapManager.toggle();
+  }
+
+  // Update player's location on the map
+  updatePlayerMapLocation() {
+    this.mapManager.updatePlayerLocation();
+  }
+
   // Update saveGame to properly include notes
   saveGame() {
     // Make sure notes are captured immediately before saving
-    this.saveNotes();
+    const notesContent = this.saveNotes();
     
-    console.log("Saving notes content:", this.notesContent); // Add this debug line
+    console.log("Saving notes content:", notesContent);
     
     const saveData = {
       currentScene: this.currentScene,
       playerStats: this.playerStats,
       inventory: this.inventory,
       gameState: this.gameState,
-      notes: this.notesContent // Use the captured notes content directly
+      notes: notesContent
     };
     
-    console.log("Full save data:", saveData); // Add this to see the complete object
+    console.log("Full save data:", saveData);
     
     const saveString = btoa(JSON.stringify(saveData));
-    console.log("Save string length:", saveString.length); // Check if the save string is being created correctly
+    console.log("Save string length:", saveString.length);
     
     this.uiManager.print("\nSave Code (copy this somewhere safe):", "system-message");
     this.uiManager.print(saveString, "save-code");
@@ -440,472 +459,167 @@ class TextGame {
     }
   }
 
-  initNotes() {
-    // Set up notes panel
-    this.notesVisible = false;
-    this.notesContent = "";
-    
-    // Get DOM elements
-    this.notesPanel = document.getElementById('notes-panel');
-    this.notesEditor = document.getElementById('notes-editor');
-    const closeNotesBtn = document.getElementById('close-notes');
-    
-    // Ensure the panel is hidden initially (display: none)
-    if (!this.notesVisible) {
-      this.notesPanel.style.display = 'none';
+  async ensureSceneLoaded(sceneId) {
+    if (this.storyContent[sceneId]) return true;
+    const chapterId = this.getChapterForScene(sceneId);
+    if (!chapterId) {
+      console.error(`Cannot determine chapter for scene: ${sceneId}`);
+      return false;
     }
-    
-    // Setup event listeners
-    closeNotesBtn.addEventListener('click', () => this.toggleNotes());
-    
-    // Setup rich text formatting
-    this.setupRichTextEditing();
-    
-    // Auto-save notes when content changes (with debounce)
-    let timeout = null;
-    this.notesEditor.addEventListener('input', () => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        this.notesContent = this.notesEditor.innerHTML;
-      }, 500);
-    });
+    return await this.loadChapter(chapterId);
   }
 
-  setupRichTextEditing() {
-    // Get all formatting buttons and selects
-    const formatButtons = document.querySelectorAll('.format-btn');
-    const formatSelects = document.querySelectorAll('.format-select');
-    
-    // Add event listeners to buttons
-    formatButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const command = button.dataset.command;
-        document.execCommand(command, false, null);
-        this.notesEditor.focus();
-      });
-    });
-    
-    // Add event listeners to selects
-    formatSelects.forEach(select => {
-      select.addEventListener('change', () => {
-        const command = select.dataset.command;
-        const value = select.value;
-        document.execCommand(command, false, value);
-        select.selectedIndex = 0; // Reset to default option
-        this.notesEditor.focus();
-      });
-    });
-    
-    // Focus the editor when clicking on it
-    this.notesEditor.addEventListener('focus', () => {
-      // This ensures we're editing in the correct context
-    });
-  }
-
-  toggleNotes() {
-    this.notesVisible = !this.notesVisible;
-    
-    if (this.notesVisible) {
-      // Show notes
-      this.notesPanel.style.display = 'flex';
-      // Use requestAnimationFrame to ensure display change takes effect before removing transform
-      requestAnimationFrame(() => {
-        this.notesPanel.classList.remove('hidden');
-      });
-    } else {
-      // Hide notes - first start the transition
-      this.notesPanel.classList.add('hidden');
-      
-      // Add transitionend listener to set display to none after animation
-      const hidePanel = () => {
-        this.notesPanel.style.display = 'none';
-        this.notesPanel.removeEventListener('transitionend', hidePanel);
-      };
-      
-      this.notesPanel.addEventListener('transitionend', hidePanel);
-    }
-  }
-
-  saveNotes() {
-    // Capture current notes content
-    const notesContent = this.notesEditor.innerHTML;
-    console.log("Notes content before saving:", notesContent);
-    this.notesContent = notesContent;
-    return this.notesContent;
-  }
-
-  // Make sure the loadNotes method properly handles the content
-  loadNotes(notesContent) {
-    if (notesContent) {
-      this.notesContent = notesContent;
-      this.notesEditor.innerHTML = this.notesContent;
-      console.log("Notes loaded:", notesContent.substring(0, 50) + "..."); // Debug log
-    }
-  }
-
-  // Initialize map location data
-  initMapLocations() {
-    // Define map locations (coordinates are percentages of the map container)
-    this.mapLocations = {
-      "intro": { x: 20, y: 15, name: "Starting Point" },
-      "huntersOutpost": { x: 35, y: 25, name: "Hunter's Outpost" },
-      "forestPath": { x: 50, y: 30, name: "Forest Path" },
-      "riverCrossing": { x: 65, y: 40, name: "River Crossing" },
-      "mountainBase": { x: 75, y: 55, name: "Mountain Base" },
-      "crystalRidge": { x: 85, y: 70, name: "Crystal Ridge" },
-      "bearCave": { x: 90, y: 80, name: "Bear Cave" }
-    };
-    
-    // Set initial location
-    this.updatePlayerMapLocation();
-  }
-  
-  // Update player's location on the map based on currentScene
-  updatePlayerMapLocation() {
-    // Add a safety check for storyIndex
-    if (!this.storyIndex || !this.currentScene) {
-      console.log("Story index or current scene not available yet");
-      return;
-    }
-    
-    console.log("Updating player location for scene:", this.currentScene);
-    
-    // Get current chapter/location from the scene ID
-    const currentChapter = this.getChapterForScene(this.currentScene);
-    console.log("Current chapter:", currentChapter);
-    
-    if (currentChapter) {
-      // Try to extract location name from chapter (e.g., "huntersOutpost" from "locations/huntersOutpost")
-      const locationMatch = currentChapter.match(/locations\/(\w+)/);
-      if (locationMatch && locationMatch[1]) {
-        this.currentMapLocation = locationMatch[1];
-        console.log("Matched location:", this.currentMapLocation);
-      } else {
-        // If we can't extract from the chapter path, try to match to a known map location
-        for (const locationId in this.mapLocations) {
-          if (this.currentScene.includes(locationId)) {
-            this.currentMapLocation = locationId;
-            console.log("Matched location from scene name:", this.currentMapLocation);
-            break;
-          }
-        }
+  getChapterForScene(sceneId) {
+    for (const [chapterId, info] of Object.entries(this.storyIndex.sceneMapping)) {
+      if (info.scenes.includes(sceneId)) {
+        return chapterId;
       }
     }
-    
-    // If we're showing the map, update the display
-    if (this.mapVisible) {
-      this.renderMap();
-    }
+    return null;
   }
-  
-  // Render the map with locations
-  renderMap() {
-    if (!this.mapContainer) return;
-    
-    // Clear existing map markers
-    this.mapContainer.innerHTML = '';
-    
-    // Create the base map SVG
-    const mapSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    mapSvg.setAttribute("width", "100%");
-    mapSvg.setAttribute("height", "100%");
-    mapSvg.setAttribute("viewBox", "0 0 100 100");
-    mapSvg.style.position = "absolute";
-    mapSvg.style.top = "0";
-    mapSvg.style.left = "0";
-    
-    // Add background
-    const background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    background.setAttribute("width", "100");
-    background.setAttribute("height", "100");
-    background.setAttribute("fill", "#2a392a");
-    mapSvg.appendChild(background);
-    
-    // Add forest areas
-    this.addForestArea(mapSvg, 10, 10, 40, 40, "#1a2e1a");
-    this.addForestArea(mapSvg, 40, 20, 30, 25, "#1a2e1a");
-    
-    // Add mountain ranges
-    this.addMountainRange(mapSvg, 70, 50, 30, 35, "#3a3a3a");
-    
-    // Add river paths
-    const riverPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    riverPath.setAttribute("d", "M 65 10 C 60 20, 55 30, 60 40 C 65 50, 60 60, 65 70");
-    riverPath.setAttribute("stroke", "#4a81b0");
-    riverPath.setAttribute("stroke-width", "2");
-    riverPath.setAttribute("fill", "none");
-    mapSvg.appendChild(riverPath);
-    
-    // Add path connections
-    this.addPathConnections(mapSvg);
-    
-    // Add the map SVG to the container
-    this.mapContainer.appendChild(mapSvg);
-    
-    // Add location markers (these will be HTML divs, not SVG elements)
-    console.log("Current map location:", this.currentMapLocation);
-    Object.entries(this.mapLocations).forEach(([locationId, location]) => {
-      const marker = document.createElement('div');
-      marker.className = 'map-landmark';
-      marker.style.left = `${location.x}%`;
-      marker.style.top = `${location.y}%`;
-      marker.title = location.name;
-      
-      // Debug
-      console.log(`Rendering location: ${locationId} (${location.name})`);
-      
-      // If this is the player's current location, make it red
-      if (locationId === this.currentMapLocation) {
-        console.log(`This is the player's location! ${locationId}`);
-        marker.style.backgroundColor = '#ff0000';
-        marker.style.width = '12px';
-        marker.style.height = '12px';
-        marker.style.zIndex = '10';
-        marker.style.boxShadow = '0 0 5px #fff, 0 0 10px #ff0000';
-        marker.title = `Your Location: ${location.name}`;
-      } else {
-        marker.style.backgroundColor = '#4285f4';
+
+  print(text, className = "") {
+    this.uiManager.print(text, className);
+  }
+
+  clearInput() {
+    this.uiManager.clearInput();
+  }
+
+  clearOutput() {
+    this.uiManager.clearOutput();
+  }
+
+  async typeText(text) {
+    this.isTyping = true;
+    this.gameInput.disabled = true;
+
+    const element = document.createElement("div");
+    element.className = "typed-text";
+    this.gameOutput.appendChild(element);
+
+    for (let i = 0; i < text.length; i++) {
+      if (!this.isTyping) {
+        element.textContent = text;
+        this.gameOutput.scrollTop = this.gameOutput.scrollHeight;
+        break;
       }
-      
-      // Add location label
-      const label = document.createElement('div');
-      label.className = 'map-label';
-      label.textContent = location.name;
-      label.style.position = 'absolute';
-      label.style.left = `${location.x}%`;
-      label.style.top = `${location.y + 5}%`;
-      label.style.transform = 'translateX(-50%)';
-      label.style.color = '#ddd';
-      label.style.fontSize = '10px';
-      label.style.textShadow = '1px 1px 1px #000';
-      label.style.whiteSpace = 'nowrap';
-      
-      this.mapContainer.appendChild(marker);
-      this.mapContainer.appendChild(label);
-    });
-  }
-  
-  // Helper method to add forest areas
-  addForestArea(svg, x, y, width, height, color) {
-    // Create a group for the forest
-    const forestGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    
-    // Create the forest base
-    const forestBase = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    forestBase.setAttribute("x", x);
-    forestBase.setAttribute("y", y);
-    forestBase.setAttribute("width", width);
-    forestBase.setAttribute("height", height);
-    forestBase.setAttribute("fill", color);
-    forestBase.setAttribute("opacity", "0.7");
-    forestGroup.appendChild(forestBase);
-    
-    // Add some tree symbols
-    for (let i = 0; i < 15; i++) {
-      const treeX = x + Math.random() * width;
-      const treeY = y + Math.random() * height;
-      const treeSize = 1 + Math.random() * 1.5;
-      
-      const tree = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-      tree.setAttribute("cx", treeX);
-      tree.setAttribute("cy", treeY);
-      tree.setAttribute("r", treeSize);
-      tree.setAttribute("fill", "#1d4d1d");
-      forestGroup.appendChild(tree);
+      element.textContent += text.charAt(i);
+      this.gameOutput.scrollTop = this.gameOutput.scrollHeight;
+      await new Promise((resolve) => setTimeout(resolve, this.typingSpeed));
     }
-    
-    svg.appendChild(forestGroup);
+
+    this.isTyping = false;
+    this.gameInput.disabled = false;
+    this.uiManager.focusInput();
   }
-  
-  // Helper method to add mountain ranges
-  addMountainRange(svg, x, y, width, height, color) {
-    // Create a group for the mountains
-    const mountainGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    
-    // Create a polygon for the mountain range
-    const mountainBase = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-    
-    // Create points for a jagged mountain range
-    let points = `${x},${y + height} `;
-    
-    const peakCount = 5 + Math.floor(Math.random() * 5);
-    const segmentWidth = width / peakCount;
-    
-    for (let i = 0; i <= peakCount; i++) {
-      const peakX = x + i * segmentWidth;
-      // Vary the height of each peak
-      const peakFactor = Math.random() * 0.8 + 0.2; // Between 0.2 and 1.0
-      const peakY = y + height - (height * peakFactor);
-      points += `${peakX},${peakY} `;
-    }
-    
-    points += `${x + width},${y + height}`;
-    
-    mountainBase.setAttribute("points", points);
-    mountainBase.setAttribute("fill", color);
-    mountainGroup.appendChild(mountainBase);
-    
-    // Add snow caps to peaks
-    const peaks = points.split(' ').slice(1, -1); // Remove first and last points
-    
-    for (const peak of peaks) {
-      const [peakX, peakY] = peak.split(',').map(Number);
-      
-      // Only add snow to higher peaks
-      if (peakY < y + height * 0.4) {
-        const snow = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        snow.setAttribute("cx", peakX);
-        snow.setAttribute("cy", peakY);
-        snow.setAttribute("r", 1.5);
-        snow.setAttribute("fill", "#eee");
-        mountainGroup.appendChild(snow);
-      }
-    }
-    
-    svg.appendChild(mountainGroup);
+
+  skipTyping() {
+    this.isTyping = false;
+    this.gameInput.disabled = false;
+    this.uiManager.focusInput();
   }
-  
-  // Helper method to add path connections between locations
-  addPathConnections(svg) {
-    // Define connections between locations
-    const connections = [
-      ["intro", "huntersOutpost"],
-      ["huntersOutpost", "forestPath"],
-      ["forestPath", "riverCrossing"],
-      ["riverCrossing", "mountainBase"],
-      ["mountainBase", "crystalRidge"],
-      ["crystalRidge", "bearCave"]
-    ];
+
+  handleInput() {
+    if (this.isTyping) return;
+    const rawInput = this.gameInput.value.trim();
+    this.uiManager.clearInput();
+    this.uiManager.print(`> ${rawInput}`, "player-input");
+    const input = this.inputMode === "loadGame" ? rawInput : rawInput.toLowerCase();
     
-    // Add path for each connection
-    for (const [from, to] of connections) {
-      if (this.mapLocations[from] && this.mapLocations[to]) {
-        const fromX = this.mapLocations[from].x;
-        const fromY = this.mapLocations[from].y;
-        const toX = this.mapLocations[to].x;
-        const toY = this.mapLocations[to].y;
-        
-        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        path.setAttribute("d", `M ${fromX} ${fromY} L ${toX} ${toY}`);
-        path.setAttribute("stroke", "#a37c40");
-        path.setAttribute("stroke-width", "1");
-        path.setAttribute("stroke-dasharray", "2,1");
-        path.setAttribute("fill", "none");
-        svg.appendChild(path);
-      }
+    switch (this.inputMode) {
+      case "title":
+        this.inputHandlers.handleTitleInput(input);
+        break;
+      case "normal":
+        this.inputHandlers.handleNormalInput(input);
+        break;
+      case "choices":
+        this.inputHandlers.handleChoiceInput(input);
+        break;
+      case "stats":
+        this.inputHandlers.handleStatInput(input);
+        break;
+      case "inventory":
+        this.inputHandlers.handleInventoryInput(input);
+        break;
+      case "loadGame":
+        this.inputHandlers.handleLoadGameInput(rawInput);
+        break;
+      case "errorRecovery":
+        this.inputHandlers.handleErrorRecoveryInput(input);
+        break;
+      case "combat":
+        this.inputHandlers.handleCombatInput(input);
+        break;
+      case "combat-item":
+        this.inputHandlers.handleCombatItemInput(input);
+        break;
     }
   }
 
-  // Toggle map visibility
-  toggleMap() {
-    console.log("Toggle map called, current visibility:", this.mapVisible);
-    
-    if (!this.mapPanel) {
-      console.error("Map panel not found when toggling map");
-      return;
-    }
-    
-    this.mapVisible = !this.mapVisible;
-    
-    if (this.mapVisible) {
-      // Show map
-      console.log("Showing map panel");
-      this.mapPanel.style.display = 'flex';
-      
-      // Use requestAnimationFrame to ensure display change takes effect before removing transform
-      requestAnimationFrame(() => {
-        this.mapPanel.classList.remove('hidden');
-        // Render the map when opened
-        this.renderMap();
-      });
-    } else {
-      // Hide map - first start the transition
-      console.log("Hiding map panel");
-      this.mapPanel.classList.add('hidden');
-      
-      // Add transitionend listener to set display to none after animation
-      const hidePanel = () => {
-        this.mapPanel.style.display = 'none';
-        this.mapPanel.removeEventListener('transitionend', hidePanel);
-        console.log("Map panel hidden completely via transitionend");
-      };
-      
-      this.mapPanel.addEventListener('transitionend', hidePanel);
+  async showLoadingScreen() {
+    this.uiManager.clearOutput();
+    const numberOfLoadingGifs = 5;
+    const randomGifIndex = Math.floor(Math.random() * numberOfLoadingGifs) + 1;
+    const loadingGifPath = `gif/loading/loading${randomGifIndex}.gif`;
+    const loadingContainer = document.createElement("div");
+    loadingContainer.className = "loading-screen";
+    const loadingGif = document.createElement("img");
+    loadingGif.src = loadingGifPath;
+    loadingGif.alt = "Loading...";
+    loadingGif.className = "loading-gif";
+    loadingContainer.appendChild(loadingGif);
+    const loadingTextContainer = document.createElement("div");
+    loadingTextContainer.className = "loading-text";
+    loadingContainer.appendChild(loadingTextContainer);
+    this.gameOutput.appendChild(loadingContainer);
+    const quips = await this.loadLoadingQuips();
+    const randomQuip = quips[Math.floor(Math.random() * quips.length)];
+    this.typeLoadingText(loadingTextContainer, randomQuip);
+    const randomDuration = Math.floor(Math.random() * 2000) + 3000;
+    await new Promise((resolve) => setTimeout(resolve, randomDuration));
+    this.uiManager.clearOutput();
+  }
+
+  async loadLoadingQuips() {
+    try {
+      const response = await fetch("loadingQuips.json");
+      if (!response.ok) throw new Error(`Failed to fetch loading quips: ${response.status}`);
+      const data = await response.json();
+      return data.quips;
+    } catch (error) {
+      console.error("Failed to load loading quips:", error);
+      return ["Loading..."];
     }
   }
 
-  // New method specifically for closing the map (not toggling)
-  closeMap() {
-    console.log("Close map button clicked, explicitly closing map");
-    
-    if (!this.mapPanel) {
-      console.error("Map panel not found when closing map");
-      return;
-    }
-    
-    // Always set to false
-    this.mapVisible = false;
-    
-    // Hide map - start the transition
-    console.log("Hiding map panel via close button");
-    this.mapPanel.classList.add('hidden');
-    
-    // Use setTimeout instead of transitionend for reliability
-    setTimeout(() => {
-      if (!this.mapVisible) { // Double-check state
-        this.mapPanel.style.display = 'none';
-        console.log("Map panel hidden completely via timeout");
+  async typeLoadingText(element, text) {
+    const typingSpeed = 50;
+    const backspaceSpeed = 50;
+    const pauseDuration = 300;
+    this.audioManager.playTypingSound();
+    while (true) {
+      for (let i = 0; i < text.length; i++) {
+        element.textContent += text.charAt(i);
+        await new Promise((resolve) => setTimeout(resolve, typingSpeed));
       }
-    }, 300); // 300ms to match the CSS transition duration
+      await new Promise((resolve) => setTimeout(resolve, pauseDuration));
+      for (let i = text.length; i > 0; i--) {
+        element.textContent = element.textContent.slice(0, -1);
+        await new Promise((resolve) => setTimeout(resolve, backspaceSpeed));
+      }
+      await new Promise((resolve) => setTimeout(resolve, pauseDuration));
+    }
+    this.audioManager.stopTypingSound();
   }
 
-  // Change the initMapElements method to use the new closeMap method
-  initMapElements() {
-    console.log("Initializing map elements");
-    this.mapPanel = document.getElementById('map-panel');
-    this.mapContainer = document.getElementById('map-container');
-    const closeMapBtn = document.getElementById('close-map');
-    
-    if (!this.mapPanel) {
-      console.error("Map panel element not found!");
-      return;
-    }
-    
-    if (!this.mapContainer) {
-      console.error("Map container element not found!");
-      return;
-    }
-    
-    // Setup map event listeners with a direct close method
-    if (closeMapBtn) {
-      // Use the dedicated close method, not toggle
-      closeMapBtn.addEventListener('click', () => this.closeMap());
-      console.log("Close map button event listener attached with dedicated close method");
-    } else {
-      console.error("Close map button not found!");
-    }
-    
-    // Ensure initial state
-    if (!this.mapVisible) {
-      this.mapPanel.style.display = 'none';
-    }
-    
-    // Only initialize locations if everything else succeeded
-    this.initMapLocations();
-  }
+  // Rest of the TextGame class methods...
+  // (Keep all the other methods that aren't related to notes or map)
 }
 
 // Initialize the game when the page loads
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM Content loaded, initializing game");
-  window.game = new TextGame(); // Store game in global variable for debugging
-  
-  // Don't need to call initMapElements again since it's called in initialize()
-  // The reason we keep this is in case the async initialize() method hasn't finished yet
-  setTimeout(() => {
-    if (!window.game.mapPanel || !window.game.mapContainer) {
-      console.log("Map elements not initialized after 2 seconds, initializing now");
-      window.game.initMapElements();
-    }
-  }, 2000);
+  window.game = new TextGame();
 });
