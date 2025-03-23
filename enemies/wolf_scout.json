@@ -1,0 +1,16 @@
+{
+  "id": "wolf_scout",
+  "name": "Wolf Scout",
+  "description": "A lean, quick wolf with sharp eyes that constantly scan the surroundings.",
+  "health": 30,
+  "attack": 5,
+  "defense": 2,
+  "speed": 8,
+  "weapons": [
+    {
+      "name": "sharp fangs",
+      "damage": 7
+    }
+  ],
+  "lootTables": ["basic_loot"]
+}

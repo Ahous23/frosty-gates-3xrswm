@@ -1,9 +1,32 @@
 {
   "enemies": [
-    "bear_warrior_weak",
-    "bear_warrior",
-    "bear_berserker",
+    "bear_warrior", 
+    "bear_warrior_weak", 
+    "bear_berserker", 
+    "bear_chieftain", 
     "bear_shaman",
-    "bear_chieftain"
-  ]
+    "wolf_scout",
+    "wolf_alpha",
+    "frost_spider",
+    "ice_elemental",
+    "snow_troll"
+  ],
+  "categories": {
+    "bears": [
+      "bear_warrior", 
+      "bear_warrior_weak", 
+      "bear_berserker", 
+      "bear_chieftain", 
+      "bear_shaman"
+    ],
+    "wolves": [
+      "wolf_scout",
+      "wolf_alpha"
+    ],
+    "creatures": [
+      "frost_spider",
+      "ice_elemental",
+      "snow_troll"
+    ]
+  }
 }
