@@ -6,8 +6,18 @@ export class MapManager {
     this.currentLocation = null;
     this.panel = null;
     this.container = null;
+    this.isMobile = false;
     
+    // Check if we're on mobile
+    this.checkMobile();
     this.initElements();
+  }
+  
+  checkMobile() {
+    // Simple mobile detection, can be enhanced
+    this.isMobile = window.innerWidth <= 768 || 
+                    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    console.log("Mobile device detected:", this.isMobile);
   }
   
   initElements() {
@@ -21,11 +31,6 @@ export class MapManager {
       return;
     }
     
-    if (!this.container) {
-      console.error("Map container element not found!");
-      return;
-    }
-    
     // Setup map event listeners with a direct close method
     if (closeMapBtn) {
       closeMapBtn.addEventListener('click', () => this.close());
@@ -34,13 +39,43 @@ export class MapManager {
       console.error("Close map button not found!");
     }
     
+    // For desktop, we'll modify the panel to include an inline SVG instead of iframe
+    if (!this.isMobile) {
+      // Make sure container exists
+      if (!this.container) {
+        this.container = document.createElement('div');
+        this.container.id = 'map-container';
+        this.container.className = 'map-container';
+        this.panel.appendChild(this.container);
+      }
+      
+      // Set explicit sizing for the container
+      this.container.style.width = '100%';
+      this.container.style.height = 'calc(100% - 40px)'; // Account for header
+      this.container.style.position = 'relative';
+      this.container.style.overflow = 'hidden';
+    }
+    
     // Ensure initial state
     if (!this.visible) {
+      this.panel.classList.add('hidden');
       this.panel.style.display = 'none';
     }
     
     // Initialize locations
     this.initLocations();
+    
+    // Listen for window resize to update mobile detection
+    window.addEventListener('resize', () => {
+      const wasMobile = this.isMobile;
+      this.checkMobile();
+      
+      // If mobile status changed and map is visible, toggle it off and on
+      if (wasMobile !== this.isMobile && this.visible) {
+        this.visible = false;
+        this.toggle();
+      }
+    });
   }
   
   initLocations() {
@@ -107,9 +142,7 @@ export class MapManager {
     mapSvg.setAttribute("width", "100%");
     mapSvg.setAttribute("height", "100%");
     mapSvg.setAttribute("viewBox", "0 0 100 100");
-    mapSvg.style.position = "absolute";
-    mapSvg.style.top = "0";
-    mapSvg.style.left = "0";
+    mapSvg.setAttribute("preserveAspectRatio", "xMidYMid meet");
     
     // Add background
     const background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -157,8 +190,6 @@ export class MapManager {
         marker.style.zIndex = '10';
         marker.style.boxShadow = '0 0 5px #fff, 0 0 10px #ff0000';
         marker.title = `Your Location: ${location.name}`;
-      } else {
-        marker.style.backgroundColor = '#4285f4';
       }
       
       // Add location label
@@ -169,10 +200,6 @@ export class MapManager {
       label.style.left = `${location.x}%`;
       label.style.top = `${location.y + 5}%`;
       label.style.transform = 'translateX(-50%)';
-      label.style.color = '#ddd';
-      label.style.fontSize = '10px';
-      label.style.textShadow = '1px 1px 1px #000';
-      label.style.whiteSpace = 'nowrap';
       
       this.container.appendChild(marker);
       this.container.appendChild(label);
@@ -279,6 +306,12 @@ export class MapManager {
   toggle() {
     console.log("Toggle map called, current visibility:", this.visible);
     
+    if (this.isMobile) {
+      // For mobile, open in new tab
+      this.openMapInNewTab();
+      return;
+    }
+    
     if (!this.panel) {
       console.error("Map panel not found when toggling map");
       return;
@@ -290,9 +323,11 @@ export class MapManager {
       console.log("Showing map panel");
       this.panel.style.display = 'flex';
       
+      // Render the map directly in the container
+      this.render();
+      
       requestAnimationFrame(() => {
         this.panel.classList.remove('hidden');
-        this.render();
       });
     } else {
       console.log("Hiding map panel");
@@ -306,6 +341,35 @@ export class MapManager {
       
       this.panel.addEventListener('transitionend', hidePanel);
     }
+  }
+  
+  // New method to open map in a new tab
+  openMapInNewTab() {
+    console.log("Opening map in new tab for mobile");
+    
+    // Store map data for the new tab to access
+    localStorage.setItem('gameMapData', JSON.stringify(this.getMapData()));
+    
+    // Open the map page in a new tab
+    window.open('map.html', '_blank');
+  }
+  
+  // Prepare map data for serialization
+  getMapData() {
+    return {
+      locations: this.locations,
+      currentLocation: this.currentLocation,
+      forestAreas: [
+        { x: 10, y: 10, width: 40, height: 40, color: "#1a2e1a" },
+        { x: 40, y: 20, width: 30, height: 25, color: "#1a2e1a" }
+      ],
+      mountainRanges: [
+        { x: 70, y: 50, width: 30, height: 35, color: "#3a3a3a" }
+      ],
+      rivers: [
+        { path: "M 65 10 C 60 20, 55 30, 60 40 C 65 50, 60 60, 65 70", color: "#4a81b0", width: 2 }
+      ]
+    };
   }
 
   close() {

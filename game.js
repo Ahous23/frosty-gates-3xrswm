@@ -313,6 +313,12 @@ class TextGame {
       case "combat":
         this.inputHandlers.handleCombatInput(input);
         break;
+      case "await-continue":
+        this.inputHandlers.handleAwaitContinueInput(input);
+        break;
+      case "await-combat":
+        this.inputHandlers.handleAwaitCombatInput(input);
+        break;
       case "combat-item":
         this.inputHandlers.handleCombatItemInput(input);
         break;
@@ -551,6 +557,12 @@ class TextGame {
         break;
       case "combat":
         this.inputHandlers.handleCombatInput(input);
+        break;
+      case "await-continue":
+        this.inputHandlers.handleAwaitContinueInput(input);
+        break;
+      case "await-combat":
+        this.inputHandlers.handleAwaitCombatInput(input);
         break;
       case "combat-item":
         this.inputHandlers.handleCombatItemInput(input);

@@ -106,6 +106,12 @@ export class InputHandlers {
       case "combat-item":
         this.handleCombatItemInput(input);
         break;
+      case "await-continue":
+        this.handleAwaitContinueInput(input);
+        break;
+      case "await-combat":
+        this.handleAwaitCombatInput(input);
+        break;
     }
   }
 
@@ -711,6 +717,101 @@ export class InputHandlers {
     } catch (error) {
       this.game.uiManager.print("Error loading save data: " + error.message, "error-message");
       this.game.showTitleScreen();
+    }
+  }
+
+  handleAwaitContinueInput(input) {
+    // Global commands should still work
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+    
+    if (input === "map" || input === "m") {
+      this.game.toggleMap();
+      return;
+    }
+    
+    if (input === "help") {
+      this.showHelp();
+      return;
+    }
+    
+    if (input === "save") {
+      this.saveGame();
+      return;
+    }
+    
+    if (input === "inventory" || input === "i") {
+      this.showInventory();
+      return;
+    }
+    
+    if (input === "stats" || input === "s") {
+      this.showStats();
+      return;
+    }
+    
+    // Check for continue commands
+    const continueCommands = ["continue", "next", "proceed", "c", "go", "done"];
+    if (continueCommands.includes(input)) {
+      // Proceed to the next scene
+      this.game.currentScene = this.game.nextSceneToLoad;
+      this.game.inputMode = "normal";
+      this.game.nextSceneToLoad = null;
+      this.game.gameLogic.playScene();
+    } else {
+      this.game.uiManager.print("Type 'continue' to proceed with the story.", "system-message");
+    }
+  }
+
+  handleAwaitCombatInput(input) {
+    // Handle global commands first
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+    
+    if (input === "map" || input === "m") {
+      this.game.toggleMap();
+      return;
+    }
+    
+    if (input === "help") {
+      this.showHelp();
+      return;
+    }
+    
+    if (input === "save") {
+      this.saveGame();
+      return;
+    }
+    
+    if (input === "inventory" || input === "i") {
+      this.showInventory();
+      return;
+    }
+    
+    if (input === "stats" || input === "s") {
+      this.showStats();
+      return;
+    }
+    
+    // Check for continue commands
+    const continueCommands = ["continue", "next", "proceed", "c", "go", "done"];
+    if (continueCommands.includes(input)) {
+      // Proceed to combat
+      this.game.inputMode = "normal";
+      // Get the combat info and initiate combat
+      const combatInfo = this.game.combatToInitiate;
+      if (combatInfo) {
+        this.game.gameLogic.initiateCombat({ combat: combatInfo });
+        this.game.combatToInitiate = null;
+      } else {
+        this.game.uiManager.print("Error: Combat information not found", "error-message");
+      }
+    } else {
+      this.game.uiManager.print("Type 'continue' to proceed to combat.", "system-message");
     }
   }
 }

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Map</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #222;
+      font-family: "Courier New", monospace;
+      color: #eee;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    
+    .map-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background-color: #333;
+      border-bottom: 1px solid #444;
+    }
+    
+    .map-header h2 {
+      margin: 0;
+      color: #eee;
+    }
+    
+    .map-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      min-height: 500px;
+    }
+    
+    .map-landmark {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background-color: #fff;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+    }
+    
+    .player-location {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background-color: #ff0000;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      box-shadow: 0 0 5px #fff, 0 0 10px #ff0000;
+    }
+    
+    .map-legend {
+      padding: 10px;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-top: 1px solid #444;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+    }
+    
+    .legend-item span {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-right: 10px;
+    }
+    
+    .legend-item span.player-location {
+      position: static;
+      background-color: #ff0000;
+      box-shadow: 0 0 3px #fff;
+      transform: none;
+    }
+    
+    .legend-item span.map-landmark {
+      position: static;
+      background-color: #fff;
+      transform: none;
+    }
+    
+    .close-btn {
+      padding: 5px 10px;
+      background-color: #444;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .close-btn:hover {
+      background-color: #555;
+    }
+    
+    #mapSvg {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="map-header">
+    <h2>World Map</h2>
+    <button class="close-btn" onclick="window.close()">Close Map</button>
+  </div>
+  
+  <div class="map-container" id="mapContainer">
+    <!-- SVG map will be rendered here -->
+  </div>
+  
+  <div class="map-legend">
+    <div class="legend-item"><span class="player-location"></span> Your Location</div>
+    <div class="legend-item"><span class="map-landmark"></span> Important Location</div>
+  </div>
+  
+  <script>
+    // This script will receive data from the opener window or be populated via URL parameters
+    window.onload = function() {
+      const mapData = localStorage.getItem('gameMapData');
+      if (mapData) {
+        try {
+          const data = JSON.parse(mapData);
+          renderMap(data);
+        } catch (e) {
+          console.error('Error parsing map data', e);
+        }
+      } else {
+        document.getElementById('mapContainer').innerHTML = '<p style="text-align: center; padding: 20px;">Map data not available</p>';
+      }
+    };
+    
+    function renderMap(data) {
+      const container = document.getElementById('mapContainer');
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("id", "mapSvg");
+      svg.setAttribute("viewBox", "0 0 100 100");
+      
+      // Add background
+      const background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      background.setAttribute("width", "100");
+      background.setAttribute("height", "100");
+      background.setAttribute("fill", "#2a392a");
+      svg.appendChild(background);
+      
+      // Add map elements - we'll have separate functions for these
+      if (data.forestAreas) {
+        data.forestAreas.forEach(area => {
+          addForestArea(svg, area.x, area.y, area.width, area.height, area.color);
+        });
+      }
+      
+      if (data.mountainRanges) {
+        data.mountainRanges.forEach(range => {
+          addMountainRange(svg, range.x, range.y, range.width, range.height, range.color);
+        });
+      }
+      
+      if (data.rivers) {
+        data.rivers.forEach(river => {
+          const riverPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          riverPath.setAttribute("d", river.path);
+          riverPath.setAttribute("stroke", river.color || "#4a81b0");
+          riverPath.setAttribute("stroke-width", river.width || "2");
+          riverPath.setAttribute("fill", "none");
+          svg.appendChild(riverPath);
+        });
+      }
+      
+      container.appendChild(svg);
+      
+      // Add location markers
+      if (data.locations) {
+        Object.entries(data.locations).forEach(([locationId, location]) => {
+          const marker = document.createElement('div');
+          marker.className = locationId === data.currentLocation ? 'player-location' : 'map-landmark';
+          marker.style.left = `${location.x}%`;
+          marker.style.top = `${location.y}%`;
+          marker.title = location.name;
+          container.appendChild(marker);
+        });
+      }
+    }
+    
+    function addForestArea(svg, x, y, width, height, color) {
+      const forest = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      forest.setAttribute("x", x);
+      forest.setAttribute("y", y);
+      forest.setAttribute("width", width);
+      forest.setAttribute("height", height);
+      forest.setAttribute("fill", color || "#1a2e1a");
+      forest.setAttribute("rx", "5");
+      forest.setAttribute("ry", "5");
+      svg.appendChild(forest);
+    }
+    
+    function addMountainRange(svg, x, y, width, height, color) {
+      const mountain = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+      const points = `${x},${y+height} ${x+width/2},${y} ${x+width},${y+height}`;
+      mountain.setAttribute("points", points);
+      mountain.setAttribute("fill", color || "#3a3a3a");
+      svg.appendChild(mountain);
+    }
+  </script>
+</body>
+</html>

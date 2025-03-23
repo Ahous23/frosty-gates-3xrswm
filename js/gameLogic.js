@@ -29,8 +29,11 @@ export class GameLogic {
 
       // Check if this scene has combat
       if (scene.combat) {
-        this.initiateCombat(scene);
-        return; // Combat handler will continue to the next scene
+        // Instead of immediately initiating combat, wait for player to continue
+        this.game.uiManager.print("\nType 'continue' to proceed to combat...", "system-message");
+        this.game.inputMode = "await-combat";
+        this.game.combatToInitiate = scene.combat; // Store the combat info directly
+        return;
       }
 
       if (scene.type === "stats") {
@@ -38,11 +41,10 @@ export class GameLogic {
       } else if (scene.choices) {
         this.showChoices(scene.choices);
       } else if (scene.nextScene) {
-        setTimeout(() => {
-          this.game.uiManager.clearOutput();
-          this.game.currentScene = scene.nextScene;
-          this.playScene();
-        }, 2000);
+        // Instead of automatically going to the next scene, wait for player to continue
+        this.game.uiManager.print("\nType 'continue' to proceed...", "system-message");
+        this.game.inputMode = "await-continue";
+        this.game.nextSceneToLoad = scene.nextScene; // Store the next scene
       }
     } catch (error) {
       console.error("Error playing scene:", error);
