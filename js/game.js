@@ -1,5 +1,46 @@
 // ...existing code...
 
+function createInventoryItemElement(item) {
+  const itemElement = document.createElement('div');
+  itemElement.classList.add('inventory-item');
+  itemElement.dataset.itemId = item.id;
+  
+  // Create item display with name and quantity
+  itemElement.innerHTML = `
+    <div class="item-name">${item.name}</div>
+    ${item.stackable && item.quantity > 1 ? `<div class="item-quantity">x${item.quantity}</div>` : ''}
+    <div class="item-actions">
+      <button class="examine-btn">Examine</button>
+      ${item.usable ? '<button class="use-btn">Use</button>' : ''}
+      ${item.equipable ? '<button class="equip-btn">Equip</button>' : ''}
+    </div>
+  `;
+  
+  // Add event listeners
+  itemElement.querySelector('.examine-btn').addEventListener('click', () => {
+    const description = player.inventory.examine(item.id);
+    showMessage(description);
+  });
+  
+  if (item.usable) {
+    itemElement.querySelector('.use-btn').addEventListener('click', () => {
+      const result = player.inventory.useItem(item.id, player);
+      showMessage(result.message);
+      updatePlayerStats();
+    });
+  }
+  
+  if (item.equipable) {
+    itemElement.querySelector('.equip-btn').addEventListener('click', () => {
+      // Implement equipment functionality
+    });
+  }
+  
+  return itemElement;
+}
+
+// ...existing code...
+
 constructor() 
 {
   // ... your existing initialization code ...
@@ -206,6 +247,100 @@ showHelp()
   // ... your existing commands ...
   this.uiManager.print("- notes: Open or close the notes panel", "command-help");
   // ... other commands ...
+}
+
+// Add this method to the Inventory class
+examine(itemId) 
+{
+  const item = this.items.find(item => item.id === itemId);
+  if (!item) {
+    return "You don't have that item.";
+  }
+  
+  return item.description || "There's nothing special about this item.";
+}
+
+// Add this method to the Inventory class
+useItem(itemId, player) 
+{
+  const itemIndex = this.items.findIndex(item => item.id === itemId);
+  if (itemIndex === -1) {
+    return { success: false, message: "You don't have that item." };
+  }
+  
+  const item = this.items[itemIndex];
+  
+  if (!item.usable) {
+    return { success: false, message: "You can't use this item." };
+  }
+  
+  let result = { success: false, message: "Nothing happened." };
+  
+  // Handle different item types and effects
+  switch (item.type) {
+    case "consumable":
+      if (item.effect === "heal") {
+        const healAmount = Math.min(item.value, player.maxHealth - player.health);
+        player.health += healAmount;
+        result = { 
+          success: true, 
+          message: `You used ${item.name} and recovered ${healAmount} health.`,
+          effect: { type: "heal", value: healAmount }
+        };
+      } else if (item.effect === "resist_frost") {
+        // Apply temporary status effect
+        player.addStatusEffect("frostResistance", item.duration || 300);
+        result = { 
+          success: true, 
+          message: `You used ${item.name} and gained frost resistance for ${item.duration || 300} seconds.`,
+          effect: { type: "status", status: "frostResistance", duration: item.duration || 300 }
+        };
+      }
+      break;
+    // Add more item types as needed
+  }
+  
+  if (result.success) {
+    // Remove item from inventory if consumed
+    if (item.stackable && item.quantity > 1) {
+      this.items[itemIndex].quantity -= 1;
+    } else {
+      this.items.splice(itemIndex, 1);
+    }
+    
+    // Trigger inventory update event
+    this.updateInventoryDisplay();
+  }
+  
+  return result;
+}
+
+// Add these methods to the Player class if they don't exist already
+addStatusEffect(effectName, duration) 
+{
+  this.statusEffects = this.statusEffects || {};
+  this.statusEffects[effectName] = {
+    active: true,
+    duration: duration,
+    startTime: Date.now()
+  };
+}
+
+hasStatusEffect(effectName) 
+{
+  if (!this.statusEffects || !this.statusEffects[effectName]) {
+    return false;
+  }
+  
+  const effect = this.statusEffects[effectName];
+  const elapsed = (Date.now() - effect.startTime) / 1000;
+  
+  if (elapsed >= effect.duration) {
+    effect.active = false;
+    return false;
+  }
+  
+  return effect.active;
 }
 
 // ...existing code...

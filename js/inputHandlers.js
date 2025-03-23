@@ -374,6 +374,24 @@ export class InputHandlers {
       return;
     }
 
+    // Check if trying to examine an item
+    const examineMatch = input.match(/^examine\s+(.+)$|^look\s+(.+)$|^inspect\s+(.+)$/);
+    if (examineMatch) {
+      const itemName = (examineMatch[1] || examineMatch[2] || examineMatch[3]).toLowerCase();
+      // Find the item by name (case insensitive)
+      const item = this.game.inventory.find(
+        (i) => i.name.toLowerCase() === itemName || i.id.toLowerCase() === itemName
+      );
+
+      if (!item) {
+        this.game.uiManager.print(`You don't have an item called "${itemName}"`, "error-message");
+        return;
+      }
+
+      this.examineItem(item);
+      return;
+    }
+
     // Check if trying to use an item
     const useMatch = input.match(/^use\s+(.+)$/);
     if (useMatch) {
@@ -384,7 +402,7 @@ export class InputHandlers {
       );
 
       if (!item) {
-        this.game.uiManager.print(`You don't have an item called "${useMatch[1]}"`, "error-message");
+        this.game.uiManager.print(`You don't have an item called "${itemName}"`, "error-message");
         return;
       }
 
@@ -567,6 +585,7 @@ export class InputHandlers {
 
   showInventoryHelp() {
     this.game.uiManager.print("\n===== INVENTORY COMMANDS =====", "system-message");
+    this.game.uiManager.print("examine [item] - Examine an item in detail", "help-text");
     this.game.uiManager.print("use [item] - Use an item", "help-text");
     this.game.uiManager.print("back, exit - Exit inventory view", "help-text");
   }
@@ -591,13 +610,17 @@ export class InputHandlers {
     } else {
       this.game.inventory.forEach((item) => {
         this.game.uiManager.print(`- ${item.name} ${item.quantity > 1 ? `(x${item.quantity})` : ""}`, "item-name");
+        // Show a shorter description in the main inventory view
         if (item.description) {
-          this.game.uiManager.print(`  ${item.description}`, "item-description");
+          const shortDesc = item.description.length > 60 ? 
+            item.description.substring(0, 57) + "..." : 
+            item.description;
+          this.game.uiManager.print(`  ${shortDesc}`, "item-description");
         }
       });
     }
     
-    this.game.uiManager.print("\nType 'use [item]' to use an item, or 'back' to return", "system-message");
+    this.game.uiManager.print("\nType 'examine [item]' to inspect details, 'use [item]' to use an item, or 'back' to return", "system-message");
   }
 
   useItem(item) {
@@ -813,5 +836,43 @@ export class InputHandlers {
     } else {
       this.game.uiManager.print("Type 'continue' to proceed to combat.", "system-message");
     }
+  }
+
+  examineItem(item) {
+    this.game.uiManager.print(`\n${item.name}`, "item-name");
+    
+    if (item.description) {
+      this.game.uiManager.print(item.description, "item-description");
+    }
+    
+    // Show item stats based on type
+    if (item.type === "weapon" || item.category === "weapon") {
+      this.game.uiManager.print(`Damage: ${item.damage}`, "item-stat");
+    } else if (item.type === "armor" || item.category === "armor") {
+      this.game.uiManager.print(`Defense: ${item.defense}`, "item-stat");
+    } else if (item.type === "consumable" || item.category === "consumable") {
+      if (item.effects && item.effects.heal) {
+        this.game.uiManager.print(`Healing: ${item.effects.heal}`, "item-stat");
+      } else if (item.effect === "heal") {
+        this.game.uiManager.print(`Healing: ${item.value}`, "item-stat");
+      }
+    }
+    
+    // Show if it's equipable
+    if (item.equipable) {
+      this.game.uiManager.print("This item can be equipped.", "item-stat");
+      
+      // Show if it's currently equipped
+      if (item.equipped) {
+        this.game.uiManager.print("Currently equipped.", "item-stat");
+      }
+    }
+    
+    // Show if it's stackable
+    if (item.stackable) {
+      this.game.uiManager.print(`Quantity: ${item.quantity}`, "item-stat");
+    }
+    
+    this.game.uiManager.print("\nType 'back' to return to inventory.", "system-message");
   }
 }
