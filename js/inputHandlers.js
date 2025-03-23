@@ -1074,7 +1074,7 @@ export class InputHandlers {
     if (equipment.weapon) {
       this.game.uiManager.print(`Weapon: ${equipment.weapon.name} (${equipment.weapon.damage} damage)`, "item-stat");
     } else {
-      this.game.uiManager.print("Weapon: None (5 damage with fists)", "item-stat");
+      this.game.uiManager.print("Weapon: None (2 damage with fists)", "item-stat");
     }
     
     if (equipment.armor) {
