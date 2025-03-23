@@ -103,8 +103,12 @@ export class EquipmentManager {
   // Get weapon damage value (with stat bonuses)
   getWeaponDamage() {
     if (!this.equipment.weapon) {
-      // Default to fists
-      return 5 + Math.floor((this.game.playerStats.attack || 0) / 2);
+      // Use default fists weapon from weapons/fists.json
+      const defaultWeapon = this.game.weaponManager ? 
+        this.game.weaponManager.getWeapon('fists') : 
+        { damage: 1 }; // Fallback if weaponManager not available
+      
+      return defaultWeapon.damage + Math.floor((this.game.playerStats.attack || 0) / 2);
     }
     
     const baseDamage = this.equipment.weapon.damage || 0;

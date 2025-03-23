@@ -1,0 +1,13 @@
+{
+  "id": "fists",
+  "name": "Fists",
+  "description": "Your bare hands. Not very effective in combat, but better than nothing.",
+  "type": "weapon",
+  "damage": 1,
+  "strengthRequirement": 0,
+  "sellValue": 0,
+  "stackable": false,
+  "usable": false,
+  "equipable": true,
+  "default": true
+}

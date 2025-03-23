@@ -949,69 +949,73 @@ export class InputHandlers {
 
   // Add these helper methods to calculate attack and defense properly
   getCalculatedAttack() {
-    const baseAttack = this.game.playerStats.attack || 0;
-    const weapon = this.game.gameState.equipment?.weapon;
-    return weapon ? baseAttack + (weapon.damage || 0) : baseAttack + 5; // Default 5 for fists
+    // Get base attack from player stats
+    let attack = this.game.playerStats.attack || 0;
+    
+    // Add weapon damage if equipped
+    if (this.game.equipmentManager) {
+      // Use the equipment manager's method to get weapon damage
+      const weaponDamage = this.game.equipmentManager.getWeaponDamage();
+      // Remove the player's stat contribution to avoid double counting
+      attack = attack + weaponDamage - Math.floor(attack / 2);
+    } else {
+      // Legacy fallback
+      const weapon = this.game.inventory.find(i => i.equipped && (i.type === "weapon" || i.category === "weapon"));
+      if (weapon) {
+        attack += weapon.damage || 0;
+      } else {
+        // Default fists damage - MUST MATCH COMBAT.JS VALUE
+        attack += 5; 
+      }
+    }
+    
+    return attack;
   }
 
   getCalculatedDefense() {
-    const baseDefense = this.game.playerStats.defense || 0;
-    const armor = this.game.gameState.equipment?.armor;
-    return armor ? baseDefense + (armor.defense || 0) : baseDefense;
+    // Get base defense from player stats
+    let defense = this.game.playerStats.defense || 0;
+    
+    // Add armor defense if equipped
+    if (this.game.equipmentManager) {
+      // Use the equipment manager's method to get defense
+      const totalDefense = this.game.equipmentManager.getTotalDefense();
+      // Remove the player's stat contribution to avoid double counting
+      defense = defense + totalDefense - Math.floor(defense / 2);
+    } else {
+      // Legacy fallback
+      const armor = this.game.inventory.find(i => i.equipped && (i.type === "armor" || i.category === "armor"));
+      if (armor) {
+        defense += armor.defense || 0;
+      }
+    }
+    
+    return defense;
   }
 
-  // Update the equipItem method
+  // Update the equipItem method to use the equipment manager
   equipItem(item) {
     // Check if the item is a weapon or armor
     if (item.type !== "weapon" && item.category !== "weapon" && 
-        item.type !== "armor" && item.category !== "armor") {
+        item.type !== "armor" && item.category !== "armor" &&
+        item.type !== "accessory" && item.category !== "accessory") {
       this.game.uiManager.print(`You can't equip ${item.name}.`, "error-message");
       return;
     }
-    
-    // Initialize equipment if it doesn't exist
-    if (!this.game.gameState.equipment) {
-      this.game.gameState.equipment = {};
-    }
-    
-    const equipmentType = (item.type === "weapon" || item.category === "weapon") ? "weapon" : "armor";
     
     // Calculate current stats before equipping
     const oldAttack = this.getCalculatedAttack();
     const oldDefense = this.getCalculatedDefense();
     
-    // Get the currently equipped item
-    const currentEquipped = this.game.gameState.equipment[equipmentType];
+    const equipmentType = (item.type === "weapon" || item.category === "weapon") ? "weapon" : 
+                         (item.type === "armor" || item.category === "armor") ? "armor" : "accessory";
     
-    if (currentEquipped) {
-      // Add the currently equipped item back to inventory
-      this.game.uiManager.print(`You unequip your ${currentEquipped.name}.`, "system-message");
-      
-      // Mark it as unequipped
-      currentEquipped.equipped = false;
-      
-      // Add it back to inventory
-      const existingItem = this.game.inventory.find(i => i.id === currentEquipped.id);
-      if (existingItem && existingItem.stackable) {
-        existingItem.quantity++;
-      } else {
-        this.game.inventory.push({...currentEquipped, quantity: 1});
-      }
-    }
+    // Use the equipment manager to equip the item
+    const result = this.game.equipmentManager.equipItem(item);
     
-    // Equip the new item - create a copy to avoid modifying the original
-    this.game.gameState.equipment[equipmentType] = {...item, equipped: true};
-    
-    // Remove the equipped item from inventory
-    const itemIndex = this.game.inventory.findIndex(i => i.id === item.id);
-    if (itemIndex !== -1) {
-      if (item.stackable && item.quantity > 1) {
-        // Just reduce the quantity by 1 for stackable items
-        this.game.inventory[itemIndex].quantity--;
-      } else {
-        // Remove non-stackable items or last item in stack
-        this.game.inventory.splice(itemIndex, 1);
-      }
+    if (!result.success) {
+      this.game.uiManager.print(result.message, "error-message");
+      return;
     }
     
     // Create a message container that won't get erased by inventory refresh
@@ -1059,19 +1063,6 @@ export class InputHandlers {
       // Now show the inventory
       this.showInventory();
     };
-  }
-
-  // Add helper methods to calculate attack and defense
-  getCalculatedAttack() {
-    const baseAttack = Math.floor(this.game.playerStats.attack / 2);
-    const weapon = this.game.gameState.equipment?.weapon;
-    return baseAttack + (weapon ? weapon.damage || 0 : 5); // Default 5 for fists
-  }
-
-  getCalculatedDefense() {
-    const baseDefense = Math.floor(this.game.playerStats.defense / 2);
-    const armor = this.game.gameState.equipment?.armor;
-    return baseDefense + (armor ? armor.defense || 0 : 0);
   }
 
   // Update the showEquipment method to use equipment manager

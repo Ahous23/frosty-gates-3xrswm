@@ -32,15 +32,8 @@
       "usable": false
     },
     {
-      "id": "crude_dagger", 
-      "name": "Crude Dagger", 
-      "description": "A roughly made dagger. It's not much, but it's better than bare hands.",
-      "chance": 0.02, 
-      "type": "weapon", 
-      "damage": 4, 
-      "stackable": false,
-      "usable": false,
-      "equipable": true
+      "id": "crude_dagger",
+      "chance": 0.02
     }
   ]
 }

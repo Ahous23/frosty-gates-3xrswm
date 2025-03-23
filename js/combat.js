@@ -233,16 +233,16 @@ export class CombatSystem {
   getEquippedWeapon() {
     // Use the equipment manager to get the weapon
     if (this.game.equipmentManager) {
-      return this.game.equipmentManager.equipment.weapon || {
-        name: "fists",
-        damage: 5
-      };
+      return this.game.equipmentManager.equipment.weapon || 
+        (this.game.weaponManager ? 
+         this.game.weaponManager.getWeapon('fists') : 
+         { name: "fists", damage: 2 });
     }
     
     // Fallback for backward compatibility
     return {
       name: "fists",
-      damage: 5
+      damage: 2
     };
   }
 

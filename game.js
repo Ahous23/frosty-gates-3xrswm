@@ -17,6 +17,7 @@ import { NotesManager } from './js/notes.js';
 import { MapManager } from './js/map.js';
 import { InventoryManager } from './js/inventoryManager.js';
 import { EquipmentManager } from './js/equipmentManager.js';
+import { WeaponManager } from './js/weaponManager.js';
 
 class TextGame {
   constructor() {
@@ -66,6 +67,7 @@ class TextGame {
     this.gameLogic = new GameLogic(this);
     this.inputHandlers = new InputHandlers(this);
     this.combatSystem = new CombatSystem(this);
+    this.weaponManager = new WeaponManager(this);
 
     const enableAudio = () => {
       this.audioManager.enableAudio();
@@ -107,6 +109,15 @@ class TextGame {
     // Initialize the managers
     this.notesManager = new NotesManager(this);
     this.mapManager = new MapManager(this);
+    
+    // Initialize everything
+    this.init();
+  }
+
+  async init() {
+    // Initialize other systems
+    await this.weaponManager.initialize();
+    // Rest of your initialization code
   }
 
   toggleMusic() {
