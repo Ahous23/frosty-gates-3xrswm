@@ -103,17 +103,18 @@ export class EquipmentManager {
   // Get weapon damage value (with stat bonuses)
   getWeaponDamage() {
     if (!this.equipment.weapon) {
-      // Use default fists weapon from weapons/fists.json
-      const defaultWeapon = this.game.weaponManager ? 
-        this.game.weaponManager.getWeapon('fists') : 
-        { damage: 1 }; // Fallback if weaponManager not available
-      
-      return defaultWeapon.damage + Math.floor((this.game.playerStats.attack || 0) / 2);
+      const defaultWeapon = this.game.weaponManager ? this.game.weaponManager.getWeapon('fists') : { damage: 1 };
+      const attackBonus = Math.floor((this.game.playerStats.attack || 0) / 2);
+      console.log("Default weapon:", defaultWeapon);
+      console.log("Default weapon damage:", defaultWeapon.damage);
+      console.log("Player attack bonus:", attackBonus);
+      return defaultWeapon.damage + attackBonus;
     }
-    
+  
     const baseDamage = this.equipment.weapon.damage || 0;
     const attackBonus = Math.floor((this.game.playerStats.attack || 0) / 2);
-    
+    console.log("Equipped weapon damage:", baseDamage);
+    console.log("Player attack bonus:", attackBonus);
     return baseDamage + attackBonus;
   }
 
@@ -145,5 +146,15 @@ export class EquipmentManager {
   // Load equipment data
   load(equipment) {
     this.equipment = equipment || { weapon: null, armor: null, accessory: null };
+  }
+
+  getWeapon(id) {
+    const weapon = this.weapons.find(w => w.id === id);
+    console.log(`Fetching weapon with id: ${id}`);
+    if (!weapon && id === 'fists') {
+      console.log("Returning default fists weapon.");
+      return { id: 'fists', name: 'Fists', damage: 1 }; // Match fists.json
+    }
+    return weapon;
   }
 }

@@ -112,6 +112,14 @@ export class InputHandlers {
       case "await-combat":
         this.handleAwaitCombatInput(input);
         break;
+      case "equipment":
+        this.handleEquipmentInput(input);
+        break;
+      case "equip-confirm":
+        // This is a special mode that just waits for any input to continue
+        // The equipment method has already overridden the handleInput function
+        // so we don't need to do anything special here
+        break;
     }
   }
 
@@ -592,7 +600,7 @@ export class InputHandlers {
     this.game.uiManager.print("\n===== COMMANDS =====", "system-message");
     this.game.uiManager.print("help - Show this help message", "help-text");
     this.game.uiManager.print("inventory, i - Show your inventory", "help-text");
-    this.game.uiManager.print("stats, s - Show your stats", "help-text");
+    this.game.uiManager.print("equipment, equip - Show your equipped items", "help-text");
     this.game.uiManager.print("notes, note - Open/close the notes panel", "help-text");
     this.game.uiManager.print("map, m - Open/close the map", "help-text");
     this.game.uiManager.print("save - Save your game", "help-text");
@@ -846,6 +854,11 @@ export class InputHandlers {
       return;
     }
     
+    if (input === "equipment" || input === "equip") {
+      this.showEquipment();
+      return;
+    }
+    
     if (input === "stats" || input === "s") {
       this.showStats();
       return;
@@ -949,26 +962,16 @@ export class InputHandlers {
 
   // Add these helper methods to calculate attack and defense properly
   getCalculatedAttack() {
-    // Get base attack from player stats
     let attack = this.game.playerStats.attack || 0;
-    
-    // Add weapon damage if equipped
+
     if (this.game.equipmentManager) {
-      // Use the equipment manager's method to get weapon damage
       const weaponDamage = this.game.equipmentManager.getWeaponDamage();
-      // Remove the player's stat contribution to avoid double counting
       attack = attack + weaponDamage - Math.floor(attack / 2);
     } else {
-      // Legacy fallback
-      const weapon = this.game.inventory.find(i => i.equipped && (i.type === "weapon" || i.category === "weapon"));
-      if (weapon) {
-        attack += weapon.damage || 0;
-      } else {
-        // Default fists damage - MUST MATCH COMBAT.JS VALUE
-        attack += 5; 
-      }
+      const fists = this.game.weaponManager ? this.game.weaponManager.getWeapon('fists') : { damage: 1 };
+      attack += fists.damage + Math.floor(attack / 2);
     }
-    
+
     return attack;
   }
 
@@ -1067,7 +1070,10 @@ export class InputHandlers {
 
   // Update the showEquipment method to use equipment manager
   showEquipment() {
-    this.game.uiManager.print("\n===== EQUIPMENT =====", "system-message");
+    this.game.previousMode = this.game.inputMode;
+    this.game.inputMode = "equipment";
+    this.game.uiManager.clearOutput();
+    this.game.uiManager.print("===== EQUIPMENT =====", "system-message");
     
     const equipment = this.game.equipmentManager.getAllEquipment();
     
@@ -1090,5 +1096,206 @@ export class InputHandlers {
     }
     
     this.game.uiManager.print("\nType 'inventory' to manage your equipment.", "system-message");
+  }
+
+  // Update the showEquipment method to show more stats and examination options
+  showEquipment() {
+    this.game.previousMode = this.game.inputMode;
+    this.game.inputMode = "equipment";
+    this.game.uiManager.clearOutput();
+    this.game.uiManager.print("===== EQUIPMENT =====", "system-message");
+    
+    const equipment = this.game.equipmentManager.getAllEquipment();
+    
+    // Show weapon info
+    if (equipment.weapon) {
+      this.game.uiManager.print(`Weapon: ${equipment.weapon.name} (${equipment.weapon.damage} damage)`, "item-stat");
+      const attackBonus = Math.floor(this.game.playerStats.attack / 2);
+      this.game.uiManager.print(`  Total Attack: ${equipment.weapon.damage + attackBonus} (base: ${attackBonus})`, "item-stat-detail");
+    } else {
+      this.game.uiManager.print("Weapon: None", "item-stat");
+      const attackBonus = Math.floor(this.game.playerStats.attack / 2);
+      this.game.uiManager.print(`  Total Attack: ${5 + attackBonus} (fists: 5, base: ${attackBonus})`, "item-stat-detail");
+    }
+    
+    // Show armor info
+    if (equipment.armor) {
+      this.game.uiManager.print(`Armor: ${equipment.armor.name} (${equipment.armor.defense} defense)`, "item-stat");
+      const defenseBonus = Math.floor(this.game.playerStats.defense / 2);
+      this.game.uiManager.print(`  Total Defense: ${equipment.armor.defense + defenseBonus} (base: ${defenseBonus})`, "item-stat-detail");
+    } else {
+      this.game.uiManager.print("Armor: None", "item-stat");
+      const defenseBonus = Math.floor(this.game.playerStats.defense / 2);
+      this.game.uiManager.print(`  Total Defense: ${defenseBonus} (base: ${defenseBonus})`, "item-stat-detail");
+    }
+    
+    // Show accessory info
+    if (equipment.accessory) {
+      this.game.uiManager.print(`Accessory: ${equipment.accessory.name}`, "item-stat");
+      if (equipment.accessory.effects) {
+        Object.entries(equipment.accessory.effects).forEach(([effect, value]) => {
+          this.game.uiManager.print(`  ${this.formatEffectName(effect)}: ${value}`, "item-stat-detail");
+        });
+      }
+    } else {
+      this.game.uiManager.print("Accessory: None", "item-stat");
+    }
+    
+    // Show total combat stats
+    const totalAttack = this.getCalculatedAttack();
+    const totalDefense = this.getCalculatedDefense();
+    this.game.uiManager.print("\nCombat Stats:", "system-message");
+    this.game.uiManager.print(`Total Attack: ${totalAttack}`, "player-stat");
+    this.game.uiManager.print(`Total Defense: ${totalDefense}`, "player-stat");
+    
+    this.game.uiManager.print("\nCommands:", "system-message");
+    this.game.uiManager.print("examine [slot] - Examine an equipped item (weapon, armor, accessory)", "help-text");
+    this.game.uiManager.print("unequip [slot] - Remove an equipped item", "help-text");
+    this.game.uiManager.print("inventory - Open inventory to equip items", "help-text");
+    this.game.uiManager.print("back - Return to game", "help-text");
+  }
+
+  // Helper method to format effect names for display
+  formatEffectName(effect) {
+    if (!effect) return "";
+    
+    // Convert camelCase to Title Case With Spaces
+    return effect
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, str => str.toUpperCase());
+  }
+
+  // Add a new method to handle equipment commands
+  handleEquipmentInput(input) {
+    // Add notes command check at the beginning
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+    
+    // Add map command check
+    if (input === "map" || input === "m") {
+      this.game.toggleMap();
+      return;
+    }
+    
+    if (input === "back" || input === "exit") {
+      this.resumeAfterEquipment();
+      return;
+    }
+    
+    if (input === "inventory" || input === "i") {
+      this.showInventory();
+      return;
+    }
+    
+    if (input === "help") {
+      this.showEquipmentHelp();
+      return;
+    }
+    
+    // Check for examine commands
+    const examineMatch = input.match(/^examine\s+(.+)$|^look\s+(.+)$|^inspect\s+(.+)$/);
+    if (examineMatch) {
+      const slotName = (examineMatch[1] || examineMatch[2] || examineMatch[3]).toLowerCase();
+      this.examineEquippedItem(slotName);
+      return;
+    }
+    
+    // Check for unequip commands
+    const unequipMatch = input.match(/^unequip\s+(.+)$/);
+    if (unequipMatch) {
+      const slotName = unequipMatch[1].toLowerCase();
+      this.unequipItem(slotName);
+      return;
+    }
+    
+    this.game.uiManager.print("Unknown equipment command. Type 'help' for available commands.", "error-message");
+  }
+
+  // Method to examine an equipped item in detail
+  examineEquippedItem(slotName) {
+    // Normalize slot name to match equipment manager slots
+    let slot = slotName;
+    if (["weapon", "sword", "axe", "dagger", "staff", "wand"].includes(slotName)) {
+      slot = "weapon";
+    } else if (["armor", "armour", "chest", "body"].includes(slotName)) {
+      slot = "armor";
+    } else if (["accessory", "trinket", "amulet", "ring", "necklace"].includes(slotName)) {
+      slot = "accessory";
+    }
+    
+    const equipment = this.game.equipmentManager.getAllEquipment();
+    const item = equipment[slot];
+    
+    if (!item) {
+      this.game.uiManager.print(`You don't have anything equipped in the ${slot} slot.`, "error-message");
+      return;
+    }
+    
+    // Use the existing examineItem method with added stat context
+    this.examineItem(item);
+    
+    // Add equipment-specific context
+    if (slot === "weapon") {
+      const baseAttack = Math.floor(this.game.playerStats.attack / 2);
+      this.game.uiManager.print(`\nStat Impact:`, "system-message");
+      this.game.uiManager.print(`Base attack bonus: +${baseAttack} (from attack stat)`, "item-stat-detail");
+      this.game.uiManager.print(`Weapon damage: +${item.damage}`, "item-stat-detail");
+      this.game.uiManager.print(`Total attack: ${baseAttack + item.damage}`, "item-stat-detail");
+    } else if (slot === "armor") {
+      const baseDefense = Math.floor(this.game.playerStats.defense / 2);
+      this.game.uiManager.print(`\nStat Impact:`, "system-message");
+      this.game.uiManager.print(`Base defense bonus: +${baseDefense} (from defense stat)`, "item-stat-detail");
+      this.game.uiManager.print(`Armor defense: +${item.defense}`, "item-stat-detail");
+      this.game.uiManager.print(`Total defense: ${baseDefense + item.defense}`, "item-stat-detail");
+    } else if (slot === "accessory" && item.effects) {
+      this.game.uiManager.print(`\nStat Impact:`, "system-message");
+      Object.entries(item.effects).forEach(([effect, value]) => {
+        this.game.uiManager.print(`${this.formatEffectName(effect)}: ${value > 0 ? '+' : ''}${value}`, "item-stat-detail");
+      });
+    }
+  }
+
+  // Method to unequip an item by slot
+  unequipItem(slotName) {
+    // Normalize slot name to match equipment manager slots
+    let slot = slotName;
+    if (["weapon", "sword", "axe", "dagger", "staff", "wand"].includes(slotName)) {
+      slot = "weapon";
+    } else if (["armor", "armour", "chest", "body"].includes(slotName)) {
+      slot = "armor";
+    } else if (["accessory", "trinket", "amulet", "ring", "necklace"].includes(slotName)) {
+      slot = "accessory";
+    }
+    
+    const result = this.game.equipmentManager.unequipItem(slot);
+    
+    if (result.success) {
+      this.game.uiManager.print(result.message, "system-message");
+      // Refresh the equipment display
+      this.showEquipment();
+    } else {
+      this.game.uiManager.print(result.message, "error-message");
+    }
+  }
+
+  // Method to show equipment help
+  showEquipmentHelp() {
+    this.game.uiManager.print("\n===== EQUIPMENT COMMANDS =====", "system-message");
+    this.game.uiManager.print("examine [slot] - Examine weapon, armor, or accessory", "help-text");
+    this.game.uiManager.print("unequip [slot] - Remove equipped item", "help-text");
+    this.game.uiManager.print("inventory - Go to inventory to equip items", "help-text");
+    this.game.uiManager.print("back - Return to game", "help-text");
+  }
+
+  // Method to return from equipment screen
+  resumeAfterEquipment() {
+    this.game.inputMode = this.game.previousMode || "normal";
+    this.game.previousMode = null;
+    this.game.uiManager.clearOutput();
+    if (this.game.inputMode === "normal") {
+      this.game.gameLogic.playScene();
+    }
   }
 }

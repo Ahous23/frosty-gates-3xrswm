@@ -1,7 +1,7 @@
 export class WeaponManager {
   constructor(game) {
     this.game = game;
-    this.weapons = {};
+    this.weapons = [];
     this.initialized = false;
   }
 
@@ -40,7 +40,7 @@ export class WeaponManager {
         data.id = weaponId;
       }
       
-      this.weapons[weaponId] = data;
+      this.weapons.push(data);
       return data;
     } catch (error) {
       console.error(`Failed to load weapon ${weaponId}:`, error);
@@ -48,19 +48,18 @@ export class WeaponManager {
     }
   }
 
-  getWeapon(weaponId) {
-    if (this.weapons[weaponId]) {
-      return { ...this.weapons[weaponId] };
+  getWeapon(id) {
+    const weapon = this.weapons.find(w => w.id === id);
+    if (!weapon && id === 'fists') {
+      return { id: 'fists', name: 'Fists', damage: 1 };
     }
-    
-    console.warn(`Weapon ${weaponId} not found in loaded weapons`);
-    return null;
+    return weapon;
   }
 
   // Get available weapons that meet strength requirements
   getAvailableWeapons(playerStats) {
     const strength = playerStats.attack || 0;
-    return Object.values(this.weapons).filter(weapon => 
+    return this.weapons.filter(weapon => 
       !weapon.strengthRequirement || strength >= weapon.strengthRequirement
     );
   }

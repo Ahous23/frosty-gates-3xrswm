@@ -1,4 +1,7 @@
 import { maxPlayerHealth, xpPerLevel } from './constants.js';
+import { WeaponManager } from './weaponManager.js';
+
+const weaponManager = new WeaponManager();
 
 export class CombatSystem {
   constructor(game) {
@@ -71,7 +74,7 @@ export class CombatSystem {
       // Default weapon if none specified
       enemy.currentWeapon = {
         name: "fists",
-        damage: enemy.attack || 5
+        damage: enemy.attack || 1
       };
     }
     
@@ -227,23 +230,6 @@ export class CombatSystem {
     this.playerTurn = true;
     this.displayCombatStatus();
     this.showCombatOptions();
-  }
-
-  // Update the getEquippedWeapon method
-  getEquippedWeapon() {
-    // Use the equipment manager to get the weapon
-    if (this.game.equipmentManager) {
-      return this.game.equipmentManager.equipment.weapon || 
-        (this.game.weaponManager ? 
-         this.game.weaponManager.getWeapon('fists') : 
-         { name: "fists", damage: 2 });
-    }
-    
-    // Fallback for backward compatibility
-    return {
-      name: "fists",
-      damage: 2
-    };
   }
 
   checkEnemy() {
@@ -454,5 +440,13 @@ export class CombatSystem {
       this.game.uiManager.print(`You gained ${levelsGained} stat point(s)!`, "stat-points");
       this.game.uiManager.print(`Type 'stats' anytime to allocate your points.`, "system-message");
     }
+  }
+
+  getWeapon(id) {
+    const weapon = this.weapons.find(w => w.id === id);
+    if (!weapon && id === 'fists') {
+      return { id: 'fists', name: 'Fists', damage: 1 }; // Match fists.json
+    }
+    return weapon;
   }
 }
