@@ -133,10 +133,29 @@ export class InputHandlers {
     }
   }
 
+  // Update the handleNormalInput method to include notes and map
   handleNormalInput(input) {
-    // Add notes command check at the beginning
+    // Check for special commands first
+    if (input === "save") {
+      this.saveGame();
+      return;
+    }
+    
+    // Check for notes command
     if (input === "notes" || input === "note") {
       this.game.toggleNotes();
+      return;
+    }
+    
+    // Check for map command
+    if (input === "map" || input === "m") {
+      this.game.toggleMap();
+      return;
+    }
+    
+    // Check for equipment command
+    if (input === "equipment" || input === "equip" || input === "e") {
+      this.game.toggleEquipment();
       return;
     }
     
@@ -146,7 +165,7 @@ export class InputHandlers {
       this.showInventory();
       return;
     } else if (input === "equipment" || input === "equip") {
-      this.showEquipment();
+      this.game.toggleEquipment();
       return;
     } else if (input === "stats" || input === "s") {
       this.showStats();
@@ -757,51 +776,59 @@ export class InputHandlers {
   }
 
   adjustStat(stat, change) {
-    if (change > 0 && this.game.availableStatPoints < change) {
-      this.game.uiManager.print(`You only have ${this.game.availableStatPoints} points available.`, "error-message");
+    // Calculate total available points
+    const totalAvailablePoints = (this.isInitialAllocation ? this.game.availableStatPoints : 0) + 
+                                (this.game.gameState.availableStatPoints || 0);
+                                
+    if (change > 0 && totalAvailablePoints < change) {
+      this.game.uiManager.print(`You only have ${totalAvailablePoints} points available.`, "error-message");
       return false;
     }
     
     this.game.playerStats[stat] += change;
-    this.game.availableStatPoints -= change;
+    
+    // Update the correct stat points counter
+    if (this.isInitialAllocation) {
+      this.game.availableStatPoints -= change;
+    } else {
+      this.game.gameState.availableStatPoints = (this.game.gameState.availableStatPoints || 0) - change;
+    }
     
     this.game.uiManager.print(`${stat} is now ${this.game.playerStats[stat]}`, "system-message");
-    this.game.uiManager.print(`Available points: ${this.game.availableStatPoints}`, "system-message");
+    this.game.uiManager.print(`Available points: ${totalAvailablePoints - change}`, "system-message");
     
-    if (this.game.availableStatPoints <= 0) {
+    if (totalAvailablePoints - change <= 0) {
       this.game.uiManager.print("You have used all your stat points. Type 'confirm' to continue.", "system-message");
     }
     
     return true;
   }
 
-  confirmStats() {
-    this.game.uiManager.print("Stats confirmed!", "system-message");
-    this.game.inputMode = "normal";
-    this.game.uiManager.clearOutput();
-    this.game.currentScene = this.game.nextScene;
-    this.game.gameLogic.playScene();
-  }
+  // Update the confirmStats method
 
-  saveGame() {
-    // Get notes content directly from the saveNotes method which calls notesManager.save()
-    const notesContent = this.game.saveNotes();
-    
-    const saveData = {
-      currentScene: this.game.currentScene,
-      playerStats: this.game.playerStats,
-      inventory: this.game.inventory,
-      gameState: this.game.gameState,
-      notes: notesContent // Now correctly using the return value from saveNotes()
-    };
-    
-    const saveCode = btoa(JSON.stringify(saveData));
-    this.game.uiManager.clearOutput();
-    this.game.uiManager.print("===== SAVE GAME =====", "system-message");
-    this.game.uiManager.print("Copy and save this code to load your game later:", "system-message");
-    this.game.uiManager.print(saveCode, "save-code");
-    this.game.uiManager.print("\nPress Enter to continue", "system-message");
+confirmStats() {
+  // Consolidate all points into gameState
+  if (this.isInitialAllocation) {
+    this.game.gameState.availableStatPoints = (this.game.gameState.availableStatPoints || 0) + this.game.availableStatPoints;
+    this.game.availableStatPoints = 0;
   }
+  
+  this.game.uiManager.print("Stats confirmed!", "system-message");
+  this.game.inputMode = "normal";
+  this.game.uiManager.clearOutput();
+  this.game.currentScene = this.game.nextScene;
+  this.game.gameLogic.playScene();
+}
+
+// Update the saveGame method to use the game's method
+saveGame() {
+  if (typeof this.game.saveGame === 'function') {
+    this.game.saveGame();
+  } else {
+    console.error("Game.saveGame method not found");
+    this.game.uiManager.print("Error: Game save functionality is not available.", "error-message");
+  }
+}
 
   loadSaveData(saveData) {
     try {
@@ -828,22 +855,7 @@ export class InputHandlers {
   }
 
   handleAwaitContinueInput(input) {
-    // Global commands should still work
-    if (input === "notes" || input === "note") {
-      this.game.toggleNotes();
-      return;
-    }
-    
-    if (input === "map" || input === "m") {
-      this.game.toggleMap();
-      return;
-    }
-    
-    if (input === "help") {
-      this.showHelp();
-      return;
-    }
-    
+    // Process special commands first
     if (input === "save") {
       this.saveGame();
       return;
@@ -854,26 +866,25 @@ export class InputHandlers {
       return;
     }
     
-    if (input === "equipment" || input === "equip") {
-      this.showEquipment();
+    if (input === "equipment" || input === "equip" || input === "e") {
+      this.game.toggleEquipment();
       return;
     }
     
-    if (input === "stats" || input === "s") {
-      this.showStats();
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
       return;
     }
     
-    // Check for continue commands
-    const continueCommands = ["continue", "next", "proceed", "c", "go", "done"];
-    if (continueCommands.includes(input)) {
-      // Proceed to the next scene
-      this.game.currentScene = this.game.nextSceneToLoad;
+    if (input === "map" || input === "m") {
+      this.game.toggleMap();
+      return;
+    }
+    
+    // For any other input, revert to normal mode and continue the game
+    if (input === "continue" || input === "c") {
       this.game.inputMode = "normal";
-      this.game.nextSceneToLoad = null;
       this.game.gameLogic.playScene();
-    } else {
-      this.game.uiManager.print("Type 'continue' to proceed with the story.", "system-message");
     }
   }
 
@@ -1070,99 +1081,8 @@ export class InputHandlers {
 
   // Update the showEquipment method to use equipment manager
   showEquipment() {
-    this.game.previousMode = this.game.inputMode;
-    this.game.inputMode = "equipment";
-    this.game.uiManager.clearOutput();
-    this.game.uiManager.print("===== EQUIPMENT =====", "system-message");
-    
-    const equipment = this.game.equipmentManager.getAllEquipment();
-    
-    if (equipment.weapon) {
-      this.game.uiManager.print(`Weapon: ${equipment.weapon.name} (${equipment.weapon.damage} damage)`, "item-stat");
-    } else {
-      this.game.uiManager.print("Weapon: None (2 damage with fists)", "item-stat");
-    }
-    
-    if (equipment.armor) {
-      this.game.uiManager.print(`Armor: ${equipment.armor.name} (${equipment.armor.defense} defense)`, "item-stat");
-    } else {
-      this.game.uiManager.print("Armor: None", "item-stat");
-    }
-    
-    if (equipment.accessory) {
-      this.game.uiManager.print(`Accessory: ${equipment.accessory.name}`, "item-stat");
-    } else {
-      this.game.uiManager.print("Accessory: None", "item-stat");
-    }
-    
-    this.game.uiManager.print("\nType 'inventory' to manage your equipment.", "system-message");
-  }
-
-  // Update the showEquipment method to show more stats and examination options
-  showEquipment() {
-    this.game.previousMode = this.game.inputMode;
-    this.game.inputMode = "equipment";
-    this.game.uiManager.clearOutput();
-    this.game.uiManager.print("===== EQUIPMENT =====", "system-message");
-    
-    const equipment = this.game.equipmentManager.getAllEquipment();
-    
-    // Show weapon info
-    if (equipment.weapon) {
-      this.game.uiManager.print(`Weapon: ${equipment.weapon.name} (${equipment.weapon.damage} damage)`, "item-stat");
-      const attackBonus = Math.floor(this.game.playerStats.attack / 2);
-      this.game.uiManager.print(`  Total Attack: ${equipment.weapon.damage + attackBonus} (base: ${attackBonus})`, "item-stat-detail");
-    } else {
-      this.game.uiManager.print("Weapon: None", "item-stat");
-      const attackBonus = Math.floor(this.game.playerStats.attack / 2);
-      this.game.uiManager.print(`  Total Attack: ${5 + attackBonus} (fists: 5, base: ${attackBonus})`, "item-stat-detail");
-    }
-    
-    // Show armor info
-    if (equipment.armor) {
-      this.game.uiManager.print(`Armor: ${equipment.armor.name} (${equipment.armor.defense} defense)`, "item-stat");
-      const defenseBonus = Math.floor(this.game.playerStats.defense / 2);
-      this.game.uiManager.print(`  Total Defense: ${equipment.armor.defense + defenseBonus} (base: ${defenseBonus})`, "item-stat-detail");
-    } else {
-      this.game.uiManager.print("Armor: None", "item-stat");
-      const defenseBonus = Math.floor(this.game.playerStats.defense / 2);
-      this.game.uiManager.print(`  Total Defense: ${defenseBonus} (base: ${defenseBonus})`, "item-stat-detail");
-    }
-    
-    // Show accessory info
-    if (equipment.accessory) {
-      this.game.uiManager.print(`Accessory: ${equipment.accessory.name}`, "item-stat");
-      if (equipment.accessory.effects) {
-        Object.entries(equipment.accessory.effects).forEach(([effect, value]) => {
-          this.game.uiManager.print(`  ${this.formatEffectName(effect)}: ${value}`, "item-stat-detail");
-        });
-      }
-    } else {
-      this.game.uiManager.print("Accessory: None", "item-stat");
-    }
-    
-    // Show total combat stats
-    const totalAttack = this.getCalculatedAttack();
-    const totalDefense = this.getCalculatedDefense();
-    this.game.uiManager.print("\nCombat Stats:", "system-message");
-    this.game.uiManager.print(`Total Attack: ${totalAttack}`, "player-stat");
-    this.game.uiManager.print(`Total Defense: ${totalDefense}`, "player-stat");
-    
-    this.game.uiManager.print("\nCommands:", "system-message");
-    this.game.uiManager.print("examine [slot] - Examine an equipped item (weapon, armor, accessory)", "help-text");
-    this.game.uiManager.print("unequip [slot] - Remove an equipped item", "help-text");
-    this.game.uiManager.print("inventory - Open inventory to equip items", "help-text");
-    this.game.uiManager.print("back - Return to game", "help-text");
-  }
-
-  // Helper method to format effect names for display
-  formatEffectName(effect) {
-    if (!effect) return "";
-    
-    // Convert camelCase to Title Case With Spaces
-    return effect
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, str => str.toUpperCase());
+    // Toggle the equipment panel instead of changing the input mode
+    this.game.toggleEquipment();
   }
 
   // Add a new method to handle equipment commands
@@ -1291,8 +1211,20 @@ export class InputHandlers {
 
   // Method to return from equipment screen
   resumeAfterEquipment() {
+    console.log("Resuming after equipment. Previous mode:", this.game.previousMode);
+    
+    // Close the equipment panel first
+    if (this.game.equipmentManagerUI) {
+      this.game.equipmentManagerUI.toggle(false);
+    }
+    
+    // Restore previous input mode
     this.game.inputMode = this.game.previousMode || "normal";
     this.game.previousMode = null;
+    
+    console.log("Restored input mode to:", this.game.inputMode);
+    
+    // Clear output and return to game if needed
     this.game.uiManager.clearOutput();
     if (this.game.inputMode === "normal") {
       this.game.gameLogic.playScene();

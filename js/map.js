@@ -303,9 +303,7 @@ export class MapManager {
     }
   }
 
-  toggle() {
-    console.log("Toggle map called, current visibility:", this.visible);
-    
+  toggle(show = !this.visible) {
     if (this.isMobile) {
       // For mobile, open in new tab
       this.openMapInNewTab();
@@ -317,13 +315,15 @@ export class MapManager {
       return;
     }
     
-    this.visible = !this.visible;
+    if (show === this.visible) return; // No change needed
+    
+    this.visible = show;
     
     if (this.visible) {
       console.log("Showing map panel");
       this.panel.style.display = 'flex';
       
-      // Render the map directly in the container
+      // Render the map 
       this.render();
       
       requestAnimationFrame(() => {
@@ -336,7 +336,6 @@ export class MapManager {
       const hidePanel = () => {
         this.panel.style.display = 'none';
         this.panel.removeEventListener('transitionend', hidePanel);
-        console.log("Map panel hidden completely via transitionend");
       };
       
       this.panel.addEventListener('transitionend', hidePanel);

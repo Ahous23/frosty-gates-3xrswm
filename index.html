@@ -18,9 +18,9 @@
     
     <!-- Map panel that slides from the left -->
     <div id="map-panel" class="map-panel hidden">
-      <div class="map-header">
-        <h3>World Map</h3>
-        <button id="close-map">Close</button>
+      <div class="panel-header">
+        <h2>Map</h2>
+        <button id="close-map" class="close-button">×</button>
       </div>
       <div id="map-container" class="map-container"></div>
     </div>
@@ -47,6 +47,15 @@
       </div>
       <div id="notes-editor" contenteditable="true" class="notes-editor"></div>
     </div>
+
+    <div id="equipment-panel" class="slide-out hidden">
+      <div class="panel-header">
+        <h2>Equipment</h2>
+        <button id="close-equipment" class="close-button">×</button>
+      </div>
+      <div id="equipment-content" class="panel-content"></div>
+    </div>
+    
     <script type="module" src="game.js"></script>
   </body>
 </html>

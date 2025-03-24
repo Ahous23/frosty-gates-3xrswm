@@ -9,19 +9,32 @@ export class NotesManager {
     this.init();
   }
   
+  // Update the init method in NotesManager
+
   init() {
     // Set up notes panel
     this.panel = document.getElementById('notes-panel');
     this.editor = document.getElementById('notes-editor');
+    
+    if (!this.panel || !this.editor) {
+      console.error("Notes panel elements not found in the DOM");
+      return;
+    }
+    
     const closeNotesBtn = document.getElementById('close-notes');
+    if (!closeNotesBtn) {
+      console.error("Close notes button not found");
+      return;
+    }
     
     // Ensure the panel is hidden initially
     if (!this.visible) {
       this.panel.style.display = 'none';
+      this.panel.classList.add('hidden');
     }
     
     // Setup event listeners
-    closeNotesBtn.addEventListener('click', () => this.toggle());
+    closeNotesBtn.addEventListener('click', () => this.toggle(false));
     
     // Setup rich text formatting
     this.setupRichTextEditing();
@@ -34,6 +47,8 @@ export class NotesManager {
         this.content = this.editor.innerHTML;
       }, 500);
     });
+    
+    console.log("Notes manager initialized successfully");
   }
 
   setupRichTextEditing() {
@@ -67,8 +82,12 @@ export class NotesManager {
     });
   }
 
-  toggle() {
-    this.visible = !this.visible;
+  // Ensure the toggle method works properly
+
+  toggle(show = !this.visible) {
+    if (show === this.visible) return; // No change needed
+    
+    this.visible = show;
     
     if (this.visible) {
       // Show notes
@@ -91,19 +110,29 @@ export class NotesManager {
     }
   }
 
+  // Method to save notes content
   save() {
-    // Capture current notes content
-    const notesContent = this.editor.innerHTML;
-    console.log("Notes content before saving:", notesContent);
-    this.content = notesContent;
+    // If editor exists, get its HTML content
+    if (this.editor) {
+      this.content = this.editor.innerHTML;
+    }
     return this.content;
   }
 
+  // Method to load notes content
   load(notesContent) {
-    if (notesContent) {
-      this.content = notesContent;
+    this.content = notesContent || "";
+    if (this.editor) {
       this.editor.innerHTML = this.content;
-      console.log("Notes loaded:", notesContent.substring(0, 50) + "..."); // Debug log
     }
+  }
+
+  // Add these getter methods for backward compatibility
+  getContent() {
+    return this.content;
+  }
+
+  getNotes() {
+    return this.content;
   }
 }

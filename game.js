@@ -18,6 +18,7 @@ import { MapManager } from './js/map.js';
 import { InventoryManager } from './js/inventoryManager.js';
 import { EquipmentManager } from './js/equipmentManager.js';
 import { WeaponManager } from './js/weaponManager.js';
+import { EquipmentManagerUI } from './js/equipmentManagerUI.js';
 
 class TextGame {
   constructor() {
@@ -109,6 +110,7 @@ class TextGame {
     // Initialize the managers
     this.notesManager = new NotesManager(this);
     this.mapManager = new MapManager(this);
+    this.equipmentManagerUI = new EquipmentManagerUI(this);
     
     // Initialize everything
     this.init();
@@ -351,250 +353,11 @@ class TextGame {
       case "combat-item":
         this.inputHandlers.handleCombatItemInput(input);
         break;
-    }
-  }
-
-  async showLoadingScreen() {
-    this.uiManager.clearOutput();
-    const numberOfLoadingGifs = 5;
-    const randomGifIndex = Math.floor(Math.random() * numberOfLoadingGifs) + 1;
-    const loadingGifPath = `gif/loading/loading${randomGifIndex}.gif`;
-    const loadingContainer = document.createElement("div");
-    loadingContainer.className = "loading-screen";
-    const loadingGif = document.createElement("img");
-    loadingGif.src = loadingGifPath;
-    loadingGif.alt = "Loading...";
-    loadingGif.className = "loading-gif";
-    loadingContainer.appendChild(loadingGif);
-    const loadingTextContainer = document.createElement("div");
-    loadingTextContainer.className = "loading-text";
-    loadingContainer.appendChild(loadingTextContainer);
-    this.gameOutput.appendChild(loadingContainer);
-    const quips = await this.loadLoadingQuips();
-    const randomQuip = quips[Math.floor(Math.random() * quips.length)];
-    this.typeLoadingText(loadingTextContainer, randomQuip);
-    const randomDuration = Math.floor(Math.random() * 2000) + 3000;
-    await new Promise((resolve) => setTimeout(resolve, randomDuration));
-    this.uiManager.clearOutput();
-  }
-
-  async loadLoadingQuips() {
-    try {
-      const response = await fetch("loadingQuips.json");
-      if (!response.ok) throw new Error(`Failed to fetch loading quips: ${response.status}`);
-      const data = await response.json();
-      return data.quips;
-    } catch (error) {
-      console.error("Failed to load loading quips:", error);
-      return ["Loading..."];
-    }
-  }
-
-  async typeLoadingText(element, text) {
-    const typingSpeed = 50;
-    const backspaceSpeed = 50;
-    const pauseDuration = 300;
-    this.audioManager.playTypingSound();
-    while (true) {
-      for (let i = 0; i < text.length; i++) {
-        element.textContent += text.charAt(i);
-        await new Promise((resolve) => setTimeout(resolve, typingSpeed));
-      }
-      await new Promise((resolve) => setTimeout(resolve, pauseDuration));
-      for (let i = text.length; i > 0; i--) {
-        element.textContent = element.textContent.slice(0, -1);
-        await new Promise((resolve) => setTimeout(resolve, backspaceSpeed));
-      }
-      await new Promise((resolve) => setTimeout(resolve, pauseDuration));
-    }
-    this.audioManager.stopTypingSound();
-  }
-
-  // Toggle notes panel
-  toggleNotes() {
-    this.notesManager.toggle();
-  }
-
-  // Save notes content
-  saveNotes() {
-    return this.notesManager.save();
-  }
-
-  // Load notes content
-  loadNotes(notesContent) {
-    this.notesManager.load(notesContent);
-  }
-
-  // Toggle map panel
-  toggleMap() {
-    this.mapManager.toggle();
-  }
-
-  // Update player's location on the map
-  updatePlayerMapLocation() {
-    this.mapManager.updatePlayerLocation();
-  }
-
-  // Update saveGame to properly include notes
-  saveGame() {
-    // Make sure notes are captured immediately before saving
-    const notesContent = this.saveNotes();
-    
-    console.log("Saving notes content:", notesContent);
-    
-    const saveData = {
-      currentScene: this.currentScene,
-      playerStats: this.playerStats,
-      inventory: this.inventory,
-      gameState: this.gameState,
-      notes: notesContent
-    };
-    
-    console.log("Full save data:", saveData);
-    
-    const saveString = btoa(JSON.stringify(saveData));
-    console.log("Save string length:", saveString.length);
-    
-    this.uiManager.print("\nSave Code (copy this somewhere safe):", "system-message");
-    this.uiManager.print(saveString, "save-code");
-    this.uiManager.print("\nType 'continue' to resume your game.", "system-message");
-  }
-
-  // Update loadSaveData to handle combat-related data
-  loadSaveData(saveData) {
-    try {
-      const data = JSON.parse(atob(saveData));
-      this.currentScene = data.currentScene;
-      this.playerStats = data.playerStats;
-      this.inventory = data.inventory || [];
-      this.gameState = data.gameState || {};
-      
-      // Ensure health is set if not in save data
-      if (this.gameState.playerHealth === undefined) {
-        this.gameState.playerHealth = 100;
-      }
-      
-      // Ensure XP is set if not in save data
-      if (this.gameState.playerXp === undefined) {
-        this.gameState.playerXp = 0;
-      }
-      
-      // Load notes
-      if (data.notes) {
-        this.loadNotes(data.notes);
-      }
-      
-      this.uiManager.print("Game loaded successfully!", "system-message");
-      this.inputMode = "normal";
-      this.playScene();
-      return true;
-    } catch (error) {
-      this.uiManager.print("Failed to load save data. Invalid save code.", "error-message");
-      return false;
-    }
-  }
-
-  async ensureSceneLoaded(sceneId) {
-    if (this.storyContent[sceneId]) return true;
-    const chapterId = this.getChapterForScene(sceneId);
-    if (!chapterId) {
-      console.error(`Cannot determine chapter for scene: ${sceneId}`);
-      return false;
-    }
-    return await this.loadChapter(chapterId);
-  }
-
-  getChapterForScene(sceneId) {
-    for (const [chapterId, info] of Object.entries(this.storyIndex.sceneMapping)) {
-      if (info.scenes.includes(sceneId)) {
-        return chapterId;
-      }
-    }
-    return null;
-  }
-
-  print(text, className = "") {
-    this.uiManager.print(text, className);
-  }
-
-  clearInput() {
-    this.uiManager.clearInput();
-  }
-
-  clearOutput() {
-    this.uiManager.clearOutput();
-  }
-
-  async typeText(text) {
-    this.isTyping = true;
-    this.gameInput.disabled = true;
-
-    const element = document.createElement("div");
-    element.className = "typed-text";
-    this.gameOutput.appendChild(element);
-
-    for (let i = 0; i < text.length; i++) {
-      if (!this.isTyping) {
-        element.textContent = text;
-        this.gameOutput.scrollTop = this.gameOutput.scrollHeight;
+      case "equipment":
+        this.inputHandlers.handleEquipmentInput(input);
         break;
-      }
-      element.textContent += text.charAt(i);
-      this.gameOutput.scrollTop = this.gameOutput.scrollHeight;
-      await new Promise((resolve) => setTimeout(resolve, this.typingSpeed));
-    }
-
-    this.isTyping = false;
-    this.gameInput.disabled = false;
-    this.uiManager.focusInput();
-  }
-
-  skipTyping() {
-    this.isTyping = false;
-    this.gameInput.disabled = false;
-    this.uiManager.focusInput();
-  }
-
-  handleInput() {
-    if (this.isTyping) return;
-    const rawInput = this.gameInput.value.trim();
-    this.uiManager.clearInput();
-    this.uiManager.print(`> ${rawInput}`, "player-input");
-    const input = this.inputMode === "loadGame" ? rawInput : rawInput.toLowerCase();
-    
-    switch (this.inputMode) {
-      case "title":
-        this.inputHandlers.handleTitleInput(input);
-        break;
-      case "normal":
-        this.inputHandlers.handleNormalInput(input);
-        break;
-      case "choices":
-        this.inputHandlers.handleChoiceInput(input);
-        break;
-      case "stats":
-        this.inputHandlers.handleStatInput(input);
-        break;
-      case "inventory":
-        this.inputHandlers.handleInventoryInput(input);
-        break;
-      case "loadGame":
-        this.inputHandlers.handleLoadGameInput(rawInput);
-        break;
-      case "errorRecovery":
-        this.inputHandlers.handleErrorRecoveryInput(input);
-        break;
-      case "combat":
-        this.inputHandlers.handleCombatInput(input);
-        break;
-      case "await-continue":
-        this.inputHandlers.handleAwaitContinueInput(input);
-        break;
-      case "await-combat":
-        this.inputHandlers.handleAwaitCombatInput(input);
-        break;
-      case "combat-item":
-        this.inputHandlers.handleCombatItemInput(input);
+      case "equip-confirm":
+        // This is handled by the equipItem method
         break;
     }
   }
@@ -720,8 +483,252 @@ class TextGame {
     };
   }
 
+  // Toggle equipment panel
+  toggleEquipment() {
+    if (this.equipmentManagerUI) {
+      // Initialize if not already initialized
+      if (!this.equipmentManagerUI.panel) {
+        this.equipmentManagerUI.init();
+      }
+      // Store the current input mode to return to it later
+      this.previousMode = this.inputMode;
+      // Set mode to equipment
+      this.inputMode = "equipment";
+      // Toggle the equipment panel
+      this.equipmentManagerUI.toggle();
+    } else {
+      console.error("Equipment manager UI not initialized");
+      this.uiManager.print("Equipment panel is not available.", "error-message");
+    }
+  }
+
   // Rest of the TextGame class methods...
   // (Keep all the other methods that aren't related to notes or map)
+
+  // Update loadSaveData to load stat confirmation state
+  loadSaveData(saveData) {
+    try {
+      const data = JSON.parse(atob(saveData));
+      this.currentScene = data.currentScene;
+      this.playerStats = data.playerStats;
+      this.inventory = data.inventory || [];
+      this.gameState = data.gameState || {};
+      
+      // Ensure health is set if not in save data
+      if (this.gameState.playerHealth === undefined) {
+        this.gameState.playerHealth = 100;
+      }
+      
+      // Ensure XP is set if not in save data
+      if (this.gameState.playerXp === undefined) {
+        this.gameState.playerXp = 0;
+      }
+      
+      // Consolidate stat points
+      this.availableStatPoints = 0; // Reset this value
+      if (this.gameState.availableStatPoints === undefined) {
+        this.gameState.availableStatPoints = 0;
+      }
+      
+      // Apply stat confirmation state to equipment manager
+      if (this.equipmentManagerUI) {
+        this.equipmentManagerUI.statPointsConfirmed = this.gameState.statsConfirmed || false;
+      }
+      
+      // Load notes
+      if (data.notes) {
+        this.loadNotes(data.notes);
+      }
+      
+      this.uiManager.print("Game loaded successfully!", "system-message");
+      this.inputMode = "normal";
+      this.playScene();
+      return true;
+    } catch (error) {
+      this.uiManager.print("Failed to load save data. Invalid save code.", "error-message");
+      return false;
+    }
+  }
+
+  // Add this method to your TextGame class if it doesn't already exist
+
+  // Method to save the current notes content
+  saveNotes() {
+    if (!this.notesManager) return "";
+  
+    // Try different methods in order of preference
+    if (typeof this.notesManager.save === 'function') {
+      return this.notesManager.save();
+    } else if (typeof this.notesManager.getNotes === 'function') {
+      return this.notesManager.getNotes();
+    } else if (typeof this.notesManager.getContent === 'function') {
+      return this.notesManager.getContent();
+    } else {
+      // Last resort - try to access content property directly
+      return this.notesManager.content || "";
+    }
+  }
+
+  // Update the saveGame method to include statsConfirmed
+  saveGame() {
+    // Make sure notes are captured immediately before saving
+    let notesContent = "";
+    if (this.notesManager && typeof this.notesManager.save === 'function') {
+      notesContent = this.notesManager.save();
+    }
+    
+    // Consolidate available stat points before saving
+    const totalStatPoints = (this.gameState.availableStatPoints || 0) + (this.availableStatPoints || 0);
+    this.gameState.availableStatPoints = totalStatPoints;
+    this.availableStatPoints = 0;
+    
+    // Store the equipment manager's stat confirmation state
+    if (this.equipmentManagerUI) {
+      this.gameState.statsConfirmed = this.equipmentManagerUI.statPointsConfirmed;
+    }
+    
+    const saveData = {
+      currentScene: this.currentScene,
+      playerStats: this.playerStats,
+      inventory: this.inventory,
+      gameState: this.gameState,
+      notes: notesContent
+    };
+    
+    const saveString = btoa(JSON.stringify(saveData));
+    
+    this.uiManager.print("\nSave Code (copy this somewhere safe):", "system-message");
+    this.uiManager.print(saveString, "save-code");
+    this.uiManager.print("\nType 'continue' to resume your game.", "system-message");
+  }
+
+  // Add these methods to your TextGame class
+
+  // Toggle notes panel
+  toggleNotes() {
+    if (this.notesManager) {
+      this.notesManager.toggle();
+    } else {
+      console.error("Notes manager not initialized");
+      this.uiManager.print("Notes panel is not available.", "error-message");
+    }
+  }
+
+  // Toggle map panel
+  toggleMap() {
+    if (this.mapManager) {
+      this.mapManager.toggle();
+    } else {
+      console.error("Map manager not initialized");
+      this.uiManager.print("Map panel is not available.", "error-message");
+    }
+  }
+
+  // Add or update the saveNotes method
+  saveNotes() {
+    if (this.notesManager) {
+      return this.notesManager.save();
+    }
+    return "";
+  }
+
+  // Add this method to load notes
+  loadNotes(notesContent) {
+    if (this.notesManager) {
+      this.notesManager.load(notesContent);
+    }
+  }
+
+  // Add this debug method to the TextGame class
+
+  checkPanels() {
+    console.log("Checking panel initialization status:");
+    
+    console.log("NotesManager:", this.notesManager ? "Initialized" : "Not initialized");
+    if (this.notesManager) {
+      console.log("- Notes panel element:", this.notesManager.panel ? "Found" : "Not found");
+    }
+    
+    console.log("MapManager:", this.mapManager ? "Initialized" : "Not initialized");
+    if (this.mapManager) {
+      console.log("- Map panel element:", this.mapManager.panel ? "Found" : "Not found");
+    }
+    
+    console.log("EquipmentManagerUI:", this.equipmentManagerUI ? "Initialized" : "Not initialized");
+    if (this.equipmentManagerUI) {
+      console.log("- Equipment panel element:", this.equipmentManagerUI.panel ? "Found" : "Not found");
+    }
+    
+    return "Panel status logged to console";
+  }
+
+  // Add this method to the TextGame class
+
+  debugUI() {
+    console.log("=== UI DEBUGGING INFO ===");
+    
+    // Check UI elements
+    console.log("Notes panel:", document.getElementById('notes-panel') ? "Found" : "Missing");
+    console.log("Notes editor:", document.getElementById('notes-editor') ? "Found" : "Missing");
+    console.log("Map panel:", document.getElementById('map-panel') ? "Found" : "Missing");
+    console.log("Map container:", document.getElementById('map-container') ? "Found" : "Missing");
+    console.log("Equipment panel:", document.getElementById('equipment-panel') ? "Found" : "Missing");
+    console.log("Equipment content:", document.getElementById('equipment-content') ? "Found" : "Missing");
+    
+    // Check managers
+    console.log("\n=== MANAGER STATUS ===");
+    console.log("Notes manager:", this.notesManager ? "Exists" : "Missing");
+    console.log("Map manager:", this.mapManager ? "Exists" : "Missing");
+    console.log("Equipment manager UI:", this.equipmentManagerUI ? "Exists" : "Missing");
+    
+    // Check manager panels
+    if (this.notesManager) console.log("- Notes panel in manager:", this.notesManager.panel ? "Found" : "Missing");
+    if (this.mapManager) console.log("- Map panel in manager:", this.mapManager.panel ? "Found" : "Missing");
+    if (this.equipmentManagerUI) console.log("- Equipment panel in manager:", this.equipmentManagerUI.panel ? "Found" : "Missing");
+    
+    // Check input mode
+    console.log("\n=== GAME STATE ===");
+    console.log("Current input mode:", this.inputMode);
+    console.log("Previous input mode:", this.previousMode);
+    console.log("Is typing:", this.isTyping);
+    console.log("Awaiting input:", this.awaitingInput);
+    
+    return "Debug info logged to console";
+  }
+
+  // Add this method to help recover from problematic states:
+
+  // Method to force the game back to normal input mode
+  forceNormalMode() {
+    console.log("Forcing normal input mode...");
+    console.log("Previous mode was:", this.inputMode);
+    
+    // Close any open panels
+    if (this.notesManager && this.notesManager.visible) {
+      this.notesManager.toggle(false);
+    }
+    
+    if (this.mapManager && this.mapManager.visible) {
+      this.mapManager.toggle(false);
+    }
+    
+    if (this.equipmentManagerUI && this.equipmentManagerUI.visible) {
+      this.equipmentManagerUI.toggle(false);
+    }
+    
+    // Force normal input mode
+    this.inputMode = "normal";
+    this.previousMode = null;
+    
+    // Clear any temporary input handlers
+    if (this._originalHandleInput) {
+      this.handleInput = this._originalHandleInput;
+      this._originalHandleInput = null;
+    }
+    
+    console.log("Input mode reset to normal");
+    return "Game reset to normal input mode";
+  }
 }
 
 // Initialize the game when the page loads
