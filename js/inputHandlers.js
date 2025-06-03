@@ -366,12 +366,13 @@ export class InputHandlers {
     // Check if stat is above the initial value
     if (this.game.playerStats[stat] > this.game.initialPlayerStats[stat]) {
       this.game.playerStats[stat]--;
-      
-      // Return the point to the available pool
-      if (this.game.gameState.availableStatPoints !== undefined) {
-        this.game.gameState.availableStatPoints++;
-      } else {
+
+      // Return the point to the correct pool
+      if (this.isInitialAllocation) {
         this.game.availableStatPoints++;
+      } else {
+        this.game.gameState.availableStatPoints =
+          (this.game.gameState.availableStatPoints || 0) + 1;
       }
       
       // Update the display

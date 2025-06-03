@@ -60,6 +60,7 @@ class TextGame {
     this.awaitingInput = false;
     this.inputMode = "normal";
     this.previousMode = null;
+    this.isLoading = false;
     this.gameOutput = document.getElementById("gameOutput");
     this.gameInput = document.getElementById("gameInput");
     this.audioManager = new AudioManager();
@@ -210,26 +211,7 @@ class TextGame {
     this.gameLogic.playScene();
   }
 
-  // Add the startNewGame method that was missing
-  startNewGame() {
-    this.uiManager.print("\nStarting new game...\n", "system-message");
-    
-    // Stop title music
-    this.audioManager.stopTitleMusic();
 
-    // Clear output before starting new game
-    this.uiManager.clearOutput();
-
-    // Initialize starting inventory
-    this.inventory = [];
-
-    // Reset player stats to default
-    this.playerStats = { ...initialPlayerStats };
-    this.availableStatPoints = availableStatPoints;
-
-    this.currentScene = "intro";
-    this.gameLogic.playScene();
-  }
 
   // Add the showLoadGamePrompt method that was missing
   async showLoadGamePrompt() {
@@ -380,9 +362,12 @@ class TextGame {
     this.gameOutput.appendChild(loadingContainer);
     const quips = await this.loadLoadingQuips();
     const randomQuip = quips[Math.floor(Math.random() * quips.length)];
-    this.typeLoadingText(loadingTextContainer, randomQuip);
+    this.isLoading = true;
+    const typingPromise = this.typeLoadingText(loadingTextContainer, randomQuip);
     const randomDuration = Math.floor(Math.random() * 2000) + 3000;
     await new Promise((resolve) => setTimeout(resolve, randomDuration));
+    this.isLoading = false;
+    await typingPromise;
     this.uiManager.clearOutput();
   }
 
@@ -403,7 +388,7 @@ class TextGame {
     const backspaceSpeed = 50;
     const pauseDuration = 300;
     this.audioManager.playTypingSound();
-    while (true) {
+    while (this.isLoading) {
       for (let i = 0; i < text.length; i++) {
         element.textContent += text.charAt(i);
         await new Promise((resolve) => setTimeout(resolve, typingSpeed));
@@ -547,25 +532,6 @@ class TextGame {
     } catch (error) {
       this.uiManager.print("Failed to load save data. Invalid save code.", "error-message");
       return false;
-    }
-  }
-
-  // Add this method to your TextGame class if it doesn't already exist
-
-  // Method to save the current notes content
-  saveNotes() {
-    if (!this.notesManager) return "";
-  
-    // Try different methods in order of preference
-    if (typeof this.notesManager.save === 'function') {
-      return this.notesManager.save();
-    } else if (typeof this.notesManager.getNotes === 'function') {
-      return this.notesManager.getNotes();
-    } else if (typeof this.notesManager.getContent === 'function') {
-      return this.notesManager.getContent();
-    } else {
-      // Last resort - try to access content property directly
-      return this.notesManager.content || "";
     }
   }
 
