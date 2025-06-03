@@ -1,11 +1,13 @@
-export class NotesManager {
+import { UIPanel } from './uiPanel.js';
+
+export class NotesManager extends UIPanel {
   constructor(game) {
+    const panel = document.getElementById('notes-panel');
+    super(panel);
     this.game = game;
-    this.visible = false;
     this.content = "";
-    this.panel = null;
     this.editor = null;
-    
+
     this.init();
   }
   
@@ -13,7 +15,6 @@ export class NotesManager {
 
   init() {
     // Set up notes panel
-    this.panel = document.getElementById('notes-panel');
     this.editor = document.getElementById('notes-editor');
     
     if (!this.panel || !this.editor) {
@@ -85,29 +86,7 @@ export class NotesManager {
   // Ensure the toggle method works properly
 
   toggle(show = !this.visible) {
-    if (show === this.visible) return; // No change needed
-    
-    this.visible = show;
-    
-    if (this.visible) {
-      // Show notes
-      this.panel.style.display = 'flex';
-      // Use requestAnimationFrame to ensure display change takes effect
-      requestAnimationFrame(() => {
-        this.panel.classList.remove('hidden');
-      });
-    } else {
-      // Hide notes - first start the transition
-      this.panel.classList.add('hidden');
-      
-      // Add transitionend listener to set display to none after animation
-      const hidePanel = () => {
-        this.panel.style.display = 'none';
-        this.panel.removeEventListener('transitionend', hidePanel);
-      };
-      
-      this.panel.addEventListener('transitionend', hidePanel);
-    }
+    super.toggle(show);
   }
 
   // Method to save notes content

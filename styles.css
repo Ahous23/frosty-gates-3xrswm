@@ -1,10 +1,32 @@
+:root {
+  --bg-main: #1b202b;
+  --bg-panel: #232a3b;
+  --text-color: #e0e0e0;
+  --accent-color: #ffb347;
+}
+
 body {
   font-family: "Courier New", monospace;
-  background-color: #111;
-  color: #eee;
+  background-color: var(--bg-main);
+  color: var(--text-color);
   line-height: 1.6;
   margin: 0;
   padding: 0;
+}
+
+.ui-panel {
+  background-color: var(--bg-panel);
+  color: var(--text-color);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+}
+
+.ui-panel.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ui-panel.visible {
+  opacity: 1;
 }
 
 .game-container {
@@ -12,7 +34,7 @@ body {
   height: auto;
   margin: 0 auto;
   padding: 20px;
-  background-color: #222;
+  background-color: var(--bg-panel);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
@@ -29,20 +51,20 @@ body {
 .input-container {
   display: flex;
   padding: 10px;
-  background-color: #333;
-  border-top: 1px solid #555;
+  background-color: var(--bg-panel);
+  border-top: 1px solid #444;
 }
 
 .prompt {
-  color: #ff9900;
+  color: var(--accent-color);
   font-weight: bold;
   margin-right: 10px;
 }
 
 .game-input {
   flex: 1;
-  background-color: #333;
-  color: #eee;
+  background-color: var(--bg-main);
+  color: var(--text-color);
   border: none;
   font-family: "Courier New", monospace;
   font-size: 16px;
@@ -54,7 +76,7 @@ body {
 }
 
 .choice {
-  color: #ff9900;
+  color: var(--accent-color);
 }
 
 .choice.disabled {
@@ -236,12 +258,12 @@ body {
 
 /* Notes Panel Styles */
 .notes-panel {
-  position: fixed; /* Change from absolute to fixed */
+  position: fixed;
   right: 0;
   top: 0;
-  width: 35%; /* Increase from 30% to give more space for the editor */
+  width: 35%;
   height: 100%;
-  background-color: #1a1a1a;
+  background-color: var(--bg-panel);
   border-left: 2px solid #333;
   display: flex;
   flex-direction: column;
@@ -256,7 +278,7 @@ body {
 
 .notes-header {
   padding: 10px;
-  background-color: #333;
+  background-color: var(--bg-main);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -271,8 +293,8 @@ body {
   flex: 1;
   padding: 10px;
   overflow-y: auto;
-  background-color: #222;
-  color: #ddd;
+  background-color: var(--bg-main);
+  color: var(--text-color);
   font-family: 'Courier New', monospace;
   line-height: 1.5;
 }
@@ -288,14 +310,14 @@ body {
 /* Notes Toolbar Styles */
 .notes-toolbar {
   display: flex;
-  background-color: #2a2a2a;
+  background-color: var(--bg-main);
   padding: 5px;
   border-bottom: 1px solid #444;
 }
 
 .format-btn {
-  background-color: #333;
-  color: #ddd;
+  background-color: var(--bg-panel);
+  color: var(--text-color);
   border: 1px solid #555;
   margin: 0 2px;
   padding: 3px 8px;
@@ -314,8 +336,8 @@ body {
 }
 
 .format-select {
-  background-color: #333;
-  color: #ddd;
+  background-color: var(--bg-panel);
+  color: var(--text-color);
   border: 1px solid #555;
   margin: 0 2px;
   padding: 3px;
@@ -331,7 +353,7 @@ body {
   height: 400px;
   max-width: 90vw;
   max-height: 90vh;
-  background-color: #222;
+  background-color: var(--bg-panel);
   border-right: 2px solid #444;
   border-bottom: 2px solid #444;
   z-index: 1000;
@@ -358,7 +380,7 @@ body {
   align-items: center;
   padding: 0 10px;
   height: 40px;
-  background-color: #333;
+  background-color: var(--bg-main);
   border-bottom: 1px solid #444;
 }
 
@@ -464,8 +486,8 @@ body {
   left: 0;
   width: 100%;
   height: 60%;
-  background-color: #1e1e1e;
-  color: #ffffff;
+  background-color: var(--bg-panel);
+  color: var(--text-color);
   z-index: 100;
   transition: top 0.3s ease-in-out;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);

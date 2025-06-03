@@ -1,10 +1,12 @@
-export class MapManager {
+import { UIPanel } from './uiPanel.js';
+
+export class MapManager extends UIPanel {
   constructor(game) {
+    const panel = document.getElementById('map-panel');
+    super(panel);
     this.game = game;
-    this.visible = false;
     this.locations = {};
     this.currentLocation = null;
-    this.panel = null;
     this.container = null;
     this.isMobile = false;
     
@@ -309,36 +311,17 @@ export class MapManager {
       this.openMapInNewTab();
       return;
     }
-    
+
     if (!this.panel) {
       console.error("Map panel not found when toggling map");
       return;
     }
-    
-    if (show === this.visible) return; // No change needed
-    
-    this.visible = show;
-    
+
+    super.toggle(show);
+
     if (this.visible) {
-      console.log("Showing map panel");
-      this.panel.style.display = 'flex';
-      
-      // Render the map 
+      // Render the map whenever it's shown
       this.render();
-      
-      requestAnimationFrame(() => {
-        this.panel.classList.remove('hidden');
-      });
-    } else {
-      console.log("Hiding map panel");
-      this.panel.classList.add('hidden');
-      
-      const hidePanel = () => {
-        this.panel.style.display = 'none';
-        this.panel.removeEventListener('transitionend', hidePanel);
-      };
-      
-      this.panel.addEventListener('transitionend', hidePanel);
     }
   }
   
@@ -373,22 +356,12 @@ export class MapManager {
 
   close() {
     console.log("Close map button clicked");
-    
+
     if (!this.panel) {
       console.error("Map panel not found when closing map");
       return;
     }
-    
-    this.visible = false;
-    
-    console.log("Hiding map panel via close button");
-    this.panel.classList.add('hidden');
-    
-    setTimeout(() => {
-      if (!this.visible) {
-        this.panel.style.display = 'none';
-        console.log("Map panel hidden completely via timeout");
-      }
-    }, 300);
+
+    super.hide();
   }
 }
