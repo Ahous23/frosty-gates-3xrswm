@@ -115,6 +115,7 @@ export class CombatSystem {
   }
 
   showCombatOptions() {
+    this.game.uiManager.clearOutput();
     this.game.uiManager.print("What will you do?", "system-message");
     this.game.uiManager.print("1. Attack", "combat-option");
     this.game.uiManager.print("2. Cast Spell", "combat-option");
@@ -143,6 +144,7 @@ export class CombatSystem {
 
   // Update the playerAttack method to use equipment manager
   playerAttack() {
+    this.game.uiManager.clearOutput();
     const weapon = this.getEquippedWeapon();
     const weaponDamage = this.game.equipmentManager ? 
       this.game.equipmentManager.getWeaponDamage() : 
@@ -187,6 +189,7 @@ export class CombatSystem {
   }
 
   processEnemyTurn() {
+    this.game.uiManager.clearOutput();
     if (!this.inCombat) return;
     
     // Tutorial enemy should be easy to defeat
@@ -236,6 +239,7 @@ export class CombatSystem {
   }
 
   checkEnemy() {
+    this.game.uiManager.clearOutput();
     this.game.uiManager.print(`\n${this.currentEnemy.name}`, "enemy-name");
     this.game.uiManager.print(`Health: ${this.currentEnemy.currentHealth}/${this.currentEnemy.health}`, "enemy-stat");
     this.game.uiManager.print(`Attack: ${this.currentEnemy.attack}`, "enemy-stat");
@@ -254,7 +258,8 @@ export class CombatSystem {
   }
 
   showInventory() {
-    const usableItems = this.game.inventory.filter(item => 
+    this.game.uiManager.clearOutput();
+    const usableItems = this.game.inventory.filter(item =>
       item.category === "consumable" && item.quantity > 0
     );
     
@@ -274,6 +279,7 @@ export class CombatSystem {
   }
 
   showSpellList() {
+    this.game.uiManager.clearOutput();
     const knownSpells = (this.game.playerSpells || []).map(id => this.game.spellManager.getSpell(id)).filter(Boolean);
 
     if (knownSpells.length === 0) {
@@ -292,6 +298,7 @@ export class CombatSystem {
   }
 
   castSpell(selection) {
+    this.game.uiManager.clearOutput();
     if (selection === "0" || selection === "back") {
       this.game.inputMode = "combat";
       this.showCombatOptions();
@@ -335,7 +342,8 @@ export class CombatSystem {
   }
 
   useItem(itemIndex) {
-    const usableItems = this.game.inventory.filter(item => 
+    this.game.uiManager.clearOutput();
+    const usableItems = this.game.inventory.filter(item =>
       item.category === "consumable" && item.quantity > 0
     );
     
