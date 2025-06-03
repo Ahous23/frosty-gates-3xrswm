@@ -332,12 +332,13 @@ export class CombatSystem {
       // Calculate XP reward
       const xpReward = this.calculateXpReward();
       
-      // Add XP to player
+      // Add XP to player and check for level up
       if (!this.game.gameState.playerXp) this.game.gameState.playerXp = 0;
+      const previousXp = this.game.gameState.playerXp;
       this.game.gameState.playerXp += xpReward;
-      
-      // Check for level up
-      this.checkLevelUp();
+
+      // Check for level up using XP before this battle
+      this.checkLevelUp(previousXp);
       
       // Display victory message
       this.game.uiManager.print(`\nYou defeated ${this.currentEnemy.name}!`, "victory-message");
@@ -420,10 +421,10 @@ export class CombatSystem {
     );
   }
 
-  checkLevelUp() {
-    // Calculate current level based on XP
-    const oldLevel = Math.floor(this.game.gameState.playerXp / xpPerLevel);
-    const newLevel = Math.floor((this.game.gameState.playerXp) / xpPerLevel);
+  checkLevelUp(previousXp = 0) {
+    // Determine levels before and after gaining XP
+    const oldLevel = Math.floor(previousXp / xpPerLevel);
+    const newLevel = Math.floor(this.game.gameState.playerXp / xpPerLevel);
     
     // If gained at least one level
     if (newLevel > oldLevel) {
