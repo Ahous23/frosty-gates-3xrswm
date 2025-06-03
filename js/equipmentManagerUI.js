@@ -1,8 +1,10 @@
-export class EquipmentManagerUI {
+import { UIPanel } from './uiPanel.js';
+
+export class EquipmentManagerUI extends UIPanel {
   constructor(game) {
+    const panel = document.getElementById('equipment-panel');
+    super(panel);
     this.game = game;
-    this.visible = false;
-    this.panel = null;
     this.content = null;
     this.closeButton = null;
     this.statsCollapsed = false; // Track collapsed state
@@ -23,7 +25,6 @@ export class EquipmentManagerUI {
 
   init() {
     // Set up equipment panel
-    this.panel = document.getElementById('equipment-panel');
     this.content = document.getElementById('equipment-content');
     this.closeButton = document.getElementById('close-equipment');
     
@@ -70,19 +71,12 @@ export class EquipmentManagerUI {
       }
     }
     
-    if (show === this.visible) return; // No change needed
-    
-    this.visible = show;
-    
-    if (this.panel) {
-      if (this.visible) {
-        this.panel.classList.remove('hidden');
-        this.panel.classList.add('visible');
-        this.updateContent();
-      } else {
-        this.panel.classList.remove('visible');
-        this.panel.classList.add('hidden');
-      }
+    if (show === this.visible) return;
+
+    super.toggle(show);
+
+    if (this.visible) {
+      this.updateContent();
     }
   }
   
