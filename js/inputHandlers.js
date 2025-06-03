@@ -882,8 +882,10 @@ saveGame() {
       return;
     }
     
-    // For any other input, revert to normal mode and continue the game
+    // For the continue command, load the stored next scene and resume gameplay
     if (input === "continue" || input === "c") {
+      this.game.currentScene = this.game.nextSceneToLoad;
+      this.game.nextSceneToLoad = null;
       this.game.inputMode = "normal";
       this.game.gameLogic.playScene();
     }
