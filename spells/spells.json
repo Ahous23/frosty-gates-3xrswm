@@ -1,0 +1,10 @@
+{
+  "spells": [
+    {
+      "id": "fireball",
+      "name": "Fireball",
+      "description": "A small ball of fire hurled at your foe.",
+      "damage": 6
+    }
+  ]
+}

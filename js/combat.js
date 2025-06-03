@@ -117,8 +117,9 @@ export class CombatSystem {
   showCombatOptions() {
     this.game.uiManager.print("What will you do?", "system-message");
     this.game.uiManager.print("1. Attack", "combat-option");
-    this.game.uiManager.print("2. Use Item", "combat-option");
-    this.game.uiManager.print("3. Check Enemy", "combat-option");
+    this.game.uiManager.print("2. Cast Spell", "combat-option");
+    this.game.uiManager.print("3. Use Item", "combat-option");
+    this.game.uiManager.print("4. Check Enemy", "combat-option");
   }
 
   processPlayerAction(action) {
@@ -128,9 +129,11 @@ export class CombatSystem {
     
     if (actionLower === "1" || actionLower === "attack") {
       this.playerAttack();
-    } else if (actionLower === "2" || actionLower === "use item") {
+    } else if (actionLower === "2" || actionLower === "cast spell" || actionLower === "spell") {
+      this.showSpellList();
+    } else if (actionLower === "3" || actionLower === "use item") {
       this.showInventory();
-    } else if (actionLower === "3" || actionLower === "check enemy") {
+    } else if (actionLower === "4" || actionLower === "check enemy") {
       this.checkEnemy();
     } else {
       this.game.uiManager.print("Invalid combat action. Try again.", "error-message");
@@ -268,6 +271,67 @@ export class CombatSystem {
     this.game.uiManager.print("0. Back to combat options", "inventory-item");
     
     this.game.inputMode = "combat-item";
+  }
+
+  showSpellList() {
+    const knownSpells = (this.game.playerSpells || []).map(id => this.game.spellManager.getSpell(id)).filter(Boolean);
+
+    if (knownSpells.length === 0) {
+      this.game.uiManager.print("You don't know any spells!", "system-message");
+      this.showCombatOptions();
+      return;
+    }
+
+    this.currentSpellList = knownSpells;
+    this.game.uiManager.print("\nSelect a spell to cast:", "system-message");
+    knownSpells.forEach((spell, index) => {
+      this.game.uiManager.print(`${index + 1}. ${spell.name}`, "combat-option");
+    });
+    this.game.uiManager.print("0. Back to combat options", "combat-option");
+    this.game.inputMode = "combat-spell";
+  }
+
+  castSpell(selection) {
+    if (selection === "0" || selection === "back") {
+      this.game.inputMode = "combat";
+      this.showCombatOptions();
+      return;
+    }
+
+    const index = parseInt(selection) - 1;
+    if (isNaN(index) || !this.currentSpellList || index < 0 || index >= this.currentSpellList.length) {
+      this.game.uiManager.print("Invalid spell selection.", "error-message");
+      this.showSpellList();
+      return;
+    }
+
+    const spell = this.currentSpellList[index];
+    const baseDamage = spell.damage + Math.floor((this.game.playerStats.intelligence || 0) / 2);
+    const critChance = 0.05 + (Math.floor((this.game.playerStats.luck || 0) / 5) * 0.01);
+    const isCritical = Math.random() < critChance;
+    let damage = baseDamage;
+    if (isCritical) damage = Math.floor(damage * 1.5);
+
+    if (this.currentEnemy.defense) {
+      damage = Math.max(1, damage - Math.floor(this.currentEnemy.defense / 2));
+    }
+
+    this.currentEnemy.currentHealth = Math.max(0, this.currentEnemy.currentHealth - damage);
+    this.game.uiManager.print(
+      `You cast ${spell.name} and deal ${isCritical ? 'a critical hit for ' : ''}${damage} damage!`,
+      isCritical ? "critical-hit" : "player-attack"
+    );
+
+    this.displayCombatStatus();
+
+    if (this.currentEnemy.currentHealth <= 0) {
+      this.endCombat(true);
+      return;
+    }
+
+    this.playerTurn = false;
+    this.game.inputMode = "combat";
+    setTimeout(() => this.processEnemyTurn(), 1500);
   }
 
   useItem(itemIndex) {

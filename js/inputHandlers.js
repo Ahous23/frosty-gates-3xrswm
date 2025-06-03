@@ -40,6 +40,20 @@ export class InputHandlers {
     // Then continue with existing combat item input handling
     this.game.combatSystem.useItem(input);
   }
+
+  handleCombatSpellInput(input) {
+    if (input === "notes" || input === "note") {
+      this.game.toggleNotes();
+      return;
+    }
+
+    if (input === "map" || input === "m") {
+      this.game.toggleMap();
+      return;
+    }
+
+    this.game.combatSystem.castSpell(input);
+  }
   
   // New method for initial stat allocation at game start
   showInitialStatAllocation() {
@@ -105,6 +119,9 @@ export class InputHandlers {
         break;
       case "combat-item":
         this.handleCombatItemInput(input);
+        break;
+      case "combat-spell":
+        this.handleCombatSpellInput(input);
         break;
       case "await-continue":
         this.handleAwaitContinueInput(input);
@@ -300,7 +317,7 @@ export class InputHandlers {
       return;
     }
     
-    const validStats = ["attack", "defense", "charisma", "speed", "luck"];
+    const validStats = ["attack", "defense", "charisma", "intelligence", "speed", "luck"];
     
     if (validStats.includes(inputLower)) {
       // During initial allocation, use game.availableStatPoints, not gameState
@@ -330,7 +347,7 @@ export class InputHandlers {
         this.game.uiManager.print("You don't have any stat points available.", "error-message");
       }
     } else {
-      this.game.uiManager.print("Invalid stat. Try 'attack', 'defense', 'charisma', 'speed', or 'luck'.", "error-message");
+      this.game.uiManager.print("Invalid stat. Try 'attack', 'defense', 'charisma', 'intelligence', 'speed', or 'luck'.", "error-message");
     }
   }
 
@@ -351,7 +368,7 @@ export class InputHandlers {
 
   // New method to reduce a stat point during initial allocation
   reduceStatPoint(stat) {
-    const validStats = ["attack", "defense", "charisma", "speed", "luck"];
+    const validStats = ["attack", "defense", "charisma", "intelligence", "speed", "luck"];
     
     if (!this.isInitialAllocation) {
       this.game.uiManager.print("You can only reallocate points during character creation.", "error-message");
@@ -359,7 +376,7 @@ export class InputHandlers {
     }
     
     if (!validStats.includes(stat)) {
-      this.game.uiManager.print("Invalid stat. Try '-attack', '-defense', '-charisma', '-speed', or '-luck'.", "error-message");
+      this.game.uiManager.print("Invalid stat. Try '-attack', '-defense', '-charisma', '-intelligence', '-speed', or '-luck'.", "error-message");
       return;
     }
     
@@ -537,6 +554,9 @@ export class InputHandlers {
 
     // Reset player stats to default
     this.game.playerStats = { ...this.game.initialPlayerStats };
+
+    // Starting spells
+    this.game.playerSpells = ['fireball'];
     
     // Explicitly set available stat points from constants
     this.game.availableStatPoints = 5; // Hardcoded value as a fix
@@ -633,6 +653,7 @@ export class InputHandlers {
     this.game.uiManager.print("- attack: Increases damage dealt with weapons", "help-text");
     this.game.uiManager.print("- defense: Reduces damage taken from enemies", "help-text");
     this.game.uiManager.print("- charisma: Improves dialogue options and trading", "help-text");
+    this.game.uiManager.print("- intelligence: Increases spell damage", "help-text");
     this.game.uiManager.print("- speed: Determines who attacks first in combat", "help-text");
     this.game.uiManager.print("- luck: Increases critical hit chance and finding items", "help-text");
     
@@ -837,6 +858,7 @@ saveGame() {
       this.game.playerStats = saveData.playerStats;
       this.game.inventory = saveData.inventory;
       this.game.gameState = saveData.gameState;
+      this.game.playerSpells = saveData.playerSpells || [];
       
       // Add notes handling
       if (saveData.notes && this.game.loadNotes) {

@@ -18,33 +18,15 @@ export class WeaponManager {
 
   async loadWeapons() {
     try {
-      const response = await fetch('/weapons/index.json');
-      if (!response.ok) throw new Error(`Failed to fetch weapon index: ${response.status}`);
-      const weaponList = await response.json();
-      
-      if (Array.isArray(weaponList.weapons)) {
-        await Promise.all(weaponList.weapons.map(weaponId => this.loadWeapon(weaponId)));
-      }
-    } catch (error) {
-      console.error('Failed to load weapon index:', error);
-    }
-  }
-
-  async loadWeapon(weaponId) {
-    try {
-      const response = await fetch(`/weapons/${weaponId}.json`);
-      if (!response.ok) throw new Error(`Failed to fetch weapon data: ${response.status}`);
+      const response = await fetch('/weapons/weapons.json');
+      if (!response.ok) throw new Error(`Failed to fetch weapon list: ${response.status}`);
       const data = await response.json();
-      
-      if (!data.id) {
-        data.id = weaponId;
+
+      if (Array.isArray(data.weapons)) {
+        this.weapons = data.weapons;
       }
-      
-      this.weapons.push(data);
-      return data;
     } catch (error) {
-      console.error(`Failed to load weapon ${weaponId}:`, error);
-      return null;
+      console.error('Failed to load weapons:', error);
     }
   }
 

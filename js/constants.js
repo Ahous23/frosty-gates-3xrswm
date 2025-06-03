@@ -2,6 +2,7 @@ export const initialPlayerStats = {
   attack: 5,
   defense: 5,
   charisma: 5,
+  intelligence: 5,
   speed: 5,
   luck: 5,
 };

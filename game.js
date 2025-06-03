@@ -18,6 +18,7 @@ import { MapManager } from './js/map.js';
 import { InventoryManager } from './js/inventoryManager.js';
 import { EquipmentManager } from './js/equipmentManager.js';
 import { WeaponManager } from './js/weaponManager.js';
+import { SpellManager } from './js/spellManager.js';
 import { EquipmentManagerUI } from './js/equipmentManagerUI.js';
 
 class TextGame {
@@ -70,6 +71,8 @@ class TextGame {
     this.inputHandlers = new InputHandlers(this);
     this.combatSystem = new CombatSystem(this);
     this.weaponManager = new WeaponManager(this);
+    this.spellManager = new SpellManager(this);
+    this.playerSpells = [];
 
     const enableAudio = () => {
       this.audioManager.enableAudio();
@@ -120,6 +123,7 @@ class TextGame {
   async init() {
     // Initialize other systems
     await this.weaponManager.initialize();
+    await this.spellManager.initialize();
     // Rest of your initialization code
   }
 
@@ -498,6 +502,7 @@ class TextGame {
       this.playerStats = data.playerStats;
       this.inventory = data.inventory || [];
       this.gameState = data.gameState || {};
+      this.playerSpells = data.playerSpells || [];
       
       // Ensure health is set if not in save data
       if (this.gameState.playerHealth === undefined) {
@@ -557,6 +562,7 @@ class TextGame {
       currentScene: this.currentScene,
       playerStats: this.playerStats,
       inventory: this.inventory,
+      playerSpells: this.playerSpells,
       gameState: this.gameState,
       notes: notesContent
     };

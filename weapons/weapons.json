@@ -1,0 +1,89 @@
+{
+  "weapons": [
+    {
+      "id": "fists",
+      "name": "Fists",
+      "description": "Your bare hands. Not very effective in combat, but better than nothing.",
+      "type": "weapon",
+      "damage": 1,
+      "strengthRequirement": 0,
+      "sellValue": 0,
+      "stackable": false,
+      "usable": false,
+      "equipable": true,
+      "default": true
+    },
+    {
+      "id": "crude_dagger",
+      "name": "Crude Dagger",
+      "description": "A roughly made dagger. It's not much, but it's better than bare hands.",
+      "type": "weapon",
+      "damage": 4,
+      "strengthRequirement": 2,
+      "sellValue": 5,
+      "stackable": false,
+      "usable": false,
+      "equipable": true
+    },
+    {
+      "id": "steel_hand_axe",
+      "name": "Steel Hand Axe",
+      "description": "A finely crafted axe from Thrain's forge.",
+      "type": "weapon",
+      "damage": 10,
+      "strengthRequirement": 4,
+      "sellValue": 15,
+      "stackable": false,
+      "usable": false,
+      "equipable": true
+    },
+    {
+      "id": "fathers_knife",
+      "name": "Father's Skinning Knife",
+      "description": "A well-maintained hunting knife that belonged to your father.",
+      "type": "weapon",
+      "damage": 7,
+      "strengthRequirement": 3,
+      "sellValue": 12,
+      "stackable": false,
+      "usable": false,
+      "equipable": true
+    },
+    {
+      "id": "wooden_club",
+      "name": "Wooden Club",
+      "description": "A heavy wooden club.",
+      "type": "weapon",
+      "damage": 5,
+      "strengthRequirement": 2,
+      "sellValue": 4,
+      "stackable": false,
+      "usable": false,
+      "equipable": true
+    },
+    {
+      "id": "iron_sword",
+      "name": "Iron Sword",
+      "description": "A basic but reliable sword forged from iron.",
+      "type": "weapon",
+      "damage": 8,
+      "strengthRequirement": 4,
+      "sellValue": 20,
+      "stackable": false,
+      "usable": false,
+      "equipable": true
+    },
+    {
+      "id": "battle_axe",
+      "name": "Battle Axe",
+      "description": "A large axe meant for battle.",
+      "type": "weapon",
+      "damage": 12,
+      "strengthRequirement": 6,
+      "sellValue": 30,
+      "stackable": false,
+      "usable": false,
+      "equipable": true
+    }
+  ]
+}
