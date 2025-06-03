@@ -443,6 +443,31 @@ export class CombatSystem {
     }
   }
 
+  // Retrieve the player's currently equipped weapon or fall back to fists
+  getEquippedWeapon() {
+    // Prefer the equipment manager if available
+    if (this.game.equipmentManager && this.game.equipmentManager.equipment.weapon) {
+      return this.game.equipmentManager.equipment.weapon;
+    }
+
+    // Legacy fallback: search the inventory for an equipped weapon
+    if (Array.isArray(this.game.inventory)) {
+      const invWeapon = this.game.inventory.find(
+        item => item.equipped && (item.type === 'weapon' || item.category === 'weapon')
+      );
+      if (invWeapon) {
+        return invWeapon;
+      }
+    }
+
+    // Default to bare hands
+    if (this.game.weaponManager && typeof this.game.weaponManager.getWeapon === 'function') {
+      return this.game.weaponManager.getWeapon('fists');
+    }
+
+    return { id: 'fists', name: 'Fists', damage: 1 };
+  }
+
   getWeapon(id) {
     const weapon = this.weapons.find(w => w.id === id);
     if (!weapon && id === 'fists') {
