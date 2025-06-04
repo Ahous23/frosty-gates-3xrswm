@@ -1,0 +1,24 @@
+{
+  "items": [
+    {
+      "id": "elixir_clarity",
+      "name": "Elixir of Clarity",
+      "description": "A shimmering blue liquid that reveals magical disguises.",
+      "category": "consumable",
+      "stackable": true,
+      "usable": true,
+      "effects": {
+        "reveal_illusions": true,
+        "duration": "scene"
+      }
+    },
+    {
+      "id": "whisper_stone",
+      "name": "Whisper Stone",
+      "description": "Magically linked stones that allow distant communication.",
+      "category": "quest",
+      "stackable": false,
+      "usable": false
+    }
+  ]
+}
