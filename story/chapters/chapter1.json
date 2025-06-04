@@ -2,6 +2,14 @@
   "scenes": {
     "intro": {
       "text": "The village of Frostpeak sits nestled between snow-capped mountains, normally peaceful and quiet. But not today. Today, smoke rises from burned homes, and grief hangs heavy in the air.\n\nYou are Olaf, son of Bjorn the Mighty, the village's respected chieftain and most fearsome warrior. Or at least, he was until yesterday's dawn when the bears came.\n\nNot ordinary bears - these walked on two legs like men, wielded crude weapons, and worst of all, they seemed to communicate and coordinate their attack with terrifying intelligence.\n\nYou kneel beside your father's body as the village prepares for the funeral rites. His mighty axe 'Winterbite' lies broken beside him, having claimed several bear warriors before he fell.\n\n\"I will avenge you, father,\" you whisper, taking the leather necklace from his neck - a family heirloom carved with ancient runes.",
+      "loot": [
+        {
+          "id": "fathers_necklace",
+          "name": "Father's Necklace",
+          "category": "quest",
+          "description": "An heirloom passed down from Bjorn, now yours."
+        }
+      ],
       "nextScene": "village_gathering"
     },
     "village_gathering": {
@@ -53,10 +61,28 @@
     },
     "preparation_investigation": {
       "text": "\"We can't fight what we don't understand,\" you say thoughtfully. \"There must be a reason for this change in the bears. If we discover the cause, perhaps we can stop it.\"\n\nElder Hulda smiles faintly. \"Wisdom beyond your years, Olaf. Your mother would be proud.\"\n\nSigrid the Sage, an old woman who lives at the edge of the village, speaks up. \"The bears' transformation is unnatural. In my scrolls, there are tales of ancient magics that can twist beasts into something more. I can help you understand what we're facing.\"\n\nMagnus scoffs. \"Scrolls won't stop bear claws, old woman.\"\n\n\"But they might tell us where to look,\" you counter. \"I'll need both knowledge and strength for this journey.\"\n\nKarina joins the conversation. \"The western traders spoke of a hermit living in the mountains who studies the wild creatures. He might know something about these bears.\"\n\nThrain approaches with a sturdy shield. \"Knowledge is well and good, but take this too. It was your father's when he was younger - light enough to carry on a long journey, strong enough to stop a bear's swing.\"",
+      "loot": [
+        {
+          "id": "sturdy_shield",
+          "name": "Sturdy Shield",
+          "category": "armor",
+          "defense": 3,
+          "description": "A reliable shield once used by your father."
+        }
+      ],
       "nextScene": "departure_choices"
     },
     "preparation_defense": {
       "text": "\"Our first duty must be to protect what remains,\" you declare. \"We should fortify the village before they return.\"\n\nThrain nods approvingly. \"Wise choice. I've been thinking about how to strengthen our defenses. With enough hands, we could build a palisade within a week.\"\n\nSome of the villagers look relieved, while others seem disappointed that immediate vengeance isn't forthcoming.\n\nMagnus crosses his arms. \"And while we're building, the bears grow stronger. We need to strike them now, before they organize another attack.\"\n\n\"We can do both,\" you suggest. \"Begin the fortifications while a small group investigates the threat.\"\n\nElder Hulda considers. \"A compromise, then. Thrain will oversee our defenses here. Olaf, you'll lead a scouting party to assess the bears' numbers and locations before we plan our next move.\"\n\nKarina steps forward. \"I know which herbs can help heal wounds quickly. I'll help with the scouting party.\"\n\nThrain hands you a finely crafted spear. \"This will give you reach against those beasts. Return to us with information, Olaf. And may your father's spirit guide your arm.\"",
+      "loot": [
+        {
+          "id": "crafted_spear",
+          "name": "Finely Crafted Spear",
+          "category": "weapon",
+          "damage": 9,
+          "description": "A spear from Thrain's forge, balanced and deadly."
+        }
+      ],
       "nextScene": "departure_choices"
     },
     "departure_choices": {
@@ -587,6 +613,15 @@
     },
     "hermit_path_from_village": {
       "text": "After the council meeting, you prepare for the journey to the hermit's cave. Thrain provides you with a better weapon - a finely crafted battle axe that feels perfectly balanced in your hands.\n\n\"This should serve you better than that old hunting knife,\" he says gruffly.\n\nKarina joins you, her medical pouch restocked with fresh herbs and bandages. Two other volunteers step forward as well: Leif, a young but skilled archer, and Tormund, a veteran warrior who once fought alongside your father.\n\n\"Four will move faster than an army,\" Tormund says, \"but still give us a fighting chance if we encounter trouble.\"\n\nElder Hulda sees you off at the newly constructed gate. \"Find the hermit, learn what you can, but don't take unnecessary risks. The village needs you alive, Olaf.\"\n\nThe journey to the western mountains takes you through terrain that grows increasingly wild and untamed. By nightfall on the first day, you've reached the foothills, where you make camp in a defensible position between two large boulders.\n\nAs you sit around a small, carefully shielded fire, Tormund speaks of his memories of your father.\n\n\"Bjorn wasn't just strong,\" he tells you. \"He was clever. Always thinking three steps ahead. That's why the bears targeted him first - they knew he'd see through their plans, organize a proper defense.\"",
+      "loot": [
+        {
+          "id": "battle_axe",
+          "name": "Battle Axe",
+          "category": "weapon",
+          "damage": 12,
+          "description": "A battle axe from Thrain, meant for serious combat."
+        }
+      ],
       "nextScene": "night_attack_camp"
     },
     "night_attack_camp": {

@@ -85,5 +85,42 @@
       "usable": false,
       "equipable": true
     }
+    ,
+    {
+      "id": "sturdy_shield",
+      "name": "Sturdy Shield",
+      "description": "A well-balanced shield passed down from Olaf's father.",
+      "type": "armor",
+      "defense": 3,
+      "strengthRequirement": 2,
+      "sellValue": 10,
+      "stackable": false,
+      "usable": false,
+      "equipable": true
+    },
+    {
+      "id": "crafted_spear",
+      "name": "Finely Crafted Spear",
+      "description": "A spear crafted by Thrain, offering good reach.",
+      "type": "weapon",
+      "damage": 9,
+      "strengthRequirement": 4,
+      "sellValue": 12,
+      "stackable": false,
+      "usable": false,
+      "equipable": true
+    },
+    {
+      "id": "winterbite_axe",
+      "name": "Winterbite",
+      "description": "Your father's great axe, reforged to its former glory.",
+      "type": "weapon",
+      "damage": 15,
+      "strengthRequirement": 6,
+      "sellValue": 50,
+      "stackable": false,
+      "usable": false,
+      "equipable": true
+    }
   ]
 }
