@@ -679,6 +679,8 @@ export class InputHandlers {
     this.game.uiManager.clearOutput();
     if (this.game.inputMode === "normal") {
       this.game.gameLogic.playScene();
+    } else if (this.game.inputMode === "combat") {
+      this.game.combatSystem.showCombatOptions();
     }
   }
 
@@ -1263,6 +1265,8 @@ saveGame() {
     this.game.uiManager.clearOutput();
     if (this.game.inputMode === "normal") {
       this.game.gameLogic.playScene();
+    } else if (this.game.inputMode === "combat") {
+      this.game.combatSystem.showCombatOptions();
     }
   }
 }
