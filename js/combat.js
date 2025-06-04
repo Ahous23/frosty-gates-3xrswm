@@ -115,6 +115,7 @@ export class CombatSystem {
   }
 
   showCombatOptions() {
+    this.game.uiManager.clearOutput();
     this.game.uiManager.print("What will you do?", "system-message");
     this.game.uiManager.print("1. Attack", "combat-option");
     this.game.uiManager.print("2. Cast Spell", "combat-option");
@@ -231,11 +232,14 @@ export class CombatSystem {
     
     // End enemy turn
     this.playerTurn = true;
-    this.displayCombatStatus();
-    this.showCombatOptions();
+    setTimeout(() => {
+      this.displayCombatStatus();
+      this.showCombatOptions();
+    }, 1500);
   }
 
   checkEnemy() {
+    this.game.uiManager.clearOutput();
     this.game.uiManager.print(`\n${this.currentEnemy.name}`, "enemy-name");
     this.game.uiManager.print(`Health: ${this.currentEnemy.currentHealth}/${this.currentEnemy.health}`, "enemy-stat");
     this.game.uiManager.print(`Attack: ${this.currentEnemy.attack}`, "enemy-stat");
@@ -249,12 +253,15 @@ export class CombatSystem {
     
     this.game.uiManager.print(`${this.currentEnemy.description}\n`, "enemy-description");
     
-    // Return to combat options
-    this.showCombatOptions();
+    // Return to combat options after a short delay
+    setTimeout(() => {
+      this.showCombatOptions();
+    }, 1500);
   }
 
   showInventory() {
-    const usableItems = this.game.inventory.filter(item => 
+    this.game.uiManager.clearOutput();
+    const usableItems = this.game.inventory.filter(item =>
       item.category === "consumable" && item.quantity > 0
     );
     
@@ -274,6 +281,7 @@ export class CombatSystem {
   }
 
   showSpellList() {
+    this.game.uiManager.clearOutput();
     const knownSpells = (this.game.playerSpells || []).map(id => this.game.spellManager.getSpell(id)).filter(Boolean);
 
     if (knownSpells.length === 0) {
@@ -335,7 +343,7 @@ export class CombatSystem {
   }
 
   useItem(itemIndex) {
-    const usableItems = this.game.inventory.filter(item => 
+    const usableItems = this.game.inventory.filter(item =>
       item.category === "consumable" && item.quantity > 0
     );
     
