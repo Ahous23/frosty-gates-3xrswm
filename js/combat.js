@@ -295,8 +295,10 @@ export class CombatSystem {
     this.game.inputMode = "combat-item";
   }
 
-  showSpellList() {
-    this.game.uiManager.clearOutput();
+  showSpellList(skipClear = false) {
+    if (!skipClear) {
+      this.game.uiManager.clearOutput();
+    }
     const knownSpells = (this.game.playerSpells || []).map(id => this.game.spellManager.getSpell(id)).filter(Boolean);
 
     if (knownSpells.length === 0) {
@@ -327,14 +329,16 @@ export class CombatSystem {
     const index = parseInt(selection) - 1;
     if (isNaN(index) || !this.currentSpellList || index < 0 || index >= this.currentSpellList.length) {
       this.game.uiManager.print("Invalid spell selection.", "error-message");
-      this.showSpellList();
+      this.showSpellList(true);
       return;
     }
 
     const spell = this.currentSpellList[index];
     if (this.spellCharges[spell.id] !== undefined && this.spellCharges[spell.id] <= 0) {
       this.game.uiManager.print(`${spell.name} has no charges left!`, "system-message");
-      this.showSpellList();
+
+      this.showSpellList(true);
+
       return;
     }
     if (this.spellCharges[spell.id] !== undefined) {
