@@ -11,10 +11,17 @@ export class CombatSystem {
     this.playerTurn = false;
     this.combatLog = [];
     this.maxPlayerHealth = maxPlayerHealth;
+    this.spellCharges = {};
   }
 
   async initiateCombat(enemy) {
     this.inCombat = true;
+    // Reset spell charges for this combat
+    this.spellCharges = {};
+    (this.game.playerSpells || []).forEach(id => {
+      const s = this.game.spellManager.getSpell(id);
+      if (s) this.spellCharges[id] = s.charges || 1;
+    });
     
     
     // If enemy is a string ID, try to fetch from loot system first
@@ -114,7 +121,9 @@ export class CombatSystem {
   showCombatOptions() {
     this.game.uiManager.clearOutput();
     this.game.uiManager.print("What will you do?", "system-message");
-    this.game.uiManager.print("1. Attack", "combat-option");
+    const weapon = this.getEquippedWeapon();
+    const [minW, maxW] = this.calculateWeaponDamageRange(weapon);
+    this.game.uiManager.print(`1. Attack with ${weapon.name} (${minW}-${maxW} damage)`, "combat-option");
     this.game.uiManager.print("2. Cast Spell", "combat-option");
     this.game.uiManager.print("3. Use Item", "combat-option");
     this.game.uiManager.print("4. Check Enemy", "combat-option");
@@ -250,7 +259,11 @@ export class CombatSystem {
     
     // Show enemy weapon if available
     if (this.currentEnemy.currentWeapon) {
-      this.game.uiManager.print(`Weapon: ${this.currentEnemy.currentWeapon.name} (${this.currentEnemy.currentWeapon.damage} damage)`, "enemy-stat");
+      const base = this.currentEnemy.currentWeapon.damage;
+      const vrange = Math.floor(base * 0.15);
+      const minE = base - vrange;
+      const maxE = base + vrange;
+      this.game.uiManager.print(`Weapon: ${this.currentEnemy.currentWeapon.name} (${minE}-${maxE} damage)`, "enemy-stat");
     }
     
     this.game.uiManager.print(`${this.currentEnemy.description}\n`, "enemy-description");
@@ -295,7 +308,9 @@ export class CombatSystem {
     this.currentSpellList = knownSpells;
     this.game.uiManager.print("\nSelect a spell to cast:", "system-message");
     knownSpells.forEach((spell, index) => {
-      this.game.uiManager.print(`${index + 1}. ${spell.name}`, "combat-option");
+      const [minS, maxS] = this.calculateSpellDamageRange(spell);
+      const charges = this.spellCharges[spell.id] ?? spell.charges ?? 1;
+      this.game.uiManager.print(`${index + 1}. ${spell.name} (${minS}-${maxS} damage, ${charges} charges)`, "combat-option");
     });
     this.game.uiManager.print("0. Back to combat options", "combat-option");
     this.game.inputMode = "combat-spell";
@@ -317,6 +332,14 @@ export class CombatSystem {
     }
 
     const spell = this.currentSpellList[index];
+    if (this.spellCharges[spell.id] !== undefined && this.spellCharges[spell.id] <= 0) {
+      this.game.uiManager.print(`${spell.name} has no charges left!`, "system-message");
+      this.showSpellList();
+      return;
+    }
+    if (this.spellCharges[spell.id] !== undefined) {
+      this.spellCharges[spell.id]--;
+    }
     const intelligence = this.game.playerStats.intelligence || 0;
     const intBonus = Math.floor(intelligence / 2);
     const variance = Math.floor((Math.random() - 0.5) * intBonus);
@@ -408,6 +431,7 @@ export class CombatSystem {
 
   endCombat(victory) {
     this.inCombat = false;
+    this.spellCharges = {};
     
     if (victory) {
       // Calculate XP reward
@@ -547,6 +571,24 @@ export class CombatSystem {
     }
 
     return { id: 'fists', name: 'Fists', damage: 1 };
+  }
+
+  calculateWeaponDamageRange(weapon) {
+    const attackStat = this.game.playerStats.attack || 0;
+    const bonus = Math.floor(attackStat / 2);
+    const minVar = Math.floor(-0.5 * bonus);
+    const maxVar = Math.floor(0.5 * bonus);
+    const base = weapon.damage + bonus;
+    return [base + minVar, base + maxVar];
+  }
+
+  calculateSpellDamageRange(spell) {
+    const intStat = this.game.playerStats.intelligence || 0;
+    const bonus = Math.floor(intStat / 2);
+    const minVar = Math.floor(-0.5 * bonus);
+    const maxVar = Math.floor(0.5 * bonus);
+    const base = spell.damage + bonus;
+    return [base + minVar, base + maxVar];
   }
 
   getWeapon(id) {
