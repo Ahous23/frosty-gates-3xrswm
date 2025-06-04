@@ -15,3 +15,5 @@ export const initialPlayerHealth = 100;
 export const maxPlayerHealth = 100;
 export const initialPlayerXp = 0;
 export const xpPerLevel = 100; // XP needed for each level
+export const combatDelay = 2000; // delay between combat turns in milliseconds
+
