@@ -101,21 +101,24 @@ export class EquipmentManager {
   }
 
   // Get weapon damage value (with stat bonuses)
-  getWeaponDamage() {
+  getWeaponDamage(includeVariance = true) {
+    const attackStat = this.game.playerStats.attack || 0;
+    const attackBonus = Math.floor(attackStat / 2);
+
+    const variance = includeVariance
+      ? Math.floor((Math.random() - 0.5) * attackBonus)
+      : 0;
+
     if (!this.equipment.weapon) {
-      const defaultWeapon = this.game.weaponManager ? this.game.weaponManager.getWeapon('fists') : { damage: 1 };
-      const attackBonus = Math.floor((this.game.playerStats.attack || 0) / 2);
-      console.log("Default weapon:", defaultWeapon);
-      console.log("Default weapon damage:", defaultWeapon.damage);
-      console.log("Player attack bonus:", attackBonus);
-      return defaultWeapon.damage + attackBonus;
+      const defaultWeapon = this.game.weaponManager
+        ? this.game.weaponManager.getWeapon('fists')
+        : { damage: 1 };
+      const baseDamage = defaultWeapon.damage;
+      return baseDamage + attackBonus + variance;
     }
-  
+
     const baseDamage = this.equipment.weapon.damage || 0;
-    const attackBonus = Math.floor((this.game.playerStats.attack || 0) / 2);
-    console.log("Equipped weapon damage:", baseDamage);
-    console.log("Player attack bonus:", attackBonus);
-    return baseDamage + attackBonus;
+    return baseDamage + attackBonus + variance;
   }
 
   // Get total defense value (with stat bonuses)

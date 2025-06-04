@@ -692,7 +692,12 @@ export class InputHandlers {
       this.game.uiManager.print("Your inventory is empty.", "system-message");
     } else {
       this.game.inventory.forEach((item) => {
-        this.game.uiManager.print(`- ${item.name} ${item.quantity > 1 ? `(x${item.quantity})` : ""}`, "item-name");
+        let label = `- ${item.name}`;
+        if (item.type === "weapon" || item.category === "weapon") {
+          const [minW, maxW] = this.game.combatSystem.calculateWeaponDamageRange(item);
+          label = `- ${item.name} (${minW}-${maxW} damage)`;
+        }
+        this.game.uiManager.print(`${label} ${item.quantity > 1 ? `(x${item.quantity})` : ""}`, "item-name");
         // Show a shorter description in the main inventory view
         if (item.description) {
           const shortDesc = item.description.length > 60 ? 
@@ -964,7 +969,12 @@ saveGame() {
   }
 
   examineItem(item) {
-    this.game.uiManager.print(`\n${item.name}`, "item-name");
+    let header = item.name;
+    if (item.type === "weapon" || item.category === "weapon") {
+      const [minW, maxW] = this.game.combatSystem.calculateWeaponDamageRange(item);
+      header = `${item.name} (${minW}-${maxW} damage)`;
+    }
+    this.game.uiManager.print(`\n${header}`, "item-name");
     
     // Display description if it exists
     if (item.description) {
@@ -1001,7 +1011,7 @@ saveGame() {
     let attack = this.game.playerStats.attack || 0;
 
     if (this.game.equipmentManager) {
-      const weaponDamage = this.game.equipmentManager.getWeaponDamage();
+      const weaponDamage = this.game.equipmentManager.getWeaponDamage(false);
       attack = attack + weaponDamage - Math.floor(attack / 2);
     } else {
       const fists = this.game.weaponManager ? this.game.weaponManager.getWeapon('fists') : { damage: 1 };
