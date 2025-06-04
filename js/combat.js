@@ -573,11 +573,19 @@ export class CombatSystem {
     return { id: 'fists', name: 'Fists', damage: 1 };
   }
 
+  getVarianceRange(statBonus) {
+    if (statBonus <= 0) return [0, 0];
+    const half = Math.floor(statBonus / 2);
+    if (statBonus % 2 === 0) {
+      return [-half, half - 1];
+    }
+    return [-(half + 1), half];
+  }
+
   calculateWeaponDamageRange(weapon) {
     const attackStat = this.game.playerStats.attack || 0;
     const bonus = Math.floor(attackStat / 2);
-    const minVar = Math.floor(-0.5 * bonus);
-    const maxVar = Math.floor(0.5 * bonus);
+    const [minVar, maxVar] = this.getVarianceRange(bonus);
     const base = weapon.damage + bonus;
     return [base + minVar, base + maxVar];
   }
@@ -585,8 +593,7 @@ export class CombatSystem {
   calculateSpellDamageRange(spell) {
     const intStat = this.game.playerStats.intelligence || 0;
     const bonus = Math.floor(intStat / 2);
-    const minVar = Math.floor(-0.5 * bonus);
-    const maxVar = Math.floor(0.5 * bonus);
+    const [minVar, maxVar] = this.getVarianceRange(bonus);
     const base = spell.damage + bonus;
     return [base + minVar, base + maxVar];
   }
