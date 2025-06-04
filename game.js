@@ -339,6 +339,9 @@ class TextGame {
       case "combat-item":
         this.inputHandlers.handleCombatItemInput(input);
         break;
+      case "combat-spell":
+        this.inputHandlers.handleCombatSpellInput(input);
+        break;
       case "equipment":
         this.inputHandlers.handleEquipmentInput(input);
         break;
