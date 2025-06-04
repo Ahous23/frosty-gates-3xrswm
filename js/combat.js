@@ -16,8 +16,6 @@ export class CombatSystem {
   async initiateCombat(enemy) {
     this.inCombat = true;
     
-    // Debug log to see what's being passed
-    console.log("Initiating combat with:", enemy);
     
     // If enemy is a string ID, try to fetch from loot system first
     if (typeof enemy === 'string') {
@@ -46,7 +44,6 @@ export class CombatSystem {
         }
       }
       
-      console.log("Fetched enemy data:", enemyData);
       if (enemyData) {
         enemy = enemyData;
       }
@@ -234,8 +231,10 @@ export class CombatSystem {
     
     // End enemy turn
     this.playerTurn = true;
-    this.displayCombatStatus();
-    this.showCombatOptions();
+    setTimeout(() => {
+      this.displayCombatStatus();
+      this.showCombatOptions();
+    }, 1500);
   }
 
   checkEnemy() {
@@ -253,8 +252,10 @@ export class CombatSystem {
     
     this.game.uiManager.print(`${this.currentEnemy.description}\n`, "enemy-description");
     
-    // Return to combat options
-    this.showCombatOptions();
+    // Return to combat options after a short delay
+    setTimeout(() => {
+      this.showCombatOptions();
+    }, 1500);
   }
 
   showInventory() {
@@ -305,6 +306,8 @@ export class CombatSystem {
       return;
     }
 
+    this.game.uiManager.clearOutput();
+
     const index = parseInt(selection) - 1;
     if (isNaN(index) || !this.currentSpellList || index < 0 || index >= this.currentSpellList.length) {
       this.game.uiManager.print("Invalid spell selection.", "error-message");
@@ -342,7 +345,9 @@ export class CombatSystem {
   }
 
   useItem(itemIndex) {
+
     this.game.uiManager.clearOutput();
+
     const usableItems = this.game.inventory.filter(item =>
       item.category === "consumable" && item.quantity > 0
     );
@@ -352,6 +357,8 @@ export class CombatSystem {
       this.showCombatOptions();
       return;
     }
+
+    this.game.uiManager.clearOutput();
     
     const index = parseInt(itemIndex) - 1;
     if (isNaN(index) || index < 0 || index >= usableItems.length) {
