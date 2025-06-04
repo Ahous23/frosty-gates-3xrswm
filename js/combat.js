@@ -142,9 +142,13 @@ export class CombatSystem {
   // Update the playerAttack method to use equipment manager
   playerAttack() {
     const weapon = this.getEquippedWeapon();
-    const weaponDamage = this.game.equipmentManager ? 
-      this.game.equipmentManager.getWeaponDamage() : 
-      (weapon.damage + Math.floor(this.game.playerStats.attack / 2));
+    const weaponDamage = this.game.equipmentManager ?
+      this.game.equipmentManager.getWeaponDamage() :
+      (() => {
+        const attackBonus = Math.floor(this.game.playerStats.attack / 2);
+        const variance = Math.floor((Math.random() - 0.5) * attackBonus);
+        return weapon.damage + attackBonus + variance;
+      })();
     
     // Critical hit chance based on luck (5% base + 1% per 5 points of luck)
     const critChance = 0.05 + (Math.floor((this.game.playerStats.luck || 0) / 5) * 0.01);
@@ -313,7 +317,10 @@ export class CombatSystem {
     }
 
     const spell = this.currentSpellList[index];
-    const baseDamage = spell.damage + Math.floor((this.game.playerStats.intelligence || 0) / 2);
+    const intelligence = this.game.playerStats.intelligence || 0;
+    const intBonus = Math.floor(intelligence / 2);
+    const variance = Math.floor((Math.random() - 0.5) * intBonus);
+    const baseDamage = spell.damage + intBonus + variance;
     const critChance = 0.05 + (Math.floor((this.game.playerStats.luck || 0) / 5) * 0.01);
     const isCritical = Math.random() < critChance;
     let damage = baseDamage;

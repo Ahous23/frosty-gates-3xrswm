@@ -1001,7 +1001,7 @@ saveGame() {
     let attack = this.game.playerStats.attack || 0;
 
     if (this.game.equipmentManager) {
-      const weaponDamage = this.game.equipmentManager.getWeaponDamage();
+      const weaponDamage = this.game.equipmentManager.getWeaponDamage(false);
       attack = attack + weaponDamage - Math.floor(attack / 2);
     } else {
       const fists = this.game.weaponManager ? this.game.weaponManager.getWeapon('fists') : { damage: 1 };
