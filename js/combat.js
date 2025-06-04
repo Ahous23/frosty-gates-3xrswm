@@ -1,4 +1,4 @@
-import { maxPlayerHealth, xpPerLevel } from './constants.js';
+import { maxPlayerHealth, xpPerLevel, combatDelay } from './constants.js';
 import { WeaponManager } from './weaponManager.js';
 
 const weaponManager = new WeaponManager();
@@ -98,9 +98,9 @@ export class CombatSystem {
     
     // If enemy goes first, process their turn
     if (!this.playerTurn) {
-      setTimeout(() => this.processEnemyTurn(), 1500);
+      setTimeout(() => this.processEnemyTurn(), combatDelay);
     } else {
-      this.showCombatOptions();
+      setTimeout(() => this.showCombatOptions(), combatDelay);
     }
     
     this.game.inputMode = "combat";
@@ -181,7 +181,7 @@ export class CombatSystem {
     
     // Set up enemy turn after a delay
     this.playerTurn = false;
-    setTimeout(() => this.processEnemyTurn(), 1500);
+    setTimeout(() => this.processEnemyTurn(), combatDelay);
   }
 
   processEnemyTurn() {
@@ -233,7 +233,7 @@ export class CombatSystem {
     setTimeout(() => {
       this.displayCombatStatus();
       this.showCombatOptions();
-    }, 1500);
+    }, combatDelay);
   }
 
   checkEnemy() {
@@ -254,7 +254,7 @@ export class CombatSystem {
     // Return to combat options after a short delay
     setTimeout(() => {
       this.showCombatOptions();
-    }, 1500);
+    }, combatDelay);
   }
 
   showInventory() {
@@ -338,7 +338,7 @@ export class CombatSystem {
 
     this.playerTurn = false;
     this.game.inputMode = "combat";
-    setTimeout(() => this.processEnemyTurn(), 1500);
+    setTimeout(() => this.processEnemyTurn(), combatDelay);
   }
 
   useItem(itemIndex) {
@@ -370,7 +370,7 @@ export class CombatSystem {
     this.game.inputMode = "combat";
     
     // Enemy turn after delay
-    setTimeout(() => this.processEnemyTurn(), 1500);
+    setTimeout(() => this.processEnemyTurn(), combatDelay);
   }
 
   applyItemEffect(item) {
