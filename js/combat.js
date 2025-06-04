@@ -16,8 +16,6 @@ export class CombatSystem {
   async initiateCombat(enemy) {
     this.inCombat = true;
     
-    // Debug log to see what's being passed
-    console.log("Initiating combat with:", enemy);
     
     // If enemy is a string ID, try to fetch from loot system first
     if (typeof enemy === 'string') {
@@ -46,7 +44,6 @@ export class CombatSystem {
         }
       }
       
-      console.log("Fetched enemy data:", enemyData);
       if (enemyData) {
         enemy = enemyData;
       }
@@ -144,6 +141,7 @@ export class CombatSystem {
 
   // Update the playerAttack method to use equipment manager
   playerAttack() {
+    this.game.uiManager.clearOutput();
     const weapon = this.getEquippedWeapon();
     const weaponDamage = this.game.equipmentManager ? 
       this.game.equipmentManager.getWeaponDamage() : 
@@ -188,6 +186,7 @@ export class CombatSystem {
   }
 
   processEnemyTurn() {
+    this.game.uiManager.clearOutput();
     if (!this.inCombat) return;
     
     // Tutorial enemy should be easy to defeat
@@ -306,6 +305,8 @@ export class CombatSystem {
       return;
     }
 
+    this.game.uiManager.clearOutput();
+
     const index = parseInt(selection) - 1;
     if (isNaN(index) || !this.currentSpellList || index < 0 || index >= this.currentSpellList.length) {
       this.game.uiManager.print("Invalid spell selection.", "error-message");
@@ -352,6 +353,8 @@ export class CombatSystem {
       this.showCombatOptions();
       return;
     }
+
+    this.game.uiManager.clearOutput();
     
     const index = parseInt(itemIndex) - 1;
     if (isNaN(index) || index < 0 || index >= usableItems.length) {
