@@ -141,7 +141,6 @@ export class CombatSystem {
 
   // Update the playerAttack method to use equipment manager
   playerAttack() {
-    this.game.uiManager.clearOutput();
     const weapon = this.getEquippedWeapon();
     const weaponDamage = this.game.equipmentManager ? 
       this.game.equipmentManager.getWeaponDamage() : 
@@ -306,8 +305,6 @@ export class CombatSystem {
       return;
     }
 
-    this.game.uiManager.clearOutput();
-
     const index = parseInt(selection) - 1;
     if (isNaN(index) || !this.currentSpellList || index < 0 || index >= this.currentSpellList.length) {
       this.game.uiManager.print("Invalid spell selection.", "error-message");
@@ -358,8 +355,6 @@ export class CombatSystem {
       return;
     }
 
-    this.game.uiManager.clearOutput();
-    
     const index = parseInt(itemIndex) - 1;
     if (isNaN(index) || index < 0 || index >= usableItems.length) {
       this.game.uiManager.print("Invalid item selection.", "error-message");
