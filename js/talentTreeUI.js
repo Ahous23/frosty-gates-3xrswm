@@ -19,7 +19,10 @@ export class TalentTreeUI extends UIPanel {
       return;
     }
 
-    this.panel.classList.add('hidden');
+    if (!this.visible) {
+      this.panel.style.display = 'none';
+      this.panel.classList.add('hidden');
+    }
     this.closeButton.addEventListener('click', () => this.toggle(false));
   }
 
