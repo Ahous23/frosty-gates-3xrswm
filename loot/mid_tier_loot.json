@@ -45,6 +45,17 @@
       "stackable": true,
       "category": "material",
       "value": 20
+    },
+    {
+      "id": "iron_shield",
+      "name": "Iron Shield",
+      "description": "A sturdy iron shield offering decent protection.",
+      "quantity": 1,
+      "stackable": false,
+      "category": "armor",
+      "chance": 15,
+      "defense": 8,
+      "value": 45
     }
   ]
 }
