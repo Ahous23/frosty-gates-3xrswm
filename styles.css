@@ -1,18 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;700&family=Uncial+Antiqua&display=swap');
+
 :root {
   --bg-main: #2b1f16;
   --bg-panel: #3d2e23;
   --text-color: #e4d8c4;
   --accent-color: #c78b4a;
   --border-color: #6b5647;
+  --heading-font: 'Uncial Antiqua', serif;
+  --body-font: 'EB Garamond', 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
 }
 
 body {
-  font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  font-family: var(--body-font);
   background-color: var(--bg-main);
   color: var(--text-color);
   line-height: 1.6;
   margin: 0;
   padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--heading-font);
 }
 
 .ui-panel {
