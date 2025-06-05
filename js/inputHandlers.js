@@ -585,9 +585,11 @@ export class InputHandlers {
     this.game.inputMode = "loadGame";
   }
 
-  makeChoice(nextScene) {
-    this.game.uiManager.clearOutput();
-    this.game.currentScene = nextScene;
+  async makeChoice(nextScene) {
+    await fadeTransition(async () => {
+      this.game.uiManager.clearOutput();
+      this.game.currentScene = nextScene;
+    });
     this.game.awaitingInput = false;
     this.game.inputMode = "normal";
     this.game.gameLogic.playScene();
@@ -881,7 +883,7 @@ saveGame() {
     }
   }
 
-  handleAwaitContinueInput(input) {
+  async handleAwaitContinueInput(input) {
     // Process special commands first
     if (input === "save") {
       this.saveGame();
@@ -915,8 +917,11 @@ saveGame() {
         this.game.continueCallback = null;
         cb();
       } else {
-        this.game.currentScene = this.game.nextSceneToLoad;
-        this.game.nextSceneToLoad = null;
+        await fadeTransition(async () => {
+          this.game.uiManager.clearOutput();
+          this.game.currentScene = this.game.nextSceneToLoad;
+          this.game.nextSceneToLoad = null;
+        });
         this.game.inputMode = "normal";
         this.game.gameLogic.playScene();
       }
