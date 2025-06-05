@@ -61,6 +61,7 @@ class TextGame {
     this.awaitingInput = false;
     this.inputMode = "normal";
     this.previousMode = null;
+    this.continueCallback = null;
     this.isLoading = false;
     this.gameOutput = document.getElementById("gameOutput");
     this.gameInput = document.getElementById("gameInput");
