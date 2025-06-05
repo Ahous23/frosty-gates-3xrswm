@@ -44,7 +44,7 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0 auto;
   padding: 20px;
   background-color: var(--bg-panel);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 0px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
 }
@@ -54,7 +54,7 @@ h1, h2, h3, h4, h5, h6 {
   overflow-y: auto;
   padding: 10px;
   white-space: pre-wrap;
-  font-size: 16px;
+  font-size: 20px;
 }
 
 .input-container {
@@ -880,12 +880,14 @@ h1, h2, h3, h4, h5, h6 {
 body.title-screen {
   background-image: url("https://raw.githubusercontent.com/Ahous23/frosty-gates-3xrswm/refs/heads/main/images/title_background/ovb_TitleImage.png");
   background-size: cover;
-  background-position: center;
+  background-position: center center;
   background-repeat: no-repeat;
+  
+  min-height: 100vh;
+  margin: 0;
 }
-
 /* Remove panel background so the title image is visible */
 body.title-screen .game-container {
   background-color: transparent;
-  padding-top: 5%;
+  padding-top: 20%;
 }
