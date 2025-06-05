@@ -548,6 +548,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Talent Panel Styles */
 #talent-panel {
   position: fixed;
+<<<<<<< HEAD
   right: -100%;
   top: 0;
   width: 100%;
@@ -580,6 +581,34 @@ h1, h2, h3, h4, h5, h6 {
 
 .talent-status {
   color: #99ff99;
+=======
+  right: 0;
+  top: 0;
+  width: 35%;
+  height: 100%;
+  background-color: var(--bg-panel);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 100;
+}
+
+#talent-panel.visible {
+  transform: translateX(0);
+}
+
+#talent-panel.hidden {
+  transform: translateX(100%);
+}
+
+#close-talent {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+>>>>>>> origin/codex/refactor-talenttreeui-constructor
 }
 
 .equipment-section {
