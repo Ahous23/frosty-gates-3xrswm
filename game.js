@@ -158,6 +158,8 @@ class TextGame {
   }
 
   async showTitleScreen() {
+    // Apply title screen background
+    document.body.classList.add("title-screen");
     this.uiManager.clearOutput();
     const titleContainer = document.createElement("div");
     titleContainer.className = "title-banner";
@@ -220,6 +222,8 @@ class TextGame {
 
   // Add the showLoadGamePrompt method that was missing
   async showLoadGamePrompt() {
+    // Remove title screen background when entering load prompt
+    document.body.classList.remove("title-screen");
     // Create elements for the typing effect
     const titleElement = document.createElement("div");
     titleElement.className = "load-title";

@@ -542,6 +542,9 @@ export class InputHandlers {
 
   startNewGame() {
     this.game.uiManager.print("\nStarting new game...\n", "system-message");
+
+    // Remove title screen background
+    document.body.classList.remove("title-screen");
     
     // Stop title music
     this.game.audioManager.stopTitleMusic();
@@ -573,6 +576,8 @@ export class InputHandlers {
   }
 
   async showLoadGamePrompt() {
+    // Remove title screen background when entering load prompt
+    document.body.classList.remove("title-screen");
     // Create elements for the typing effect
     const titleElement = document.createElement("div");
     titleElement.className = "load-title";

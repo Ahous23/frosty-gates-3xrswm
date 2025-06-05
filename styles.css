@@ -876,3 +876,10 @@ h1, h2, h3, h4, h5, h6 {
   border-left: 3px solid #88cc88;
   color: #aaffaa;
 }
+/* Background for title screen */
+body.title-screen {
+  background-image: url("https://raw.githubusercontent.com/Ahous23/frosty-gates-3xrswm/refs/heads/main/images/title_background/ovb_TitleImage.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
