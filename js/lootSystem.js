@@ -31,40 +31,30 @@ export class LootSystem {
 
   async loadEnemies() {
     try {
-      const response = await fetch('/enemies/index.json');
-      if (!response.ok) throw new Error(`Failed to fetch enemy index: ${response.status}`);
-      const enemyList = await response.json();
-      
-      if (Array.isArray(enemyList.enemies)) {
-        await Promise.all(enemyList.enemies.map(enemyId => this.loadEnemy(enemyId)));
-      } else if (enemyList.enemies && Array.isArray(enemyList.enemies)) {
-        enemyList.enemies.forEach(enemy => {
-          if (enemy.id) {
-            this.enemies[enemy.id] = enemy;
-          }
-        });
+      const response = await fetch('/enemies/enemies.json');
+      if (!response.ok) throw new Error(`Failed to fetch enemies: ${response.status}`);
+      const data = await response.json();
+
+      if (data.enemies && typeof data.enemies === 'object') {
+        this.enemies = data.enemies;
+      } else {
+        console.error('Invalid enemies.json structure');
       }
     } catch (error) {
-      console.error('Failed to load enemy index:', error);
+      console.error('Failed to load enemies:', error);
     }
   }
 
   async loadEnemy(enemyId) {
-    try {
-      const response = await fetch(`/enemies/${enemyId}.json`);
-      if (!response.ok) throw new Error(`Failed to fetch enemy data: ${response.status}`);
-      const data = await response.json();
-      
-      if (!data.id) {
-        data.id = enemyId;
-      }
-      
-      this.enemies[enemyId] = data;
-      return data;
-    } catch (error) {
-      console.error(`Failed to load enemy ${enemyId}:`, error);
-      return null;
+    if (this.enemies[enemyId]) {
+      return this.enemies[enemyId];
     }
+
+    if (Object.keys(this.enemies).length === 0) {
+      await this.loadEnemies();
+    }
+
+    return this.enemies[enemyId] || null;
   }
 
   getEnemy(enemyId) {
