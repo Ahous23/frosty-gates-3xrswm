@@ -1,3 +1,5 @@
+import { fadeTransition } from './ui.js';
+
 export class InputHandlers {
   constructor(game) {
     this.game = game;
@@ -540,38 +542,25 @@ export class InputHandlers {
     }
   }
 
-  startNewGame() {
-    this.game.uiManager.print("\nStarting new game...\n", "system-message");
+  async startNewGame() {
+    await fadeTransition(async () => {
+      this.game.uiManager.print("\nStarting new game...\n", "system-message");
 
-    // Remove title screen background
-    document.body.classList.remove("title-screen");
-    
-    // Stop title music
-    this.game.audioManager.stopTitleMusic();
+      document.body.classList.remove("title-screen");
+      this.game.audioManager.stopTitleMusic();
+      this.game.uiManager.clearOutput();
 
-    // Clear output before starting new game
-    this.game.uiManager.clearOutput();
+      this.game.inventory = [];
+      this.game.playerStats = { ...this.game.initialPlayerStats };
+      this.game.playerSpells = ['fireball'];
+      this.game.availableStatPoints = 5;
+      this.game.gameState.playerHealth = this.game.initialPlayerHealth;
+      this.game.gameState.playerXp = this.game.initialPlayerXp;
+      this.game.gameState.availableStatPoints = 0;
+    });
 
-    // Initialize starting inventory
-    this.game.inventory = [];
-
-    // Reset player stats to default
-    this.game.playerStats = { ...this.game.initialPlayerStats };
-
-    // Starting spells
-    this.game.playerSpells = ['fireball'];
-    
-    // Explicitly set available stat points from constants
-    this.game.availableStatPoints = 5; // Hardcoded value as a fix
-    
-    // Reset game state
-    this.game.gameState.playerHealth = this.game.initialPlayerHealth;
-    this.game.gameState.playerXp = this.game.initialPlayerXp;
-    this.game.gameState.availableStatPoints = 0; // Make sure we use the game object's value, not gameState
-
-    // Show initial stat allocation screen
     this.game.inputMode = "stats";
-    this.game.previousMode = "title"; // Set previous mode to title for back button
+    this.game.previousMode = "title";
     this.showInitialStatAllocation();
   }
 

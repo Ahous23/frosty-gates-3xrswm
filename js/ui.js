@@ -59,3 +59,18 @@ export class UIManager {
     this.inputContainer.style.display = 'none';
   }
 }
+
+export async function fadeTransition(callback) {
+  const container = document.querySelector('.game-container');
+  if (!container) {
+    await callback();
+    return;
+  }
+
+  container.classList.add('fade-out');
+  await new Promise((r) => setTimeout(r, 500));
+  await callback();
+  container.classList.remove('fade-out');
+  container.classList.add('fade-in');
+  setTimeout(() => container.classList.remove('fade-in'), 500);
+}

@@ -23,6 +23,28 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--heading-font);
 }
 
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  animation: fadeOut 0.5s forwards;
+}
+
+.fade-in {
+  opacity: 1;
+  transition: opacity 0.5s ease;
+  animation: fadeIn 0.5s forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
 .ui-panel {
   background-color: var(--bg-panel);
   color: var(--text-color);

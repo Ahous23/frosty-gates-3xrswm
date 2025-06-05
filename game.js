@@ -8,7 +8,7 @@ import {
   xpPerLevel
 } from './js/constants.js';
 import { AudioManager } from './js/audio.js';
-import { UIManager } from './js/ui.js';
+import { UIManager, fadeTransition } from './js/ui.js';
 import { GameLogic } from './js/gameLogic.js';
 import { InputHandlers } from './js/inputHandlers.js';
 import { CombatSystem } from './js/combat.js';
@@ -158,22 +158,29 @@ class TextGame {
   }
 
   async showTitleScreen() {
-    // Apply title screen background
-    document.body.classList.add("title-screen");
-    this.uiManager.clearOutput();
-    const titleContainer = document.createElement("div");
-    titleContainer.className = "title-banner";
-    const campfireImg = document.createElement("img");
-    campfireImg.src = "gif/campfire.gif";
-    campfireImg.alt = "Campfire";
-    campfireImg.className = "title-campfire";
-    titleContainer.appendChild(campfireImg);
+    let titleText;
+    await fadeTransition(async () => {
+      document.body.classList.add("title-screen");
+      this.uiManager.clearOutput();
+      const titleContainer = document.createElement("div");
+      titleContainer.className = "title-banner";
+      const campfireImg = document.createElement("img");
+      campfireImg.src = "gif/campfire.gif";
+      campfireImg.alt = "Campfire";
+      campfireImg.className = "title-campfire";
+      titleContainer.appendChild(campfireImg);
+      titleText = document.createElement("div");
+      titleText.className = "title-text";
+      titleContainer.appendChild(titleText);
+      this.gameOutput.appendChild(titleContainer);
+    });
     this.audioManager.playTitleMusic();
-    const titleText = document.createElement("div");
-    titleText.className = "title-text";
-    titleContainer.appendChild(titleText);
-    this.gameOutput.appendChild(titleContainer);
-    await this.uiManager.typeIntoElement(titleText, "\n==== OLAF vs BEARS ====\n== For Shawclops, ❤️ Vanilla-Bear ==\n", this.typingSpeed, this.audioManager);
+    await this.uiManager.typeIntoElement(
+      titleText,
+      "\n==== OLAF vs BEARS ====\n== For Shawclops, ❤️ Vanilla-Bear ==\n",
+      this.typingSpeed,
+      this.audioManager
+    );
     this.uiManager.print("1. New Game", "choice");
     this.uiManager.print("2. Load Game", "choice");
     this.awaitingInput = true;
@@ -357,21 +364,25 @@ class TextGame {
   }
 
   async showLoadingScreen() {
-    this.uiManager.clearOutput();
-    const numberOfLoadingGifs = 5;
-    const randomGifIndex = Math.floor(Math.random() * numberOfLoadingGifs) + 1;
-    const loadingGifPath = `gif/loading/loading${randomGifIndex}.gif`;
-    const loadingContainer = document.createElement("div");
-    loadingContainer.className = "loading-screen";
-    const loadingGif = document.createElement("img");
-    loadingGif.src = loadingGifPath;
-    loadingGif.alt = "Loading...";
-    loadingGif.className = "loading-gif";
-    loadingContainer.appendChild(loadingGif);
-    const loadingTextContainer = document.createElement("div");
-    loadingTextContainer.className = "loading-text";
-    loadingContainer.appendChild(loadingTextContainer);
-    this.gameOutput.appendChild(loadingContainer);
+    let loadingTextContainer;
+    await fadeTransition(async () => {
+      this.uiManager.clearOutput();
+      const numberOfLoadingGifs = 5;
+      const randomGifIndex = Math.floor(Math.random() * numberOfLoadingGifs) + 1;
+      const loadingGifPath = `gif/loading/loading${randomGifIndex}.gif`;
+      const loadingContainer = document.createElement("div");
+      loadingContainer.className = "loading-screen";
+      const loadingGif = document.createElement("img");
+      loadingGif.src = loadingGifPath;
+      loadingGif.alt = "Loading...";
+      loadingGif.className = "loading-gif";
+      loadingContainer.appendChild(loadingGif);
+      loadingTextContainer = document.createElement("div");
+      loadingTextContainer.className = "loading-text";
+      loadingContainer.appendChild(loadingTextContainer);
+      this.gameOutput.appendChild(loadingContainer);
+    });
+
     const quips = await this.loadLoadingQuips();
     const randomQuip = quips[Math.floor(Math.random() * quips.length)];
     this.isLoading = true;
@@ -380,7 +391,10 @@ class TextGame {
     await new Promise((resolve) => setTimeout(resolve, randomDuration));
     this.isLoading = false;
     await typingPromise;
-    this.uiManager.clearOutput();
+
+    await fadeTransition(async () => {
+      this.uiManager.clearOutput();
+    });
   }
 
   async loadLoadingQuips() {
