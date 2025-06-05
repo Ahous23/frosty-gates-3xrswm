@@ -24,33 +24,12 @@ export class CombatSystem {
     });
     
     
-    // If enemy is a string ID, try to fetch from loot system first
+    // If enemy is a string ID, fetch it from the loot system
     if (typeof enemy === 'string') {
-      let enemyData = null;
-      
-      // Try loot system first
-      if (this.game.lootSystem) {
-        enemyData = this.game.lootSystem.getEnemy(enemy);
-      }
-      
-      // If not found in loot system, try loading directly from file
-      if (!enemyData) {
-        try {
-          const response = await fetch(`/enemies/${enemy}.json`);
-          if (response.ok) {
-            enemyData = await response.json();
-            // Make sure it has an ID
-            if (!enemyData.id) {
-              enemyData.id = enemy;
-            }
-          } else {
-            console.error(`Failed to fetch enemy ${enemy}: ${response.status}`);
-          }
-        } catch (fetchError) {
-          console.error(`Error loading enemy ${enemy}:`, fetchError);
-        }
-      }
-      
+      const enemyData = this.game.lootSystem
+        ? this.game.lootSystem.getEnemy(enemy)
+        : null;
+
       if (enemyData) {
         enemy = enemyData;
       }

@@ -1,0 +1,285 @@
+{
+  "enemies": {
+    "bear_berserker": {
+      "id": "bear_berserker",
+      "name": "Bear Berserker",
+      "description": "A frenzied bear warrior with bloodshot eyes. He's covered in war paint and screams with rage.",
+      "health": 60,
+      "attack": 12,
+      "defense": 3,
+      "speed": 6,
+      "weapons": [
+        {
+          "name": "dual axes",
+          "damage": 15
+        },
+        {
+          "name": "spiked maul",
+          "damage": 18
+        }
+      ],
+      "lootTables": [
+        "mid_tier_loot",
+        "advanced_loot"
+      ]
+    },
+    "bear_chieftain": {
+      "id": "bear_chieftain",
+      "name": "Bear Chieftain",
+      "description": "The imposing leader of the bear clan. Wears ornate armor and wields ancestral weapons.",
+      "health": 85,
+      "attack": 10,
+      "defense": 8,
+      "speed": 3,
+      "weapons": [
+        {
+          "name": "ancestral great axe",
+          "damage": 20
+        },
+        {
+          "name": "crystal-tipped spear",
+          "damage": 16
+        }
+      ],
+      "lootTables": [
+        "advanced_loot",
+        "epic_loot"
+      ]
+    },
+    "bear_cub": {
+      "id": "bear_cub",
+      "name": "Bear Cub",
+      "description": "A small bear cub, lost and frightened. It's trying to look fierce despite its small size.",
+      "health": 15,
+      "attack": 3,
+      "defense": 1,
+      "speed": 7,
+      "weapons": [
+        {
+          "name": "small claws",
+          "damage": 4
+        },
+        {
+          "name": "playful bite",
+          "damage": 3
+        }
+      ],
+      "lootTables": [
+        "basic_loot"
+      ]
+    },
+    "bear_hunter": {
+      "id": "bear_hunter",
+      "name": "Bear Hunter",
+      "description": "A stealthy bear warrior with keen senses. Specializes in tracking prey through the forest.",
+      "health": 40,
+      "attack": 7,
+      "defense": 4,
+      "speed": 6,
+      "weapons": [
+        {
+          "name": "hunting bow",
+          "damage": 11
+        },
+        {
+          "name": "skinning knife",
+          "damage": 8
+        }
+      ],
+      "lootTables": [
+        "basic_loot",
+        "mid_tier_loot"
+      ]
+    },
+    "bear_shaman": {
+      "id": "bear_shaman",
+      "name": "Bear Shaman",
+      "description": "A mystical bear adorned with crystal talismans. You can feel magical energy emanating from him.",
+      "health": 50,
+      "attack": 6,
+      "defense": 4,
+      "speed": 5,
+      "weapons": [
+        {
+          "name": "crystal staff",
+          "damage": 14
+        },
+        {
+          "name": "enchanted claws",
+          "damage": 10
+        }
+      ],
+      "specialAbilities": [
+        "heal",
+        "crystal surge"
+      ],
+      "lootTables": [
+        "mid_tier_loot",
+        "advanced_loot"
+      ]
+    },
+    "bear_warrior": {
+      "id": "bear_warrior",
+      "name": "Bear Warrior",
+      "description": "A muscular bear warrior wielding a battle axe. His fur shows scars from many battles.",
+      "health": 45,
+      "attack": 8,
+      "defense": 5,
+      "speed": 4,
+      "weapons": [
+        {
+          "name": "battle axe",
+          "damage": 12
+        },
+        {
+          "name": "spiked club",
+          "damage": 10
+        }
+      ],
+      "lootTables": [
+        "basic_loot",
+        "mid_tier_loot"
+      ]
+    },
+    "bear_warrior_weak": {
+      "id": "bear_warrior_weak",
+      "name": "Young Bear Warrior",
+      "description": "A young bear warrior, still learning the ways of combat but eager to prove himself.",
+      "health": 30,
+      "attack": 6,
+      "defense": 3,
+      "speed": 5,
+      "weapons": [
+        {
+          "name": "wooden club",
+          "damage": 8
+        },
+        {
+          "name": "crude spear",
+          "damage": 7
+        }
+      ],
+      "lootTables": [
+        "basic_loot"
+      ]
+    },
+    "corrupted_bear": {
+      "id": "corrupted_bear",
+      "name": "Corrupted Bear",
+      "description": "A once-noble bear warrior now twisted by dark magic. Its fur has patches of decay and its eyes glow with an unnatural light.",
+      "health": 55,
+      "attack": 11,
+      "defense": 4,
+      "speed": 5,
+      "weapons": [
+        {
+          "name": "corrupted claws",
+          "damage": 14
+        },
+        {
+          "name": "shadow strike",
+          "damage": 17
+        }
+      ],
+      "specialAbilities": [
+        "corrupt",
+        "life drain"
+      ],
+      "lootTables": [
+        "mid_tier_loot",
+        "dark_loot"
+      ]
+    },
+    "elder_bear": {
+      "id": "elder_bear",
+      "name": "Elder Bear",
+      "description": "An ancient bear with graying fur and glowing eyes. Despite its age, it possesses formidable wisdom and power.",
+      "health": 90,
+      "attack": 9,
+      "defense": 7,
+      "speed": 2,
+      "weapons": [
+        {
+          "name": "ancient claws",
+          "damage": 14
+        },
+        {
+          "name": "primal roar",
+          "damage": 16
+        }
+      ],
+      "specialAbilities": [
+        "nature's blessing",
+        "ancestral wisdom"
+      ],
+      "lootTables": [
+        "advanced_loot",
+        "epic_loot"
+      ]
+    },
+    "frost_spider": {
+      "id": "frost_spider",
+      "name": "Frost Spider",
+      "description": "A large spider with ice crystals growing from its exoskeleton. Its bite brings numbing cold.",
+      "health": 25,
+      "attack": 7,
+      "defense": 4,
+      "speed": 7,
+      "weapons": [
+        {
+          "name": "ice fangs",
+          "damage": 9
+        },
+        {
+          "name": "freezing web",
+          "damage": 6
+        }
+      ],
+      "lootTables": [
+        "basic_loot",
+        "mid_tier_loot"
+      ]
+    },
+    "polar_bear_guardian": {
+      "id": "polar_bear_guardian",
+      "name": "Polar Bear Guardian",
+      "description": "A massive white bear from the frozen north. Its thick fur provides exceptional protection against attacks.",
+      "health": 70,
+      "attack": 8,
+      "defense": 10,
+      "speed": 3,
+      "weapons": [
+        {
+          "name": "ice-forged claws",
+          "damage": 13
+        },
+        {
+          "name": "frost bite",
+          "damage": 11
+        }
+      ],
+      "lootTables": [
+        "mid_tier_loot",
+        "advanced_loot"
+      ]
+    },
+    "wolf_scout": {
+      "id": "wolf_scout",
+      "name": "Wolf Scout",
+      "description": "A lean, quick wolf with sharp eyes that constantly scan the surroundings.",
+      "health": 30,
+      "attack": 5,
+      "defense": 2,
+      "speed": 8,
+      "weapons": [
+        {
+          "name": "sharp fangs",
+          "damage": 7
+        }
+      ],
+      "lootTables": [
+        "basic_loot"
+      ]
+    }
+  }
+}
