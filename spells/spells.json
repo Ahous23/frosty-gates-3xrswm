@@ -6,6 +6,20 @@
       "description": "A small ball of fire hurled at your foe.",
       "damage": 6,
       "charges": 3
+    },
+    {
+      "id": "ice_bolt",
+      "name": "Ice Bolt",
+      "description": "A chilling shard of ice that pierces enemies.",
+      "damage": 5,
+      "charges": 3
+    },
+    {
+      "id": "frost_nova",
+      "name": "Frost Nova",
+      "description": "A burst of freezing air damaging everything nearby.",
+      "damage": 8,
+      "charges": 2
     }
   ]
 }

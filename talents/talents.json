@@ -1,0 +1,24 @@
+{
+  "talents": [
+    {
+      "id": "apprentice_mage",
+      "name": "Apprentice Mage",
+      "description": "Study of basic magic, unlocking the Ice Bolt spell.",
+      "requiredLevel": 2,
+      "prerequisites": [],
+      "effects": {
+        "unlockSpell": "ice_bolt"
+      }
+    },
+    {
+      "id": "adept_mage",
+      "name": "Adept Mage",
+      "description": "Advanced magical training, unlocking the Frost Nova spell.",
+      "requiredLevel": 4,
+      "prerequisites": ["apprentice_mage"],
+      "effects": {
+        "unlockSpell": "frost_nova"
+      }
+    }
+  ]
+}

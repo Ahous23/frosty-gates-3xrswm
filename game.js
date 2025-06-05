@@ -20,6 +20,8 @@ import { EquipmentManager } from './js/equipmentManager.js';
 import { WeaponManager } from './js/weaponManager.js';
 import { SpellManager } from './js/spellManager.js';
 import { EquipmentManagerUI } from './js/equipmentManagerUI.js';
+import { TalentManager } from './js/talentManager.js';
+import { TalentTreeUI } from './js/talentTreeUI.js';
 
 class TextGame {
   constructor() {
@@ -29,7 +31,8 @@ class TextGame {
     this.gameState = {
       playerHealth: initialPlayerHealth,
       playerXp: initialPlayerXp,
-      availableStatPoints: 0
+      availableStatPoints: 0,
+      talentPoints: 0
     };
     this.availableStatPoints = availableStatPoints;
     this.initialPlayerStats = initialPlayerStats;
@@ -74,6 +77,8 @@ class TextGame {
     this.weaponManager = new WeaponManager(this);
     this.spellManager = new SpellManager(this);
     this.playerSpells = [];
+    this.talentManager = new TalentManager(this);
+    this.talentTreeUI = new TalentTreeUI(this);
 
     const enableAudio = () => {
       this.audioManager.enableAudio();
@@ -125,6 +130,7 @@ class TextGame {
     // Initialize other systems
     await this.weaponManager.initialize();
     await this.spellManager.initialize();
+    await this.talentManager.initialize();
     // Rest of your initialization code
   }
 
@@ -525,7 +531,10 @@ class TextGame {
       this.inventory = data.inventory || [];
       this.gameState = data.gameState || {};
       this.playerSpells = data.playerSpells || [];
-      
+      if (data.talents) {
+        this.talentManager.load(data.talents);
+      }
+
       // Ensure health is set if not in save data
       if (this.gameState.playerHealth === undefined) {
         this.gameState.playerHealth = 100;
@@ -540,6 +549,9 @@ class TextGame {
       this.availableStatPoints = 0; // Reset this value
       if (this.gameState.availableStatPoints === undefined) {
         this.gameState.availableStatPoints = 0;
+      }
+      if (this.gameState.talentPoints === undefined) {
+        this.gameState.talentPoints = 0;
       }
       
       // Apply stat confirmation state to equipment manager
@@ -579,14 +591,15 @@ class TextGame {
     if (this.equipmentManagerUI) {
       this.gameState.statsConfirmed = this.equipmentManagerUI.statPointsConfirmed;
     }
-    
+
     const saveData = {
       currentScene: this.currentScene,
       playerStats: this.playerStats,
       inventory: this.inventory,
       playerSpells: this.playerSpells,
       gameState: this.gameState,
-      notes: notesContent
+      notes: notesContent,
+      talents: this.talentManager.save()
     };
     
     const saveString = btoa(JSON.stringify(saveData));
@@ -615,6 +628,21 @@ class TextGame {
     } else {
       console.error("Map manager not initialized");
       this.uiManager.print("Map panel is not available.", "error-message");
+    }
+  }
+
+  // Toggle talent panel
+  toggleTalents() {
+    if (this.talentTreeUI) {
+      if (!this.talentTreeUI.panel) {
+        this.talentTreeUI.init();
+      }
+      this.previousMode = this.inputMode;
+      this.inputMode = "talent";
+      this.talentTreeUI.toggle();
+    } else {
+      console.error("Talent tree UI not initialized");
+      this.uiManager.print("Talent panel is not available.", "error-message");
     }
   }
 

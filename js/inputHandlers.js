@@ -14,13 +14,13 @@ export class InputHandlers {
       this.game.toggleNotes();
       return;
     }
-    
+
     // Add map command check
     if (input === "map" || input === "m") {
       this.game.toggleMap();
       return;
     }
-    
+
     // Then continue with existing combat input handling
     this.game.combatSystem.processPlayerAction(input);
   }
@@ -38,7 +38,7 @@ export class InputHandlers {
       this.game.toggleMap();
       return;
     }
-    
+
     // Then continue with existing combat item input handling
     this.game.combatSystem.useItem(input);
   }
@@ -90,6 +90,11 @@ export class InputHandlers {
     // Add global map command check
     if (input === "map" || input === "m") {
       this.game.toggleMap();
+      return;
+    }
+
+    if (input === "talents" || input === "skills" || input === "talent") {
+      this.game.toggleTalents();
       return;
     }
 
@@ -557,6 +562,10 @@ export class InputHandlers {
       this.game.gameState.playerHealth = this.game.initialPlayerHealth;
       this.game.gameState.playerXp = this.game.initialPlayerXp;
       this.game.gameState.availableStatPoints = 0;
+      this.game.gameState.talentPoints = 0;
+      if (this.game.talentManager) {
+        this.game.talentManager.acquired = [];
+      }
     });
 
     this.game.inputMode = "stats";
@@ -639,6 +648,7 @@ export class InputHandlers {
     this.game.uiManager.print("equipment, equip - Show your equipped items", "help-text");
     this.game.uiManager.print("notes, note - Open/close the notes panel", "help-text");
     this.game.uiManager.print("map, m - Open/close the map", "help-text");
+    this.game.uiManager.print("talents, skills - Open the talent tree", "help-text");
     this.game.uiManager.print("save - Save your game", "help-text");
     this.game.uiManager.print("load - Load a saved game", "help-text");
     this.game.uiManager.print("quit, exit, title - Return to title screen", "help-text");
@@ -1270,6 +1280,22 @@ saveGame() {
     console.log("Restored input mode to:", this.game.inputMode);
     
     // Clear output and return to game if needed
+    this.game.uiManager.clearOutput();
+    if (this.game.inputMode === "normal") {
+      this.game.gameLogic.playScene();
+    } else if (this.game.inputMode === "combat") {
+      this.game.combatSystem.showCombatOptions();
+    }
+  }
+
+  resumeAfterTalent() {
+    if (this.game.talentTreeUI) {
+      this.game.talentTreeUI.toggle(false);
+    }
+
+    this.game.inputMode = this.game.previousMode || "normal";
+    this.game.previousMode = null;
+
     this.game.uiManager.clearOutput();
     if (this.game.inputMode === "normal") {
       this.game.gameLogic.playScene();
