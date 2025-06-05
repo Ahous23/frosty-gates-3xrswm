@@ -317,55 +317,8 @@ class TextGame {
   }
 
   handleInput() {
-    if (this.isTyping) return;
-    const rawInput = this.gameInput.value.trim();
-    this.uiManager.clearInput();
-    this.uiManager.print(`> ${rawInput}`, "player-input");
-    const input = this.inputMode === "loadGame" ? rawInput : rawInput.toLowerCase();
-    
-    switch (this.inputMode) {
-      case "title":
-        this.inputHandlers.handleTitleInput(input);
-        break;
-      case "normal":
-        this.inputHandlers.handleNormalInput(input);
-        break;
-      case "choices":
-        this.inputHandlers.handleChoiceInput(input);
-        break;
-      case "stats":
-        this.inputHandlers.handleStatInput(input);
-        break;
-      case "inventory":
-        this.inputHandlers.handleInventoryInput(input);
-        break;
-      case "loadGame":
-        this.inputHandlers.handleLoadGameInput(rawInput);
-        break;
-      case "errorRecovery":
-        this.inputHandlers.handleErrorRecoveryInput(input);
-        break;
-      case "combat":
-        this.inputHandlers.handleCombatInput(input);
-        break;
-      case "await-continue":
-        this.inputHandlers.handleAwaitContinueInput(input);
-        break;
-      case "await-combat":
-        this.inputHandlers.handleAwaitCombatInput(input);
-        break;
-      case "combat-item":
-        this.inputHandlers.handleCombatItemInput(input);
-        break;
-      case "combat-spell":
-        this.inputHandlers.handleCombatSpellInput(input);
-        break;
-      case "equipment":
-        this.inputHandlers.handleEquipmentInput(input);
-        break;
-      case "equip-confirm":
-        // This is handled by the equipItem method
-        break;
+    if (this.inputHandlers && typeof this.inputHandlers.handleInput === 'function') {
+      this.inputHandlers.handleInput();
     }
   }
 

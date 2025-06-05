@@ -683,7 +683,7 @@ export class InputHandlers {
     this.game.inputMode = this.game.previousMode || "normal";
     this.game.previousMode = null;
     this.game.uiManager.clearOutput();
-    if (this.game.inputMode === "normal") {
+    if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
       this.game.gameLogic.playScene();
     } else if (this.game.inputMode === "combat") {
       this.game.combatSystem.showCombatOptions();
@@ -1281,7 +1281,7 @@ saveGame() {
     
     // Clear output and return to game if needed
     this.game.uiManager.clearOutput();
-    if (this.game.inputMode === "normal") {
+    if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
       this.game.gameLogic.playScene();
     } else if (this.game.inputMode === "combat") {
       this.game.combatSystem.showCombatOptions();
@@ -1297,7 +1297,7 @@ saveGame() {
     this.game.previousMode = null;
 
     this.game.uiManager.clearOutput();
-    if (this.game.inputMode === "normal") {
+    if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
       this.game.gameLogic.playScene();
     } else if (this.game.inputMode === "combat") {
       this.game.combatSystem.showCombatOptions();

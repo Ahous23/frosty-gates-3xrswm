@@ -8,11 +8,7 @@ export class TalentTreeUI extends UIPanel {
     this.content = null;
     this.closeButton = null;
 
-    if (document.readyState === 'complete') {
-      this.init();
-    } else {
-      document.addEventListener('DOMContentLoaded', () => this.init());
-    }
+    this.init();
   }
 
   init() {
