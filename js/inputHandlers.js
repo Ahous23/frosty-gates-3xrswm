@@ -14,13 +14,19 @@ export class InputHandlers {
       this.game.toggleNotes();
       return;
     }
-    
+
     // Add map command check
     if (input === "map" || input === "m") {
       this.game.toggleMap();
       return;
     }
-    
+
+    // Talent panel command
+    if (input === "talents" || input === "talent") {
+      this.game.toggleTalents();
+      return;
+    }
+
     // Then continue with existing combat input handling
     this.game.combatSystem.processPlayerAction(input);
   }
@@ -90,6 +96,12 @@ export class InputHandlers {
     // Add global map command check
     if (input === "map" || input === "m") {
       this.game.toggleMap();
+      return;
+    }
+
+    // Talent panel command
+    if (input === "talents" || input === "talent") {
+      this.game.toggleTalents();
       return;
     }
 
@@ -169,6 +181,12 @@ export class InputHandlers {
     // Check for map command
     if (input === "map" || input === "m") {
       this.game.toggleMap();
+      return;
+    }
+
+    // Check for talents command
+    if (input === "talents" || input === "talent") {
+      this.game.toggleTalents();
       return;
     }
     
@@ -639,6 +657,7 @@ export class InputHandlers {
     this.game.uiManager.print("equipment, equip - Show your equipped items", "help-text");
     this.game.uiManager.print("notes, note - Open/close the notes panel", "help-text");
     this.game.uiManager.print("map, m - Open/close the map", "help-text");
+    this.game.uiManager.print("talents, talent - Open/close the talent panel", "help-text");
     this.game.uiManager.print("save - Save your game", "help-text");
     this.game.uiManager.print("load - Load a saved game", "help-text");
     this.game.uiManager.print("quit, exit, title - Return to title screen", "help-text");

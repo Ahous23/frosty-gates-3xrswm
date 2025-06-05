@@ -20,6 +20,7 @@ import { EquipmentManager } from './js/equipmentManager.js';
 import { WeaponManager } from './js/weaponManager.js';
 import { SpellManager } from './js/spellManager.js';
 import { EquipmentManagerUI } from './js/equipmentManagerUI.js';
+import { TalentManager } from './js/talentManager.js';
 
 class TextGame {
   constructor() {
@@ -116,6 +117,7 @@ class TextGame {
     this.notesManager = new NotesManager(this);
     this.mapManager = new MapManager(this);
     this.equipmentManagerUI = new EquipmentManagerUI(this);
+    this.talentManager = new TalentManager(this);
     
     // Initialize everything
     this.init();
@@ -311,56 +313,7 @@ class TextGame {
   }
 
   handleInput() {
-    if (this.isTyping) return;
-    const rawInput = this.gameInput.value.trim();
-    this.uiManager.clearInput();
-    this.uiManager.print(`> ${rawInput}`, "player-input");
-    const input = this.inputMode === "loadGame" ? rawInput : rawInput.toLowerCase();
-    
-    switch (this.inputMode) {
-      case "title":
-        this.inputHandlers.handleTitleInput(input);
-        break;
-      case "normal":
-        this.inputHandlers.handleNormalInput(input);
-        break;
-      case "choices":
-        this.inputHandlers.handleChoiceInput(input);
-        break;
-      case "stats":
-        this.inputHandlers.handleStatInput(input);
-        break;
-      case "inventory":
-        this.inputHandlers.handleInventoryInput(input);
-        break;
-      case "loadGame":
-        this.inputHandlers.handleLoadGameInput(rawInput);
-        break;
-      case "errorRecovery":
-        this.inputHandlers.handleErrorRecoveryInput(input);
-        break;
-      case "combat":
-        this.inputHandlers.handleCombatInput(input);
-        break;
-      case "await-continue":
-        this.inputHandlers.handleAwaitContinueInput(input);
-        break;
-      case "await-combat":
-        this.inputHandlers.handleAwaitCombatInput(input);
-        break;
-      case "combat-item":
-        this.inputHandlers.handleCombatItemInput(input);
-        break;
-      case "combat-spell":
-        this.inputHandlers.handleCombatSpellInput(input);
-        break;
-      case "equipment":
-        this.inputHandlers.handleEquipmentInput(input);
-        break;
-      case "equip-confirm":
-        // This is handled by the equipItem method
-        break;
-    }
+    this.inputHandlers.handleInput();
   }
 
   async showLoadingScreen() {
@@ -618,6 +571,16 @@ class TextGame {
     }
   }
 
+  // Toggle talent panel
+  toggleTalents() {
+    if (this.talentManager) {
+      this.talentManager.toggle();
+    } else {
+      console.error("Talent manager not initialized");
+      this.uiManager.print("Talent panel is not available.", "error-message");
+    }
+  }
+
   // Add or update the saveNotes method
   saveNotes() {
     if (this.notesManager) {
@@ -652,6 +615,11 @@ class TextGame {
     if (this.equipmentManagerUI) {
       console.log("- Equipment panel element:", this.equipmentManagerUI.panel ? "Found" : "Not found");
     }
+
+    console.log("TalentManager:", this.talentManager ? "Initialized" : "Not initialized");
+    if (this.talentManager) {
+      console.log("- Talent panel element:", this.talentManager.panel ? "Found" : "Not found");
+    }
     
     return "Panel status logged to console";
   }
@@ -668,17 +636,21 @@ class TextGame {
     console.log("Map container:", document.getElementById('map-container') ? "Found" : "Missing");
     console.log("Equipment panel:", document.getElementById('equipment-panel') ? "Found" : "Missing");
     console.log("Equipment content:", document.getElementById('equipment-content') ? "Found" : "Missing");
+    console.log("Talent panel:", document.getElementById('talent-panel') ? "Found" : "Missing");
+    console.log("Talent content:", document.getElementById('talent-content') ? "Found" : "Missing");
     
     // Check managers
     console.log("\n=== MANAGER STATUS ===");
     console.log("Notes manager:", this.notesManager ? "Exists" : "Missing");
     console.log("Map manager:", this.mapManager ? "Exists" : "Missing");
     console.log("Equipment manager UI:", this.equipmentManagerUI ? "Exists" : "Missing");
+    console.log("Talent manager:", this.talentManager ? "Exists" : "Missing");
     
     // Check manager panels
     if (this.notesManager) console.log("- Notes panel in manager:", this.notesManager.panel ? "Found" : "Missing");
     if (this.mapManager) console.log("- Map panel in manager:", this.mapManager.panel ? "Found" : "Missing");
     if (this.equipmentManagerUI) console.log("- Equipment panel in manager:", this.equipmentManagerUI.panel ? "Found" : "Missing");
+    if (this.talentManager) console.log("- Talent panel in manager:", this.talentManager.panel ? "Found" : "Missing");
     
     // Check input mode
     console.log("\n=== GAME STATE ===");
@@ -708,6 +680,10 @@ class TextGame {
     
     if (this.equipmentManagerUI && this.equipmentManagerUI.visible) {
       this.equipmentManagerUI.toggle(false);
+    }
+
+    if (this.talentManager && this.talentManager.visible) {
+      this.talentManager.toggle(false);
     }
     
     // Force normal input mode

@@ -545,6 +545,29 @@ h1, h2, h3, h4, h5, h6 {
   top: -100%; /* Hide above the viewport */
 }
 
+/* Talent Panel Styles */
+#talent-panel {
+  position: fixed;
+  bottom: -100%;
+  left: 0;
+  width: 100%;
+  height: 40%;
+  background-color: var(--bg-panel);
+  color: var(--text-color);
+  z-index: 100;
+  transition: bottom 0.3s ease-in-out;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
+}
+
+#talent-panel.visible {
+  bottom: 0;
+}
+
+#talent-panel.hidden {
+  bottom: -100%;
+}
+
 .equipment-section {
   padding: 10px 15px;
   margin-bottom: 15px;
