@@ -914,12 +914,18 @@ saveGame() {
       return;
     }
     
-    // For the continue command, load the stored next scene and resume gameplay
+    // For the continue command, either trigger a callback or load the next scene
     if (input === "continue" || input === "c") {
-      this.game.currentScene = this.game.nextSceneToLoad;
-      this.game.nextSceneToLoad = null;
-      this.game.inputMode = "normal";
-      this.game.gameLogic.playScene();
+      if (this.game.continueCallback) {
+        const cb = this.game.continueCallback;
+        this.game.continueCallback = null;
+        cb();
+      } else {
+        this.game.currentScene = this.game.nextSceneToLoad;
+        this.game.nextSceneToLoad = null;
+        this.game.inputMode = "normal";
+        this.game.gameLogic.playScene();
+      }
     }
   }
 

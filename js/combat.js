@@ -1,4 +1,4 @@
-import { maxPlayerHealth, xpPerLevel, combatDelay } from './constants.js';
+import { maxPlayerHealth, xpPerLevel } from './constants.js';
 import { WeaponManager } from './weaponManager.js';
 
 const weaponManager = new WeaponManager();
@@ -82,14 +82,17 @@ export class CombatSystem {
     // Show enemy and player stats
     this.displayCombatStatus();
     
-    // If enemy goes first, process their turn
-    if (!this.playerTurn) {
-      setTimeout(() => this.processEnemyTurn(), combatDelay);
-    } else {
-      setTimeout(() => this.showCombatOptions(), combatDelay);
-    }
-    
-    this.game.inputMode = "combat";
+    // Prompt to begin the first turn
+    this.game.uiManager.print("\nType 'continue' to begin combat...", "system-message");
+    this.game.inputMode = "await-continue";
+    this.game.continueCallback = () => {
+      this.game.inputMode = "combat";
+      if (!this.playerTurn) {
+        this.processEnemyTurn();
+      } else {
+        this.showCombatOptions();
+      }
+    };
   }
 
   displayCombatStatus() {
@@ -176,9 +179,14 @@ export class CombatSystem {
       return;
     }
     
-    // Set up enemy turn after a delay
+    // Wait for player to continue before enemy turn
     this.playerTurn = false;
-    setTimeout(() => this.processEnemyTurn(), combatDelay);
+    this.game.uiManager.print("\nType 'continue' for the enemy's turn.", "system-message");
+    this.game.inputMode = "await-continue";
+    this.game.continueCallback = () => {
+      this.game.inputMode = "combat";
+      this.processEnemyTurn();
+    };
   }
 
   processEnemyTurn() {
@@ -225,12 +233,15 @@ export class CombatSystem {
       return;
     }
     
-    // End enemy turn
+    // Wait for player to continue back to their turn
     this.playerTurn = true;
-    setTimeout(() => {
+    this.game.uiManager.print("\nType 'continue' for your turn.", "system-message");
+    this.game.inputMode = "await-continue";
+    this.game.continueCallback = () => {
+      this.game.inputMode = "combat";
       this.displayCombatStatus();
       this.showCombatOptions();
-    }, combatDelay);
+    };
   }
 
   checkEnemy() {
@@ -252,10 +263,13 @@ export class CombatSystem {
     
     this.game.uiManager.print(`${this.currentEnemy.description}\n`, "enemy-description");
     
-    // Return to combat options after a short delay
-    setTimeout(() => {
+    // Wait for player to continue back to combat options
+    this.game.uiManager.print("Type 'continue' to resume combat.", "system-message");
+    this.game.inputMode = "await-continue";
+    this.game.continueCallback = () => {
+      this.game.inputMode = "combat";
       this.showCombatOptions();
-    }, combatDelay);
+    };
   }
 
   showInventory() {
@@ -355,8 +369,12 @@ export class CombatSystem {
     }
 
     this.playerTurn = false;
-    this.game.inputMode = "combat";
-    setTimeout(() => this.processEnemyTurn(), combatDelay);
+    this.game.uiManager.print("\nType 'continue' for the enemy's turn.", "system-message");
+    this.game.inputMode = "await-continue";
+    this.game.continueCallback = () => {
+      this.game.inputMode = "combat";
+      this.processEnemyTurn();
+    };
   }
 
   useItem(itemIndex) {
@@ -385,10 +403,12 @@ export class CombatSystem {
     
     // End player turn after using an item
     this.playerTurn = false;
-    this.game.inputMode = "combat";
-    
-    // Enemy turn after delay
-    setTimeout(() => this.processEnemyTurn(), combatDelay);
+    this.game.uiManager.print("\nType 'continue' for the enemy's turn.", "system-message");
+    this.game.inputMode = "await-continue";
+    this.game.continueCallback = () => {
+      this.game.inputMode = "combat";
+      this.processEnemyTurn();
+    };
   }
 
   applyItemEffect(item) {
@@ -458,23 +478,27 @@ export class CombatSystem {
         });
       }
       
-      // Continue to next scene
-      setTimeout(() => {
+      // Prompt player to continue to the next scene
+      this.game.uiManager.print("\nType 'continue' to proceed.", "system-message");
+      this.game.inputMode = "await-continue";
+      this.game.continueCallback = () => {
         this.game.currentScene = this.game.nextSceneAfterCombat;
         this.game.inputMode = "normal";
         this.game.playScene();
-      }, 3000);
+      };
     } else {
       // Player defeated
       this.game.uiManager.print("\nYou have been defeated!", "defeat-message");
-      
-      // Continue to defeat scene if specified
-      setTimeout(() => {
+
+      // Prompt player to continue to defeat scene if specified
+      this.game.uiManager.print("Type 'continue' to proceed.", "system-message");
+      this.game.inputMode = "await-continue";
+      this.game.continueCallback = () => {
         this.game.currentScene = this.game.defeatSceneAfterCombat;
         this.game.inputMode = "normal";
         this.game.gameState.playerHealth = this.maxPlayerHealth; // Reset health on defeat
         this.game.playScene();
-      }, 3000);
+      };
     }
   }
 
