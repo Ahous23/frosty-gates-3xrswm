@@ -86,35 +86,43 @@ export class LootSystem {
     }
 
     const loot = [];
+    const tableItemCounts = {};
     const playerLuck = this.game.playerStats.luck || 5;
-    
+
     // Calculate luck bonus for rarer loot (1% per 5 points)
     const rarityBonus = Math.floor(playerLuck / 5) / 100;
-    
-    // Number of items to generate (1-3)
+
+    // Number of attempts to generate (1-3). Drops are capped at 3 items total.
     const itemCount = Math.floor(Math.random() * 3) + 1;
-    
-    // Try to generate items from each loot table the enemy has access to
+
     for (let i = 0; i < itemCount; i++) {
-      // Select a loot table based on rarity chances
-      const table = this.selectLootTable(enemy.lootTables, rarityBonus);
+      // Filter out high-tier tables that have already produced an item
+      const availableTables = enemy.lootTables.filter(t => {
+        const count = tableItemCounts[t] || 0;
+        if (count > 0 && ['advanced_loot', 'epic_loot', 'legendary_loot'].includes(t)) {
+          return false;
+        }
+        return true;
+      });
+
+      const table = this.selectLootTable(availableTables, rarityBonus);
       if (!table) continue;
-      
-      // Select an item from the table
+
       const item = this.selectItemFromTable(table);
       if (item) {
-        // Check if we already have this item in the loot
         const existingItem = loot.find(i => i.id === item.id);
         if (existingItem && item.stackable) {
-          // If stackable, increase quantity
           existingItem.quantity++;
         } else {
-          // Add as a new item
           loot.push({ ...item });
         }
+
+        tableItemCounts[table] = (tableItemCounts[table] || 0) + 1;
+
+        if (loot.length >= 3) break;
       }
     }
-    
+
     return loot;
   }
 
