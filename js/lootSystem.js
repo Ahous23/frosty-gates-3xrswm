@@ -182,11 +182,30 @@ export class LootSystem {
     if (!table || !table.items || table.items.length === 0) {
       return null;
     }
-    
-    // Select a random item from the table
-    const index = Math.floor(Math.random() * table.items.length);
-    const item = table.items[index];
-    
+
+    // Calculate weighted chances for each item
+    let totalWeight = 0;
+    const weights = table.items.map(item => {
+      let weight = item.chance !== undefined ? item.chance : 1;
+      // Accept fractional probabilities and percentages
+      if (weight <= 1) {
+        weight *= 100;
+      }
+      totalWeight += weight;
+      return weight;
+    });
+
+    // Roll against the cumulative weights
+    let roll = Math.random() * totalWeight;
+    let item = table.items[0];
+    for (let i = 0; i < table.items.length; i++) {
+      roll -= weights[i];
+      if (roll <= 0) {
+        item = table.items[i];
+        break;
+      }
+    }
+
     // Set quantity if not specified
     if (!item.quantity) {
       item.quantity = 1;
