@@ -20,6 +20,11 @@ export class InputHandlers {
       this.game.toggleMap();
       return;
     }
+
+    if (input === "talents" || input === "talent" || input === "t") {
+      this.game.toggleTalentTree();
+      return;
+    }
     
     // Then continue with existing combat input handling
     this.game.combatSystem.processPlayerAction(input);
@@ -171,7 +176,13 @@ export class InputHandlers {
       this.game.toggleMap();
       return;
     }
-    
+
+    // Check for talent command
+    if (input === "talents" || input === "talent" || input === "t") {
+      this.game.toggleTalentTree();
+      return;
+    }
+
     // Check for equipment command
     if (input === "equipment" || input === "equip" || input === "e") {
       this.game.toggleEquipment();
@@ -210,6 +221,11 @@ export class InputHandlers {
     // Add map command handling for choices mode
     if (input === "map" || input === "m") {
       this.game.toggleMap();
+      return;
+    }
+
+    if (input === "talents" || input === "talent" || input === "t") {
+      this.game.toggleTalentTree();
       return;
     }
 
@@ -255,7 +271,12 @@ export class InputHandlers {
       this.game.toggleMap();
       return;
     }
-    
+
+    if (input === "talents" || input === "talent" || input === "t") {
+      this.game.toggleTalentTree();
+      return;
+    }
+
     const inputLower = input.toLowerCase();
     
     // Special handling for "back" during initial allocation
@@ -639,6 +660,7 @@ export class InputHandlers {
     this.game.uiManager.print("equipment, equip - Show your equipped items", "help-text");
     this.game.uiManager.print("notes, note - Open/close the notes panel", "help-text");
     this.game.uiManager.print("map, m - Open/close the map", "help-text");
+    this.game.uiManager.print("talents, talent, t - Open/close the talent tree", "help-text");
     this.game.uiManager.print("save - Save your game", "help-text");
     this.game.uiManager.print("load - Load a saved game", "help-text");
     this.game.uiManager.print("quit, exit, title - Return to title screen", "help-text");

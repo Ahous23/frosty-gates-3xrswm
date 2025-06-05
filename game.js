@@ -20,6 +20,7 @@ import { EquipmentManager } from './js/equipmentManager.js';
 import { WeaponManager } from './js/weaponManager.js';
 import { SpellManager } from './js/spellManager.js';
 import { EquipmentManagerUI } from './js/equipmentManagerUI.js';
+import { TalentTreeUI } from './js/talentTreeUI.js';
 
 class TextGame {
   constructor() {
@@ -116,6 +117,7 @@ class TextGame {
     this.notesManager = new NotesManager(this);
     this.mapManager = new MapManager(this);
     this.equipmentManagerUI = new EquipmentManagerUI(this);
+    this.talentTreeUI = new TalentTreeUI(this);
     
     // Initialize everything
     this.init();
@@ -615,6 +617,16 @@ class TextGame {
     } else {
       console.error("Map manager not initialized");
       this.uiManager.print("Map panel is not available.", "error-message");
+    }
+  }
+
+  // Toggle talent panel
+  toggleTalentTree() {
+    if (this.talentTreeUI) {
+      this.talentTreeUI.toggle();
+    } else {
+      console.error("Talent tree UI not initialized");
+      this.uiManager.print("Talent panel is not available.", "error-message");
     }
   }
 
