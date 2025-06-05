@@ -1,13 +1,20 @@
 :root {
-  --bg-main: #1b202b;
-  --bg-panel: #232a3b;
-  --text-color: #e0e0e0;
-  --accent-color: #ffb347;
+  --bg-main: #3b2a1e;
+  --bg-panel: #4a3a28;
+  --text-color: #f0e5d8;
+  --accent-color: #d9a066;
 }
 
 body {
-  font-family: "Courier New", monospace;
+  font-family: "Georgia", "Times New Roman", serif;
   background-color: var(--bg-main);
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0px,
+    rgba(255, 255, 255, 0.03) 2px,
+    rgba(0, 0, 0, 0.05) 2px,
+    rgba(0, 0, 0, 0.05) 4px
+  );
   color: var(--text-color);
   line-height: 1.6;
   margin: 0;
@@ -16,6 +23,13 @@ body {
 
 .ui-panel {
   background-color: var(--bg-panel);
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 0px,
+    rgba(255, 255, 255, 0.04) 2px,
+    rgba(0, 0, 0, 0.06) 2px,
+    rgba(0, 0, 0, 0.06) 4px
+  );
   color: var(--text-color);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
 }
@@ -35,6 +49,13 @@ body {
   margin: 0 auto;
   padding: 20px;
   background-color: var(--bg-panel);
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 0px,
+    rgba(255, 255, 255, 0.04) 2px,
+    rgba(0, 0, 0, 0.06) 2px,
+    rgba(0, 0, 0, 0.06) 4px
+  );
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
@@ -52,7 +73,14 @@ body {
   display: flex;
   padding: 10px;
   background-color: var(--bg-panel);
-  border-top: 1px solid #444;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 0px,
+    rgba(255, 255, 255, 0.04) 2px,
+    rgba(0, 0, 0, 0.06) 2px,
+    rgba(0, 0, 0, 0.06) 4px
+  );
+  border-top: 1px solid #5a4635;
 }
 
 .prompt {
@@ -80,7 +108,7 @@ body {
 }
 
 .choice.disabled {
-  color: #885500;
+  color: #8b5e3c;
   font-style: italic;
 }
 
@@ -115,7 +143,7 @@ body {
   background-color: #333;
   padding: 10px;
   margin: 10px 0;
-  border: 1px dashed #555;
+  border: 1px dashed #6b5647;
   word-break: break-all;
   font-size: 13px;
 }
@@ -130,7 +158,7 @@ body {
 }
 
 .game-output::-webkit-scrollbar-thumb {
-  background: #555;
+  background: #6b5647;
   border-radius: 4px;
 }
 
@@ -312,13 +340,13 @@ body {
   display: flex;
   background-color: var(--bg-main);
   padding: 5px;
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid #5a4635;
 }
 
 .format-btn {
   background-color: var(--bg-panel);
   color: var(--text-color);
-  border: 1px solid #555;
+  border: 1px solid #6b5647;
   margin: 0 2px;
   padding: 3px 8px;
   cursor: pointer;
@@ -327,18 +355,18 @@ body {
 }
 
 .format-btn:hover {
-  background-color: #444;
+  background-color: #5a4635;
 }
 
 .format-btn.active {
-  background-color: #555;
+  background-color: #6b5647;
   color: #fff;
 }
 
 .format-select {
   background-color: var(--bg-panel);
   color: var(--text-color);
-  border: 1px solid #555;
+  border: 1px solid #6b5647;
   margin: 0 2px;
   padding: 3px;
   cursor: pointer;
@@ -354,8 +382,8 @@ body {
   max-width: 90vw;
   max-height: 90vh;
   background-color: var(--bg-panel);
-  border-right: 2px solid #444;
-  border-bottom: 2px solid #444;
+  border-right: 2px solid #5a4635;
+  border-bottom: 2px solid #5a4635;
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -381,7 +409,7 @@ body {
   padding: 0 10px;
   height: 40px;
   background-color: var(--bg-main);
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid #5a4635;
 }
 
 .map-header h3 {
@@ -390,7 +418,7 @@ body {
 }
 
 .map-header button {
-  background-color: #444;
+  background-color: #5a4635;
   color: #eee;
   border: none;
   padding: 5px 10px;
@@ -399,7 +427,7 @@ body {
 }
 
 .map-header button:hover {
-  background-color: #555;
+  background-color: #6b5647;
 }
 
 .map-content {
@@ -554,7 +582,7 @@ body {
 }
 
 .equipment-action:hover {
-  background-color: #444;
+  background-color: #5a4635;
 }
 
 .inventory-button {
@@ -613,7 +641,7 @@ body {
 }
 
 .toggle-stats-button:hover {
-  background-color: #444;
+  background-color: #5a4635;
 }
 
 .stats-content-container {
