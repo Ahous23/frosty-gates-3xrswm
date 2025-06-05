@@ -883,3 +883,9 @@ body.title-screen {
   background-position: center;
   background-repeat: no-repeat;
 }
+
+/* Remove panel background so the title image is visible */
+body.title-screen .game-container {
+  background-color: transparent;
+  padding-top: 5%;
+}
