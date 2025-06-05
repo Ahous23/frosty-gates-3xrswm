@@ -18,10 +18,11 @@ export class GameLogic {
         await this.game.typeText(scene.text);
       }
 
-      if (scene.items) {
-        this.addItemsToInventory(scene.items);
+      if (scene.items || scene.loot) {
+        const gained = scene.items || scene.loot;
+        this.addItemsToInventory(gained);
         this.game.uiManager.print("\nAcquired items:", "system-message");
-        scene.items.forEach((item) => {
+        gained.forEach((item) => {
           this.game.uiManager.print(`- ${item.name} ${item.quantity > 1 ? `(x${item.quantity})` : ""}`, "item-name");
         });
         this.game.uiManager.print("", ""); // Add a blank line

@@ -679,11 +679,16 @@ export class InputHandlers {
     this.game.uiManager.clearOutput();
     if (this.game.inputMode === "normal") {
       this.game.gameLogic.playScene();
+    } else if (this.game.inputMode === "combat") {
+      this.game.combatSystem.showCombatOptions();
     }
   }
 
   showInventory() {
-    this.game.previousMode = this.game.inputMode;
+    // Preserve the original mode when opening inventory the first time
+    if (this.game.inputMode !== "inventory") {
+      this.game.previousMode = this.game.inputMode;
+    }
     this.game.inputMode = "inventory";
     this.game.uiManager.clearOutput();
     this.game.uiManager.print("===== INVENTORY =====", "system-message");
@@ -1263,6 +1268,8 @@ saveGame() {
     this.game.uiManager.clearOutput();
     if (this.game.inputMode === "normal") {
       this.game.gameLogic.playScene();
+    } else if (this.game.inputMode === "combat") {
+      this.game.combatSystem.showCombatOptions();
     }
   }
 }

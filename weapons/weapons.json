@@ -84,6 +84,18 @@
       "stackable": false,
       "usable": false,
       "equipable": true
+    },
+    {
+      "id": "winterbite",
+      "name": "Winterbite",
+      "description": "Your father's legendary great axe reforged for battle.",
+      "type": "weapon",
+      "damage": 15,
+      "strengthRequirement": 8,
+      "sellValue": 50,
+      "stackable": false,
+      "usable": false,
+      "equipable": true
     }
   ]
 }

@@ -127,6 +127,7 @@ export class CombatSystem {
     this.game.uiManager.print("2. Cast Spell", "combat-option");
     this.game.uiManager.print("3. Use Item", "combat-option");
     this.game.uiManager.print("4. Check Enemy", "combat-option");
+    this.game.uiManager.print("5. Inventory / Equip", "combat-option");
   }
 
   processPlayerAction(action) {
@@ -142,6 +143,10 @@ export class CombatSystem {
       this.showInventory();
     } else if (actionLower === "4" || actionLower === "check enemy") {
       this.checkEnemy();
+    } else if (actionLower === "5" || actionLower === "inventory" || actionLower === "equip" || actionLower === "equipment") {
+      if (this.game.inputHandlers && typeof this.game.inputHandlers.showInventory === 'function') {
+        this.game.inputHandlers.showInventory();
+      }
     } else {
       this.game.uiManager.print("Invalid combat action. Try again.", "error-message");
       this.showCombatOptions();
