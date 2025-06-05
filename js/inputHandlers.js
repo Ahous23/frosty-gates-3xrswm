@@ -685,7 +685,10 @@ export class InputHandlers {
   }
 
   showInventory() {
-    this.game.previousMode = this.game.inputMode;
+    // Preserve the original mode when opening inventory the first time
+    if (this.game.inputMode !== "inventory") {
+      this.game.previousMode = this.game.inputMode;
+    }
     this.game.inputMode = "inventory";
     this.game.uiManager.clearOutput();
     this.game.uiManager.print("===== INVENTORY =====", "system-message");
