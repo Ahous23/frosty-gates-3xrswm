@@ -306,12 +306,13 @@ export class EquipmentManagerUI extends UIPanel {
           
           // Subtract button - only enable if stat is above initial value
           const initialValue = this.game.initialPlayerStats[stat] || 0;
+          const confirmed = this.game.gameState.confirmedStats?.[stat] ?? initialValue;
           const subtractButton = document.createElement('button');
           subtractButton.className = 'stat-button subtract-stat';
           subtractButton.textContent = '-';
           subtractButton.title = `Decrease ${stat}`;
           subtractButton.dataset.stat = stat;
-          subtractButton.disabled = value <= initialValue;
+          subtractButton.disabled = value <= confirmed;
           subtractButton.addEventListener('click', () => this.adjustStat(stat, -1));
           
           buttonContainer.appendChild(subtractButton);
@@ -458,11 +459,9 @@ export class EquipmentManagerUI extends UIPanel {
 
   // Adjust a stat by the given amount
   adjustStat(stat, change) {
-    // If stats are already confirmed, don't allow any changes
-    if (this.statPointsConfirmed) {
-      alert("Stats have been confirmed and can no longer be changed.");
-      return false;
-    }
+    const baseline = this.statPointsConfirmed
+      ? (this.game.gameState.confirmedStats?.[stat] ?? this.game.initialPlayerStats[stat] || 0)
+      : (this.game.initialPlayerStats[stat] || 0);
 
     // Calculate total available points from both sources
     const totalAvailablePoints = (this.game.gameState.availableStatPoints || 0) + (this.game.availableStatPoints || 0);
@@ -472,9 +471,9 @@ export class EquipmentManagerUI extends UIPanel {
       return false;
     }
     
-    // Don't allow reducing below initial value
-    if (change < 0 && this.game.playerStats[stat] <= (this.game.initialPlayerStats[stat] || 0)) {
-      alert(`Cannot reduce ${stat} below its initial value.`);
+    // Don't allow reducing below the baseline
+    if (change < 0 && this.game.playerStats[stat] + change < baseline) {
+      alert(`Cannot reduce ${stat} below ${baseline}.`);
       return false;
     }
     
@@ -563,6 +562,7 @@ export class EquipmentManagerUI extends UIPanel {
       // Mark stats as confirmed in both this UI and the game state
       this.statPointsConfirmed = true;
       this.game.gameState.statsConfirmed = true;
+      this.game.gameState.confirmedStats = { ...this.game.playerStats };
       
       // Update the UI to reflect confirmed state
       this.updateContent();

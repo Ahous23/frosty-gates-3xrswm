@@ -395,6 +395,13 @@ export class InputHandlers {
         (this.game.availableStatPoints || 0);
       this.game.availableStatPoints = 0;
 
+      // Mark the current stats as confirmed and save baseline
+      this.game.gameState.confirmedStats = { ...this.game.playerStats };
+      this.game.gameState.statsConfirmed = true;
+      if (this.game.equipmentManagerUI) {
+        this.game.equipmentManagerUI.statPointsConfirmed = true;
+      }
+
       this.isInitialAllocation = false; // Turn off initial allocation mode
       this.game.currentScene = "intro";
       this.game.inputMode = "normal"; // Important: change mode to normal
@@ -814,14 +821,10 @@ export class InputHandlers {
   }
 
   adjustStat(stat, change) {
-    // Disallow decreasing stats once points are confirmed
-    if (change < 0 && this.game.gameState.statsConfirmed) {
-      this.game.uiManager.print(
-        'Stats have been confirmed and can no longer be decreased.',
-        'error-message'
-      );
-      return false;
-    }
+    const baseline = this.isInitialAllocation
+      ? (this.game.initialPlayerStats[stat] || 0)
+      : (this.game.gameState.confirmedStats?.[stat] ??
+          this.game.initialPlayerStats[stat] || 0);
     // Calculate total available points
     const totalAvailablePoints = (this.isInitialAllocation ? this.game.availableStatPoints : 0) + 
                                 (this.game.gameState.availableStatPoints || 0);
@@ -831,12 +834,12 @@ export class InputHandlers {
       return false;
     }
 
-    // Prevent reducing below initial values
-    if (
-      change < 0 &&
-      this.game.playerStats[stat] <= (this.game.initialPlayerStats[stat] || 0)
-    ) {
-      this.game.uiManager.print(`Cannot reduce ${stat} further.`, 'error-message');
+    // Prevent reducing below the confirmed baseline
+    if (change < 0 && this.game.playerStats[stat] + change < baseline) {
+      this.game.uiManager.print(
+        `Cannot reduce ${stat} below ${baseline}.`,
+        'error-message'
+      );
       return false;
     }
 
@@ -866,6 +869,10 @@ confirmStats() {
 
   // Otherwise continue to whatever scene the game logic queued up
   this.game.gameState.statsConfirmed = true;
+  this.game.gameState.confirmedStats = { ...this.game.playerStats };
+  if (this.game.equipmentManagerUI) {
+    this.game.equipmentManagerUI.statPointsConfirmed = true;
+  }
   this.game.uiManager.print("Stats confirmed!", "system-message");
   this.game.inputMode = "normal";
   this.game.uiManager.clearOutput();

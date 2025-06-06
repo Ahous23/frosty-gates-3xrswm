@@ -33,7 +33,9 @@ class TextGame {
       playerHealth: initialPlayerHealth,
       playerXp: initialPlayerXp,
       availableStatPoints: 0,
-      talentPoints: 0
+      talentPoints: 0,
+      statsConfirmed: false,
+      confirmedStats: { ...initialPlayerStats }
     };
     this.availableStatPoints = availableStatPoints;
     this.initialPlayerStats = initialPlayerStats;
@@ -494,6 +496,12 @@ class TextGame {
       this.playerStats = data.playerStats;
       this.inventory = data.inventory || [];
       this.gameState = data.gameState || {};
+      if (this.gameState.confirmedStats === undefined) {
+        this.gameState.confirmedStats = { ...initialPlayerStats };
+      }
+      if (this.gameState.statsConfirmed === undefined) {
+        this.gameState.statsConfirmed = false;
+      }
       this.playerSpells = data.playerSpells || [];
       if (data.talents) {
         this.talentManager.load(data.talents);

@@ -80,9 +80,11 @@ export class StatsPanel extends UIPanel {
       const subBtn = document.createElement('button');
       subBtn.className = 'stat-button subtract-stat';
       subBtn.textContent = '-';
-      const initialValue = this.game.initialPlayerStats[stat] || 0;
-      subBtn.disabled =
-        value <= initialValue || this.game.gameState.statsConfirmed;
+      const baseline = this.game.inputHandlers.isInitialAllocation
+        ? (this.game.initialPlayerStats[stat] || 0)
+        : (this.game.gameState.confirmedStats?.[stat] ??
+            this.game.initialPlayerStats[stat] || 0);
+      subBtn.disabled = value <= baseline;
       subBtn.addEventListener('click', () => {
         if (this.game.inputHandlers.adjustStat(stat, -1)) {
           this.game.uiManager.clearOutput();
@@ -105,13 +107,14 @@ export class StatsPanel extends UIPanel {
 
     content.appendChild(statsContainer);
 
-    if (availablePoints > 0 && !this.game.gameState.statsConfirmed) {
+    if (availablePoints > 0) {
       const confirmBtn = document.createElement('button');
       confirmBtn.className = 'confirm-stats-button';
       confirmBtn.textContent = 'Confirm Stats';
       confirmBtn.addEventListener('click', () => {
-        // Once confirmed, prevent further stat reductions
+        // Once confirmed, prevent reducing below current values
         this.game.gameState.statsConfirmed = true;
+        this.game.gameState.confirmedStats = { ...this.game.playerStats };
         if (this.game.inputHandlers.isInitialAllocation) {
           this.game.inputHandlers.proceedAfterStatAllocation();
         } else {
