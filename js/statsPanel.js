@@ -94,7 +94,11 @@ export class StatsPanel extends UIPanel {
       confirmBtn.className = 'confirm-stats-button';
       confirmBtn.textContent = 'Confirm Stats';
       confirmBtn.addEventListener('click', () => {
-        this.game.inputHandlers.confirmStats();
+        if (this.game.inputHandlers.isInitialAllocation) {
+          this.game.inputHandlers.proceedAfterStatAllocation();
+        } else {
+          this.game.inputHandlers.confirmStats();
+        }
         this.updateContent();
       });
       content.appendChild(confirmBtn);

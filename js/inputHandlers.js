@@ -839,12 +839,15 @@ export class InputHandlers {
   // Update the confirmStats method
 
 confirmStats() {
-  // Consolidate all points into gameState
+  // During the initial allocation phase we may not have a nextScene value
+  // because the stats screen was opened directly when starting a new game.
+  // In that case, simply proceed using the normal allocation completion logic.
   if (this.isInitialAllocation) {
-    this.game.gameState.availableStatPoints = (this.game.gameState.availableStatPoints || 0) + this.game.availableStatPoints;
-    this.game.availableStatPoints = 0;
+    this.proceedAfterStatAllocation();
+    return;
   }
-  
+
+  // Otherwise continue to whatever scene the game logic queued up
   this.game.uiManager.print("Stats confirmed!", "system-message");
   this.game.inputMode = "normal";
   this.game.uiManager.clearOutput();
