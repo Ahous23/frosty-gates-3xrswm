@@ -42,6 +42,12 @@ export class StatsPanel extends UIPanel {
     content.innerHTML = '';
 
     const availablePoints = this.game.statPointsHandler.getTotal();
+    const baselineStats = this.game.inputHandlers.isInitialAllocation
+      ? this.game.initialPlayerStats
+      : (this.game.gameState.confirmedStats || this.game.initialPlayerStats);
+    const statsChanged = Object.keys(this.game.playerStats).some(
+      stat => this.game.playerStats[stat] !== baselineStats[stat]
+    );
     const pointsInfo = document.createElement('div');
     pointsInfo.className = 'available-points';
     pointsInfo.textContent = `Available Points: ${availablePoints}`;
@@ -109,10 +115,21 @@ export class StatsPanel extends UIPanel {
 
     content.appendChild(statsContainer);
 
-    if (availablePoints > 0) {
+    if (!this.game.gameState.statsConfirmed) {
       const confirmBtn = document.createElement('button');
       confirmBtn.className = 'confirm-stats-button';
       confirmBtn.textContent = 'Confirm Stats';
+
+      let confirmEnabled;
+      if (this.game.inputHandlers.isInitialAllocation) {
+        confirmEnabled = availablePoints === 0 && statsChanged;
+        confirmBtn.title = confirmEnabled ? '' : 'Allocate all points to start';
+      } else {
+        confirmEnabled = statsChanged || availablePoints > 0;
+        confirmBtn.title = confirmEnabled ? '' : 'No changes to confirm';
+      }
+
+      confirmBtn.disabled = !confirmEnabled;
       confirmBtn.addEventListener('click', () => {
         // Once confirmed, prevent reducing below current values
         this.game.gameState.statsConfirmed = true;
