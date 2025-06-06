@@ -5,6 +5,7 @@ export class InputHandlers {
     this.game = game;
     this.isInitialAllocation = false; // Flag to track if we're in initial character creation
     this.awaitingUnspentPointsConfirmation = false; // New flag to track if we're waiting for confirmation
+    this.savedOutput = '';
   }
 
   // Add a new method to handle combat input
@@ -667,12 +668,11 @@ export class InputHandlers {
   resumeAfterInventory() {
     this.game.inputMode = this.game.previousMode || "normal";
     this.game.previousMode = null;
-    this.game.uiManager.clearOutput();
-    if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
-      this.game.gameLogic.playScene();
-    } else if (this.game.inputMode === "combat") {
+    this.game.uiManager.setOutputHTML(this.savedOutput);
+    if (this.game.inputMode === "combat") {
       this.game.combatSystem.showCombatOptions();
     }
+    this.game.uiManager.focusInput();
   }
 
   showInventory() {
@@ -680,6 +680,7 @@ export class InputHandlers {
     if (this.game.inputMode !== "inventory") {
       this.game.previousMode = this.game.inputMode;
     }
+    this.savedOutput = this.game.uiManager.getOutputHTML();
     this.game.inputMode = "inventory";
     this.game.uiManager.clearOutput();
     this.game.uiManager.print("===== INVENTORY =====", "system-message");

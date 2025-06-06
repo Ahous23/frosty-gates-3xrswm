@@ -63,6 +63,14 @@ export class UIManager {
   hideInputContainer() {
     this.inputContainer.style.display = 'none';
   }
+
+  getOutputHTML() {
+    return this.gameOutput.innerHTML;
+  }
+
+  setOutputHTML(html) {
+    this.gameOutput.innerHTML = html;
+  }
 }
 
 export async function fadeTransition(callback) {
