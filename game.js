@@ -332,6 +332,7 @@ class TextGame {
     let loadingTextContainer;
     await fadeTransition(async () => {
       this.uiManager.clearOutput();
+      this.uiManager.hideInputContainer();
       const numberOfLoadingGifs = 5;
       const randomGifIndex = Math.floor(Math.random() * numberOfLoadingGifs) + 1;
       const loadingGifPath = `gif/loading/loading${randomGifIndex}.gif`;
@@ -359,6 +360,7 @@ class TextGame {
 
     await fadeTransition(async () => {
       this.uiManager.clearOutput();
+      this.uiManager.showInputContainer();
       if (onFinish) {
         await onFinish();
       }

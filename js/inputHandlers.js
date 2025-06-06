@@ -813,26 +813,29 @@ export class InputHandlers {
                                 (this.game.gameState.availableStatPoints || 0);
                                 
     if (change > 0 && totalAvailablePoints < change) {
-      this.game.uiManager.print(`You only have ${totalAvailablePoints} points available.`, "error-message");
+      this.game.uiManager.print(`You only have ${totalAvailablePoints} points available.`, 'error-message');
       return false;
     }
-    
+
+    // Prevent reducing below initial values
+    if (
+      change < 0 &&
+      this.game.playerStats[stat] <= (this.game.initialPlayerStats[stat] || 0)
+    ) {
+      this.game.uiManager.print(`Cannot reduce ${stat} further.`, 'error-message');
+      return false;
+    }
+
     this.game.playerStats[stat] += change;
-    
+
     // Update the correct stat points counter
     if (this.isInitialAllocation) {
       this.game.availableStatPoints -= change;
     } else {
-      this.game.gameState.availableStatPoints = (this.game.gameState.availableStatPoints || 0) - change;
+      this.game.gameState.availableStatPoints =
+        (this.game.gameState.availableStatPoints || 0) - change;
     }
-    
-    this.game.uiManager.print(`${stat} is now ${this.game.playerStats[stat]}`, "system-message");
-    this.game.uiManager.print(`Available points: ${totalAvailablePoints - change}`, "system-message");
-    
-    if (totalAvailablePoints - change <= 0) {
-      this.game.uiManager.print("You have used all your stat points. Type 'confirm' to continue.", "system-message");
-    }
-    
+
     return true;
   }
 

@@ -66,7 +66,14 @@ export class StatsPanel extends UIPanel {
       addBtn.textContent = '+';
       addBtn.disabled = availablePoints <= 0;
       addBtn.addEventListener('click', () => {
-        if (this.game.inputHandlers.adjustStat(stat, 1)) this.updateContent();
+        if (this.game.inputHandlers.adjustStat(stat, 1)) {
+          this.game.uiManager.clearOutput();
+          if (this.game.inputHandlers.isInitialAllocation) {
+            this.game.inputHandlers.showInitialStatAllocation();
+          } else {
+            this.updateContent();
+          }
+        }
       });
 
       const subBtn = document.createElement('button');
@@ -75,7 +82,14 @@ export class StatsPanel extends UIPanel {
       const initialValue = this.game.initialPlayerStats[stat] || 0;
       subBtn.disabled = value <= initialValue;
       subBtn.addEventListener('click', () => {
-        if (this.game.inputHandlers.adjustStat(stat, -1)) this.updateContent();
+        if (this.game.inputHandlers.adjustStat(stat, -1)) {
+          this.game.uiManager.clearOutput();
+          if (this.game.inputHandlers.isInitialAllocation) {
+            this.game.inputHandlers.showInitialStatAllocation();
+          } else {
+            this.updateContent();
+          }
+        }
       });
 
       buttons.appendChild(subBtn);
@@ -99,7 +113,7 @@ export class StatsPanel extends UIPanel {
         } else {
           this.game.inputHandlers.confirmStats();
         }
-        this.updateContent();
+        this.game.toggleStats(false);
       });
       content.appendChild(confirmBtn);
     } else if (this.game.gameState.statsConfirmed) {
