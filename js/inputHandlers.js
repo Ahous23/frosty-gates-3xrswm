@@ -82,6 +82,11 @@ export class InputHandlers {
     if (this.game.isTyping) return; // Don't process input while text is typing
 
     const rawInput = this.game.gameInput.value.trim();
+    // Remove previous player input and transient messages
+    this.game.gameOutput
+      .querySelectorAll('.player-input, .error-message, .system-message')
+      .forEach((el) => el.remove());
+
     this.game.uiManager.clearInput();
     this.game.uiManager.print(`> ${rawInput}`, "player-input");
 
