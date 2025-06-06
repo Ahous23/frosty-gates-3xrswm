@@ -383,6 +383,13 @@ export class InputHandlers {
   proceedAfterStatAllocation() {
     if (this.isInitialAllocation) {
       // If this is the initial stat allocation, start the game
+      // Move any unspent points into the persistent game state so they
+      // can be used later with the "stats" command
+      this.game.gameState.availableStatPoints =
+        (this.game.gameState.availableStatPoints || 0) +
+        (this.game.availableStatPoints || 0);
+      this.game.availableStatPoints = 0;
+
       this.isInitialAllocation = false; // Turn off initial allocation mode
       this.game.currentScene = "intro";
       this.game.inputMode = "normal"; // Important: change mode to normal
