@@ -1298,14 +1298,17 @@ saveGame() {
       this.game.statsPanel.toggle(false);
     }
 
-    this.game.inputMode = this.game.previousMode || "normal";
-    this.game.previousMode = null;
-
     if (this.isInitialAllocation) {
+      // During initial character creation there isn't a scene to resume yet.
+      // Simply show the allocation instructions again so the player can
+      // continue assigning points without triggering a story error.
       this.game.uiManager.clearOutput();
-      this.game.gameLogic.playScene();
+      this.showInitialStatAllocation();
       return;
     }
+
+    this.game.inputMode = this.game.previousMode || "normal";
+    this.game.previousMode = null;
 
     if (this.game.inputMode === "combat") {
       this.game.combatSystem.showCombatOptions();
