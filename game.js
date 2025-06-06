@@ -23,6 +23,7 @@ import { EquipmentManagerUI } from './js/equipmentManagerUI.js';
 import { TalentTreeUI } from './js/talentTreeUI.js';
 import { TalentManager } from './js/talentManager.js';
 import { StatsPanel } from './js/statsPanel.js';
+import { InventoryPanel } from './js/inventoryPanel.js';
 import { StatsPointsHandler } from './js/statsPointsHandler.js';
 
 class TextGame {
@@ -129,6 +130,7 @@ class TextGame {
     this.equipmentManagerUI = new EquipmentManagerUI(this);
     this.talentTreeUI = new TalentTreeUI(this);
     this.statsPanel = new StatsPanel(this);
+    this.inventoryPanel = new InventoryPanel(this);
     
     // Initialize everything
     this.init();
@@ -497,6 +499,25 @@ class TextGame {
     } else {
       console.error("Equipment manager UI not initialized");
       this.uiManager.print("Equipment panel is not available.", "error-message");
+    }
+  }
+
+  // Toggle inventory panel
+  toggleInventory(show) {
+    if (this.inventoryPanel && show === undefined) show = !this.inventoryPanel.visible;
+
+    if (this.inventoryPanel) {
+      if (show) {
+        this.previousMode = this.inputMode;
+        this.inputMode = 'inventory';
+      } else if (this.inputMode === 'inventory') {
+        this.inputMode = this.previousMode || 'normal';
+        this.previousMode = null;
+      }
+      this.inventoryPanel.toggle(show);
+    } else {
+      console.error('Inventory panel not initialized');
+      this.uiManager.print('Inventory panel is not available.', 'error-message');
     }
   }
 

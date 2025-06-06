@@ -414,7 +414,7 @@ export class EquipmentManagerUI extends UIPanel {
       inventoryBtn.textContent = 'Open Inventory';
       inventoryBtn.addEventListener('click', () => {
         this.toggle(false);
-        this.game.inputHandlers.showInventory();
+        this.game.toggleInventory();
       });
       
       // Add all sections to the content in optimal order

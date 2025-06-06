@@ -588,6 +588,29 @@ h1, h2, h3, h4, h5, h6 {
   top: -100%; /* Hide above the viewport */
 }
 
+/* Inventory Panel Styles */
+#inventory-panel {
+  position: fixed;
+  top: -100%;
+  left: 0;
+  width: 100%;
+  height: 60%;
+  background-color: var(--bg-panel);
+  color: var(--text-color);
+  z-index: 100;
+  transition: top 0.3s ease-in-out;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
+}
+
+#inventory-panel.visible {
+  top: 0;
+}
+
+#inventory-panel.hidden {
+  top: -100%;
+}
+
 /* Talent Panel Styles */
 #talent-panel {
   position: fixed;
