@@ -310,20 +310,26 @@ export class InputHandlers {
     
     // Handle finalizing stats
     if (inputLower === "start" || inputLower === "done") {
-      // Check if player has unspent points
       const availablePoints = this.isInitialAllocation
         ? this.game.availableStatPoints
         : (this.game.gameState.availableStatPoints || 0);
-      
-      if (availablePoints > 0) {
+
+      if (this.isInitialAllocation && availablePoints > 0) {
+        this.game.uiManager.print(
+          `You must allocate all ${availablePoints} remaining points before starting.`,
+          "system-message"
+        );
+        return;
+      }
+
+      if (!this.isInitialAllocation && availablePoints > 0) {
         this.awaitingUnspentPointsConfirmation = true;
         this.game.uiManager.print(`\nYou have ${availablePoints} unspent stat points!`, "warning-message");
         this.game.uiManager.print("You can access your stats at any time by typing 'stats' during gameplay.", "system-message");
         this.game.uiManager.print("Type 'confirm' to continue anyway or 'cancel' to go back and spend your points.", "system-message");
         return;
       }
-      
-      // No unspent points, proceed normally
+
       this.proceedAfterStatAllocation();
       return;
     }
@@ -1251,6 +1257,57 @@ saveGame() {
     if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
       this.game.gameLogic.playScene();
     } else if (this.game.inputMode === "combat") {
+      this.game.combatSystem.showCombatOptions();
+    }
+  }
+
+  resumeAfterMap() {
+    if (this.game.mapManager) {
+      this.game.mapManager.toggle(false);
+    }
+
+    this.game.inputMode = this.game.previousMode || "normal";
+    this.game.previousMode = null;
+
+    this.game.uiManager.clearOutput();
+    if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
+      this.game.gameLogic.playScene();
+    } else if (this.game.inputMode === "combat") {
+      this.game.combatSystem.showCombatOptions();
+    }
+  }
+
+  resumeAfterNotes() {
+    if (this.game.notesManager) {
+      this.game.notesManager.toggle(false);
+    }
+
+    this.game.inputMode = this.game.previousMode || "normal";
+    this.game.previousMode = null;
+
+    this.game.uiManager.clearOutput();
+    if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
+      this.game.gameLogic.playScene();
+    } else if (this.game.inputMode === "combat") {
+      this.game.combatSystem.showCombatOptions();
+    }
+  }
+
+  resumeAfterStats() {
+    if (this.game.statsPanel) {
+      this.game.statsPanel.toggle(false);
+    }
+
+    this.game.inputMode = this.game.previousMode || "normal";
+    this.game.previousMode = null;
+
+    if (this.isInitialAllocation) {
+      this.game.uiManager.clearOutput();
+      this.game.gameLogic.playScene();
+      return;
+    }
+
+    if (this.game.inputMode === "combat") {
       this.game.combatSystem.showCombatOptions();
     }
   }

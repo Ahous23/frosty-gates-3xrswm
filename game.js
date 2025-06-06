@@ -150,6 +150,15 @@ class TextGame {
     }
   }
 
+  // Check if the game is in a phase where panels are allowed
+  isGameplayPhase() {
+    const phases = [
+      'normal', 'choices', 'combat', 'combat-item',
+      'combat-spell', 'await-combat', 'await-continue'
+    ];
+    return phases.includes(this.inputMode);
+  }
+
   async initialize() {
     this.uiManager.clearOutput();
     this.uiManager.print("Welcome to Olaf vs Bears", "system-message");
@@ -587,8 +596,20 @@ class TextGame {
 
   // Toggle notes panel
   toggleNotes() {
+    if (!this.isGameplayPhase() && !this.inputHandlers.isInitialAllocation) {
+      this.uiManager.print('Notes can only be accessed during gameplay.', 'system-message');
+      return;
+    }
     if (this.notesManager) {
-      this.notesManager.toggle();
+      const show = !this.notesManager.visible;
+      if (show) {
+        this.previousMode = this.inputMode;
+        this.inputMode = 'notes';
+      } else if (this.inputMode === 'notes') {
+        this.inputMode = this.previousMode || 'normal';
+        this.previousMode = null;
+      }
+      this.notesManager.toggle(show);
     } else {
       console.error("Notes manager not initialized");
       this.uiManager.print("Notes panel is not available.", "error-message");
@@ -597,8 +618,20 @@ class TextGame {
 
   // Toggle map panel
   toggleMap() {
+    if (!this.isGameplayPhase() && !this.inputHandlers.isInitialAllocation) {
+      this.uiManager.print('Map can only be accessed during gameplay.', 'system-message');
+      return;
+    }
     if (this.mapManager) {
-      this.mapManager.toggle();
+      const show = !this.mapManager.visible;
+      if (show) {
+        this.previousMode = this.inputMode;
+        this.inputMode = 'map';
+      } else if (this.inputMode === 'map') {
+        this.inputMode = this.previousMode || 'normal';
+        this.previousMode = null;
+      }
+      this.mapManager.toggle(show);
     } else {
       console.error("Map manager not initialized");
       this.uiManager.print("Map panel is not available.", "error-message");
@@ -607,8 +640,20 @@ class TextGame {
 
   // Toggle talent panel
   toggleTalentTree() {
+    if (!this.isGameplayPhase() && !this.inputHandlers.isInitialAllocation) {
+      this.uiManager.print('Talents can only be accessed during gameplay.', 'system-message');
+      return;
+    }
     if (this.talentTreeUI) {
-      this.talentTreeUI.toggle();
+      const show = !this.talentTreeUI.visible;
+      if (show) {
+        this.previousMode = this.inputMode;
+        this.inputMode = 'talent';
+      } else if (this.inputMode === 'talent') {
+        this.inputMode = this.previousMode || 'normal';
+        this.previousMode = null;
+      }
+      this.talentTreeUI.toggle(show);
     } else {
       console.error("Talent tree UI not initialized");
       this.uiManager.print("Talent panel is not available.", "error-message");
@@ -619,6 +664,10 @@ class TextGame {
   toggleStats(show) {
     if (this.inputMode === 'title' || this.inputMode === 'loadGame') {
       this.uiManager.print('Stats are not available right now.', 'system-message');
+      return;
+    }
+    if (!this.isGameplayPhase() && !this.inputHandlers.isInitialAllocation) {
+      this.uiManager.print('Stats can only be accessed during gameplay.', 'system-message');
       return;
     }
 

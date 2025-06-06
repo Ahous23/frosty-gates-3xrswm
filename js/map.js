@@ -35,7 +35,12 @@ export class MapManager extends UIPanel {
     
     // Setup map event listeners with a direct close method
     if (closeMapBtn) {
-      closeMapBtn.addEventListener('click', () => this.close());
+      closeMapBtn.addEventListener('click', () => {
+        this.close();
+        if (this.game.inputHandlers && typeof this.game.inputHandlers.resumeAfterMap === 'function') {
+          this.game.inputHandlers.resumeAfterMap();
+        }
+      });
       console.log("Close map button event listener attached");
     } else {
       console.error("Close map button not found!");
