@@ -23,6 +23,7 @@ import { EquipmentManagerUI } from './js/equipmentManagerUI.js';
 import { TalentTreeUI } from './js/talentTreeUI.js';
 import { TalentManager } from './js/talentManager.js';
 import { StatsPanel } from './js/statsPanel.js';
+import { StatsPointsHandler } from './js/statsPointsHandler.js';
 
 class TextGame {
   constructor() {
@@ -76,6 +77,7 @@ class TextGame {
     this.lootSystem = new LootSystem(this);
     this.gameLogic = new GameLogic(this);
     this.inputHandlers = new InputHandlers(this);
+    this.statPointsHandler = new StatsPointsHandler(this);
     this.combatSystem = new CombatSystem(this);
     this.weaponManager = new WeaponManager(this);
     this.spellManager = new SpellManager(this);
@@ -554,10 +556,10 @@ class TextGame {
       notesContent = this.notesManager.save();
     }
     
-    // Consolidate available stat points before saving
-    const totalStatPoints = (this.gameState.availableStatPoints || 0) + (this.availableStatPoints || 0);
-    this.gameState.availableStatPoints = totalStatPoints;
-    this.availableStatPoints = 0;
+    // Consolidate stat points before saving
+    if (this.statPointsHandler) {
+      this.statPointsHandler.consolidateForSave();
+    }
     
     // Store the equipment manager's stat confirmation state
     if (this.equipmentManagerUI) {

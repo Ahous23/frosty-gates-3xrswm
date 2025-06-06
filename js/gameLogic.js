@@ -144,7 +144,7 @@ export class GameLogic {
     this.game.awaitingInput = true;
     this.game.inputMode = "stats";
     this.game.uiManager.print("Allocate your stat points:", "system-message");
-    this.game.uiManager.print(`Available points: ${this.game.availableStatPoints}`, "system-message");
+    this.game.uiManager.print(`Available points: ${this.game.statPointsHandler.getTotal()}`, "system-message");
     Object.keys(this.game.playerStats).forEach((stat) => {
       this.game.uiManager.print(`${stat}: ${this.game.playerStats[stat]}`, "player-stat");
     });

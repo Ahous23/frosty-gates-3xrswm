@@ -36,9 +36,7 @@ export class StatsPanel extends UIPanel {
     const content = this.content;
     content.innerHTML = '';
 
-    const availablePoints =
-      (this.game.gameState.availableStatPoints || 0) +
-      (this.game.availableStatPoints || 0);
+    const availablePoints = this.game.statPointsHandler.getTotal();
     const pointsInfo = document.createElement('div');
     pointsInfo.className = 'available-points';
     pointsInfo.textContent = `Available Points: ${availablePoints}`;
@@ -67,7 +65,7 @@ export class StatsPanel extends UIPanel {
       addBtn.textContent = '+';
       addBtn.disabled = availablePoints <= 0;
       addBtn.addEventListener('click', () => {
-        if (this.game.inputHandlers.adjustStat(stat, 1)) {
+        if (this.game.statPointsHandler.adjustStat(stat, 1, this.game.inputHandlers.isInitialAllocation)) {
           this.game.uiManager.clearOutput();
           if (this.game.inputHandlers.isInitialAllocation) {
             this.game.inputHandlers.showInitialStatAllocation();
@@ -85,7 +83,7 @@ export class StatsPanel extends UIPanel {
         : (this.game.gameState.confirmedStats?.[stat] ?? (this.game.initialPlayerStats[stat] || 0));
       subBtn.disabled = value <= baseline;
       subBtn.addEventListener('click', () => {
-        if (this.game.inputHandlers.adjustStat(stat, -1)) {
+        if (this.game.statPointsHandler.adjustStat(stat, -1, this.game.inputHandlers.isInitialAllocation)) {
           this.game.uiManager.clearOutput();
           if (this.game.inputHandlers.isInitialAllocation) {
             this.game.inputHandlers.showInitialStatAllocation();

@@ -311,8 +311,8 @@ export class InputHandlers {
     // Handle finalizing stats
     if (inputLower === "start" || inputLower === "done") {
       // Check if player has unspent points
-      const availablePoints = this.isInitialAllocation 
-        ? this.game.availableStatPoints 
+      const availablePoints = this.isInitialAllocation
+        ? this.game.availableStatPoints
         : (this.game.gameState.availableStatPoints || 0);
       
       if (availablePoints > 0) {
@@ -343,22 +343,7 @@ export class InputHandlers {
     const validStats = ["attack", "defense", "charisma", "intelligence", "speed", "luck"];
     
     if (validStats.includes(inputLower)) {
-      // During initial allocation, use game.availableStatPoints, not gameState
-      const availablePoints = this.isInitialAllocation 
-        ? this.game.availableStatPoints 
-        : (this.game.gameState.availableStatPoints || 0);
-      
-      if (availablePoints > 0) {
-        this.game.playerStats[inputLower]++;
-        
-        // Update the correct stat points counter
-        if (this.isInitialAllocation) {
-          this.game.availableStatPoints--;
-        } else {
-          this.game.gameState.availableStatPoints = (this.game.gameState.availableStatPoints || 0) - 1;
-        }
-        
-        // Clear output and refresh stats display to show real-time changes
+      if (this.adjustStat(inputLower, 1)) {
         this.game.uiManager.clearOutput();
         if (this.isInitialAllocation) {
           this.showInitialStatAllocation();
@@ -366,8 +351,6 @@ export class InputHandlers {
           this.game.uiManager.print(`Increased ${inputLower} to ${this.game.playerStats[inputLower]}.`, "system-message");
           this.showStats();
         }
-      } else {
-        this.game.uiManager.print("You don't have any stat points available.", "error-message");
       }
     } else {
       this.game.uiManager.print("Invalid stat. Try 'attack', 'defense', 'charisma', 'intelligence', 'speed', or 'luck'.", "error-message");
@@ -380,10 +363,9 @@ export class InputHandlers {
       // If this is the initial stat allocation, start the game
       // Move any unspent points into the persistent game state so they
       // can be used later with the "stats" command
-      this.game.gameState.availableStatPoints =
-        (this.game.gameState.availableStatPoints || 0) +
-        (this.game.availableStatPoints || 0);
-      this.game.availableStatPoints = 0;
+      if (this.game.statPointsHandler) {
+        this.game.statPointsHandler.consolidateForSave();
+      }
 
       // Mark the current stats as confirmed and save baseline
       this.game.gameState.confirmedStats = { ...this.game.playerStats };
@@ -417,23 +399,9 @@ export class InputHandlers {
       return;
     }
     
-    // Check if stat is above the initial value
-    if (this.game.playerStats[stat] > this.game.initialPlayerStats[stat]) {
-      this.game.playerStats[stat]--;
-
-      // Return the point to the correct pool
-      if (this.isInitialAllocation) {
-        this.game.availableStatPoints++;
-      } else {
-        this.game.gameState.availableStatPoints =
-          (this.game.gameState.availableStatPoints || 0) + 1;
-      }
-      
-      // Update the display
+    if (this.adjustStat(stat, -1)) {
       this.game.uiManager.clearOutput();
       this.showInitialStatAllocation();
-    } else {
-      this.game.uiManager.print(`Cannot reduce ${stat} below its initial value (${this.game.initialPlayerStats[stat]}).`, "error-message");
     }
   }
 
@@ -811,38 +779,7 @@ export class InputHandlers {
   }
 
   adjustStat(stat, change) {
-    const baseline = this.isInitialAllocation
-      ? (this.game.initialPlayerStats[stat] || 0)
-      : (this.game.gameState.confirmedStats?.[stat] ?? (this.game.initialPlayerStats[stat] || 0));
-    // Calculate total available points
-    const totalAvailablePoints = (this.isInitialAllocation ? this.game.availableStatPoints : 0) + 
-                                (this.game.gameState.availableStatPoints || 0);
-                                
-    if (change > 0 && totalAvailablePoints < change) {
-      this.game.uiManager.print(`You only have ${totalAvailablePoints} points available.`, 'error-message');
-      return false;
-    }
-
-    // Prevent reducing below the confirmed baseline
-    if (change < 0 && this.game.playerStats[stat] + change < baseline) {
-      this.game.uiManager.print(
-        `Cannot reduce ${stat} below ${baseline}.`,
-        'error-message'
-      );
-      return false;
-    }
-
-    this.game.playerStats[stat] += change;
-
-    // Update the correct stat points counter
-    if (this.isInitialAllocation) {
-      this.game.availableStatPoints -= change;
-    } else {
-      this.game.gameState.availableStatPoints =
-        (this.game.gameState.availableStatPoints || 0) - change;
-    }
-
-    return true;
+    return this.game.statPointsHandler.adjustStat(stat, change, this.isInitialAllocation);
   }
 
   // Update the confirmStats method
@@ -885,6 +822,9 @@ saveGame() {
       this.game.playerStats = saveData.playerStats;
       this.game.inventory = saveData.inventory;
       this.game.gameState = saveData.gameState;
+      if (this.game.statPointsHandler) {
+        this.game.statPointsHandler.resetAfterLoad();
+      }
       this.game.playerSpells = saveData.playerSpells || [];
       
       // Add notes handling

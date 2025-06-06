@@ -108,7 +108,7 @@ export class EquipmentManagerUI extends UIPanel {
       accessorySection.className = 'equipment-section';
       
       // Calculate available points here at the beginning
-      const availablePoints = (this.game.gameState.availableStatPoints || 0) + (this.game.availableStatPoints || 0);
+      const availablePoints = this.game.statPointsHandler.getTotal();
       
       // ---- Build Combat Stats Section ----
       const statsTitle = document.createElement('h3');
@@ -334,7 +334,7 @@ export class EquipmentManagerUI extends UIPanel {
       statsContentContainer.appendChild(notificationArea);
       
       // Calculate remaining points
-      const remainingPoints = (this.game.gameState.availableStatPoints || 0) + (this.game.availableStatPoints || 0);
+      const remainingPoints = this.game.statPointsHandler.getTotal();
       
       if (remainingPoints > 0) {
         // If points are available, show allocation message
@@ -459,46 +459,12 @@ export class EquipmentManagerUI extends UIPanel {
 
   // Adjust a stat by the given amount
   adjustStat(stat, change) {
-    const baseline = this.statPointsConfirmed
-      ? (this.game.gameState.confirmedStats?.[stat] ?? (this.game.initialPlayerStats[stat] || 0))
-      : (this.game.initialPlayerStats[stat] || 0);
-
-    // Calculate total available points from both sources
-    const totalAvailablePoints = (this.game.gameState.availableStatPoints || 0) + (this.game.availableStatPoints || 0);
-    
-    if (change > 0 && totalAvailablePoints < change) {
-      alert(`You only have ${totalAvailablePoints} points available.`);
-      return false;
-    }
-    
-    // Don't allow reducing below the baseline
-    if (change < 0 && this.game.playerStats[stat] + change < baseline) {
-      alert(`Cannot reduce ${stat} below ${baseline}.`);
-      return false;
-    }
-    
-    // Adjust the stat
-    this.game.playerStats[stat] += change;
-    
-    // Consume points from gameState first, then from game object if needed
-    if (change > 0) {
-      if (this.game.gameState.availableStatPoints >= change) {
-        this.game.gameState.availableStatPoints -= change;
-      } else {
-        // If gameState doesn't have enough points, use some from there and some from game object
-        const pointsFromGameState = this.game.gameState.availableStatPoints || 0;
-        const remainingPoints = change - pointsFromGameState;
-        
-        this.game.gameState.availableStatPoints = 0;
-        this.game.availableStatPoints = Math.max(0, (this.game.availableStatPoints || 0) - remainingPoints);
-      }
-    } else if (change < 0) {
-      // When reducing stats, add points back to gameState
-      this.game.gameState.availableStatPoints = (this.game.gameState.availableStatPoints || 0) - change;
-    }
+    const isInitial = !this.statPointsConfirmed;
+    const success = this.game.statPointsHandler.adjustStat(stat, change, isInitial);
+    if (!success) return false;
     
     // Add notification if all points are used
-    const remainingPoints = (this.game.gameState.availableStatPoints || 0) + (this.game.availableStatPoints || 0);
+    const remainingPoints = this.game.statPointsHandler.getTotal();
     // Find notification area
     let notificationArea = this.content.querySelector('.stats-notification-area');
     if (notificationArea) {
@@ -547,7 +513,7 @@ export class EquipmentManagerUI extends UIPanel {
   // Confirm stat allocation
   confirmStats() {
     // Double-check that all points are allocated
-    const totalPoints = (this.game.gameState.availableStatPoints || 0) + (this.game.availableStatPoints || 0);
+    const totalPoints = this.game.statPointsHandler.getTotal();
     
     if (totalPoints > 0) {
       alert(`You still have ${totalPoints} point${totalPoints > 1 ? 's' : ''} to allocate. You must use all your points before confirming.`);
@@ -555,9 +521,9 @@ export class EquipmentManagerUI extends UIPanel {
     }
     
     if (confirm("Are you sure you want to confirm these stats? You won't be able to reallocate these points later.")) {
-      // Consolidate all available points into gameState before setting to 0
-      this.game.gameState.availableStatPoints = 0;
-      this.game.availableStatPoints = 0;
+      if (this.game.statPointsHandler) {
+        this.game.statPointsHandler.consolidateForSave();
+      }
       
       // Mark stats as confirmed in both this UI and the game state
       this.statPointsConfirmed = true;
