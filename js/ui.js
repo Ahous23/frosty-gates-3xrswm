@@ -29,9 +29,9 @@ export class UIManager {
   print(text, className = "") {
     const element = document.createElement("div");
     if (className) element.className = className;
-    if (className === "system-message") {
+    if (className === "system-message" || className === "error-message") {
       this.gameOutput
-        .querySelectorAll(".system-message")
+        .querySelectorAll(`.${className}`)
         .forEach((el) => el.remove());
     }
     element.textContent = text;
