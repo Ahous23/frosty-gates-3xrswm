@@ -109,10 +109,12 @@ export class StatsPanel extends UIPanel {
 
     content.appendChild(statsContainer);
 
-    if (availablePoints > 0) {
+    if (!this.game.gameState.statsConfirmed) {
       const confirmBtn = document.createElement('button');
       confirmBtn.className = 'confirm-stats-button';
       confirmBtn.textContent = 'Confirm Stats';
+      confirmBtn.disabled = availablePoints > 0;
+      confirmBtn.title = availablePoints > 0 ? 'Spend all points to enable' : '';
       confirmBtn.addEventListener('click', () => {
         // Once confirmed, prevent reducing below current values
         this.game.gameState.statsConfirmed = true;
