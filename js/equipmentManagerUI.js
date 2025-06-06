@@ -460,7 +460,7 @@ export class EquipmentManagerUI extends UIPanel {
   // Adjust a stat by the given amount
   adjustStat(stat, change) {
     const baseline = this.statPointsConfirmed
-      ? (this.game.gameState.confirmedStats?.[stat] ?? this.game.initialPlayerStats[stat] || 0)
+      ? (this.game.gameState.confirmedStats?.[stat] ?? (this.game.initialPlayerStats[stat] || 0))
       : (this.game.initialPlayerStats[stat] || 0);
 
     // Calculate total available points from both sources

@@ -82,8 +82,7 @@ export class StatsPanel extends UIPanel {
       subBtn.textContent = '-';
       const baseline = this.game.inputHandlers.isInitialAllocation
         ? (this.game.initialPlayerStats[stat] || 0)
-        : (this.game.gameState.confirmedStats?.[stat] ??
-            this.game.initialPlayerStats[stat] || 0);
+        : (this.game.gameState.confirmedStats?.[stat] ?? (this.game.initialPlayerStats[stat] || 0));
       subBtn.disabled = value <= baseline;
       subBtn.addEventListener('click', () => {
         if (this.game.inputHandlers.adjustStat(stat, -1)) {

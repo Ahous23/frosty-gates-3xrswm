@@ -823,8 +823,7 @@ export class InputHandlers {
   adjustStat(stat, change) {
     const baseline = this.isInitialAllocation
       ? (this.game.initialPlayerStats[stat] || 0)
-      : (this.game.gameState.confirmedStats?.[stat] ??
-          this.game.initialPlayerStats[stat] || 0);
+      : (this.game.gameState.confirmedStats?.[stat] ?? (this.game.initialPlayerStats[stat] || 0));
     // Calculate total available points
     const totalAvailablePoints = (this.isInitialAllocation ? this.game.availableStatPoints : 0) + 
                                 (this.game.gameState.availableStatPoints || 0);
