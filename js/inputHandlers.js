@@ -72,8 +72,14 @@ export class InputHandlers {
       "system-message"
     );
     this.game.toggleStats(true);
-    this.game.uiManager.print("Use the + and - buttons to adjust your stats.", "help-text");
-    this.game.uiManager.print("When finished, click 'Confirm Stats' to begin.", "help-text");
+    this.game.uiManager.print(
+      "Use the + and - buttons to adjust your stats.",
+      "help-text"
+    );
+    this.game.uiManager.print(
+      "Click 'Confirm Stats' to begin with any unspent points or type 'start' when all points are used.",
+      "help-text"
+    );
   }
   
   handleInput() {
@@ -808,6 +814,14 @@ export class InputHandlers {
   }
 
   adjustStat(stat, change) {
+    // Disallow decreasing stats once points are confirmed
+    if (change < 0 && this.game.gameState.statsConfirmed) {
+      this.game.uiManager.print(
+        'Stats have been confirmed and can no longer be decreased.',
+        'error-message'
+      );
+      return false;
+    }
     // Calculate total available points
     const totalAvailablePoints = (this.isInitialAllocation ? this.game.availableStatPoints : 0) + 
                                 (this.game.gameState.availableStatPoints || 0);
@@ -851,6 +865,7 @@ confirmStats() {
   }
 
   // Otherwise continue to whatever scene the game logic queued up
+  this.game.gameState.statsConfirmed = true;
   this.game.uiManager.print("Stats confirmed!", "system-message");
   this.game.inputMode = "normal";
   this.game.uiManager.clearOutput();

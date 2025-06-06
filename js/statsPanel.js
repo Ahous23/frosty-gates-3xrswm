@@ -36,8 +36,9 @@ export class StatsPanel extends UIPanel {
     const content = this.content;
     content.innerHTML = '';
 
-    const availablePoints = (this.game.gameState.availableStatPoints || 0) +
-                            (this.game.availableStatPoints || 0);
+    const availablePoints =
+      (this.game.gameState.availableStatPoints || 0) +
+      (this.game.availableStatPoints || 0);
     const pointsInfo = document.createElement('div');
     pointsInfo.className = 'available-points';
     pointsInfo.textContent = `Available Points: ${availablePoints}`;
@@ -80,7 +81,8 @@ export class StatsPanel extends UIPanel {
       subBtn.className = 'stat-button subtract-stat';
       subBtn.textContent = '-';
       const initialValue = this.game.initialPlayerStats[stat] || 0;
-      subBtn.disabled = value <= initialValue;
+      subBtn.disabled =
+        value <= initialValue || this.game.gameState.statsConfirmed;
       subBtn.addEventListener('click', () => {
         if (this.game.inputHandlers.adjustStat(stat, -1)) {
           this.game.uiManager.clearOutput();
@@ -103,11 +105,13 @@ export class StatsPanel extends UIPanel {
 
     content.appendChild(statsContainer);
 
-    if (availablePoints === 0 && !this.game.gameState.statsConfirmed) {
+    if (availablePoints > 0 && !this.game.gameState.statsConfirmed) {
       const confirmBtn = document.createElement('button');
       confirmBtn.className = 'confirm-stats-button';
       confirmBtn.textContent = 'Confirm Stats';
       confirmBtn.addEventListener('click', () => {
+        // Once confirmed, prevent further stat reductions
+        this.game.gameState.statsConfirmed = true;
         if (this.game.inputHandlers.isInitialAllocation) {
           this.game.inputHandlers.proceedAfterStatAllocation();
         } else {
