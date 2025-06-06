@@ -156,8 +156,6 @@ class TextGame {
       
       // Then load story content
       await this.loadStoryIndex();
-      
-      this.showTitleScreen();
     } catch (error) {
       console.error("Error during initialization:", error);
       this.uiManager.print("Error loading game resources. Please refresh the page.", "error-message");
