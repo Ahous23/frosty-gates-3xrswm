@@ -666,17 +666,20 @@ class TextGame {
 
   // Toggle stats panel
   toggleStats(show) {
-    if (this.inputMode === 'title' || this.inputMode === 'loadGame') {
-      this.uiManager.print('Stats are not available right now.', 'system-message');
-      return;
-    }
-    if (!this.isGameplayPhase() && !this.inputHandlers.isInitialAllocation) {
-      this.uiManager.print('Stats can only be accessed during gameplay.', 'system-message');
-      return;
+    if (this.statsPanel && show === undefined) show = !this.statsPanel.visible;
+
+    if (show) {
+      if (this.inputMode === 'title' || this.inputMode === 'loadGame') {
+        this.uiManager.print('Stats are not available right now.', 'system-message');
+        return;
+      }
+      if (!this.isGameplayPhase() && !this.inputHandlers.isInitialAllocation) {
+        this.uiManager.print('Stats can only be accessed during gameplay.', 'system-message');
+        return;
+      }
     }
 
     if (this.statsPanel) {
-      if (show === undefined) show = !this.statsPanel.visible;
       if (show) {
         this.previousMode = this.inputMode;
         this.inputMode = 'stats';
