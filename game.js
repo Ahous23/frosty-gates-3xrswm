@@ -198,7 +198,7 @@ class TextGame {
       const response = await fetch("story/index.json");
       if (!response.ok) throw new Error(`Failed to fetch story index: ${response.status}`);
       this.storyIndex = await response.json();
-      await this.loadChapter("chapter1", true);
+      await this.loadChapter("chapter1", () => this.showTitleScreen());
       return true;
     } catch (error) {
       console.error("Failed to load story index:", error);
@@ -207,18 +207,23 @@ class TextGame {
     }
   }
 
-  async loadChapter(chapterId, skipFinalFade = false) {
+  async loadChapter(chapterId, onFinish = null) {
     if (!this.storyIndex.chapters[chapterId]) {
       console.error(`Chapter ${chapterId} not found in index`);
       return false;
     }
+    const path = this.storyIndex.chapters[chapterId];
     try {
-      await this.showLoadingScreen(skipFinalFade);
-      const path = this.storyIndex.chapters[chapterId];
-      const response = await fetch(path);
-      if (!response.ok) throw new Error(`Failed to fetch chapter: ${response.status}`);
-      const chapterContent = await response.json();
-      this.storyContent = { ...this.storyContent, ...chapterContent.scenes };
+      const fetchPromise = fetch(path).then(async (response) => {
+        if (!response.ok) throw new Error(`Failed to fetch chapter: ${response.status}`);
+        return response.json();
+      });
+
+      await this.showLoadingScreen(async () => {
+        const chapterContent = await fetchPromise;
+        this.storyContent = { ...this.storyContent, ...chapterContent.scenes };
+        if (onFinish) await onFinish();
+      });
       return true;
     } catch (error) {
       console.error(`Failed to load chapter ${chapterId}:`, error);
@@ -322,7 +327,7 @@ class TextGame {
     }
   }
 
-  async showLoadingScreen(skipFinalFade = false) {
+  async showLoadingScreen(onFinish = null) {
     let loadingTextContainer;
     await fadeTransition(async () => {
       this.uiManager.clearOutput();
@@ -351,13 +356,12 @@ class TextGame {
     this.isLoading = false;
     await typingPromise;
 
-    if (skipFinalFade) {
+    await fadeTransition(async () => {
       this.uiManager.clearOutput();
-    } else {
-      await fadeTransition(async () => {
-        this.uiManager.clearOutput();
-      });
-    }
+      if (onFinish) {
+        await onFinish();
+      }
+    });
   }
 
   async loadLoadingQuips() {
