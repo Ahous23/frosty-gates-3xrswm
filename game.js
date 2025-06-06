@@ -21,6 +21,7 @@ import { WeaponManager } from './js/weaponManager.js';
 import { SpellManager } from './js/spellManager.js';
 import { EquipmentManagerUI } from './js/equipmentManagerUI.js';
 import { TalentTreeUI } from './js/talentTreeUI.js';
+import { TalentManager } from './js/talentManager.js';
 
 class TextGame {
   constructor() {
