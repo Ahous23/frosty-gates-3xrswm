@@ -198,7 +198,7 @@ class TextGame {
       const response = await fetch("story/index.json");
       if (!response.ok) throw new Error(`Failed to fetch story index: ${response.status}`);
       this.storyIndex = await response.json();
-      await this.loadChapter("chapter1");
+      await this.loadChapter("chapter1", true);
       return true;
     } catch (error) {
       console.error("Failed to load story index:", error);
@@ -207,13 +207,13 @@ class TextGame {
     }
   }
 
-  async loadChapter(chapterId) {
+  async loadChapter(chapterId, skipFinalFade = false) {
     if (!this.storyIndex.chapters[chapterId]) {
       console.error(`Chapter ${chapterId} not found in index`);
       return false;
     }
     try {
-      await this.showLoadingScreen();
+      await this.showLoadingScreen(skipFinalFade);
       const path = this.storyIndex.chapters[chapterId];
       const response = await fetch(path);
       if (!response.ok) throw new Error(`Failed to fetch chapter: ${response.status}`);
@@ -322,7 +322,7 @@ class TextGame {
     }
   }
 
-  async showLoadingScreen() {
+  async showLoadingScreen(skipFinalFade = false) {
     let loadingTextContainer;
     await fadeTransition(async () => {
       this.uiManager.clearOutput();
@@ -351,9 +351,13 @@ class TextGame {
     this.isLoading = false;
     await typingPromise;
 
-    await fadeTransition(async () => {
+    if (skipFinalFade) {
       this.uiManager.clearOutput();
-    });
+    } else {
+      await fadeTransition(async () => {
+        this.uiManager.clearOutput();
+      });
+    }
   }
 
   async loadLoadingQuips() {
