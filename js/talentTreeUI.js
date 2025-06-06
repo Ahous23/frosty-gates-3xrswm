@@ -23,7 +23,12 @@ export class TalentTreeUI extends UIPanel {
       this.panel.style.display = 'none';
       this.panel.classList.add('hidden');
     }
-    this.closeButton.addEventListener('click', () => this.toggle(false));
+    this.closeButton.addEventListener('click', () => {
+      this.toggle(false);
+      if (this.game.inputHandlers && typeof this.game.inputHandlers.resumeAfterTalent === 'function') {
+        this.game.inputHandlers.resumeAfterTalent();
+      }
+    });
   }
 
   toggle(show = !this.visible) {

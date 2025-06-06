@@ -1254,4 +1254,52 @@ saveGame() {
       this.game.combatSystem.showCombatOptions();
     }
   }
+
+  resumeAfterMap() {
+    if (this.game.mapManager) {
+      this.game.mapManager.toggle(false);
+    }
+
+    this.game.inputMode = this.game.previousMode || "normal";
+    this.game.previousMode = null;
+
+    this.game.uiManager.clearOutput();
+    if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
+      this.game.gameLogic.playScene();
+    } else if (this.game.inputMode === "combat") {
+      this.game.combatSystem.showCombatOptions();
+    }
+  }
+
+  resumeAfterNotes() {
+    if (this.game.notesManager) {
+      this.game.notesManager.toggle(false);
+    }
+
+    this.game.inputMode = this.game.previousMode || "normal";
+    this.game.previousMode = null;
+
+    this.game.uiManager.clearOutput();
+    if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
+      this.game.gameLogic.playScene();
+    } else if (this.game.inputMode === "combat") {
+      this.game.combatSystem.showCombatOptions();
+    }
+  }
+
+  resumeAfterStats() {
+    if (this.game.statsPanel) {
+      this.game.statsPanel.toggle(false);
+    }
+
+    this.game.inputMode = this.game.previousMode || "normal";
+    this.game.previousMode = null;
+
+    this.game.uiManager.clearOutput();
+    if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
+      this.game.gameLogic.playScene();
+    } else if (this.game.inputMode === "combat") {
+      this.game.combatSystem.showCombatOptions();
+    }
+  }
 }
