@@ -21,10 +21,6 @@ export class InputHandlers {
       return;
     }
 
-    if (input === "talents" || input === "talent" || input === "t") {
-      this.game.toggleTalentTree();
-      return;
-    }
     
     // Then continue with existing combat input handling
     this.game.combatSystem.processPlayerAction(input);
@@ -99,7 +95,14 @@ export class InputHandlers {
     }
 
     if (input === "talents" || input === "skills" || input === "talent") {
-      this.game.toggleTalents();
+      if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
+        this.game.toggleTalentTree();
+      } else {
+        this.game.uiManager.print(
+          "Talents can only be accessed during story mode.",
+          "system-message"
+        );
+      }
       return;
     }
 
@@ -182,11 +185,6 @@ export class InputHandlers {
       return;
     }
 
-    // Check for talent command
-    if (input === "talents" || input === "talent" || input === "t") {
-      this.game.toggleTalentTree();
-      return;
-    }
 
     // Check for equipment command
     if (input === "equipment" || input === "equip" || input === "e") {
@@ -229,10 +227,6 @@ export class InputHandlers {
       return;
     }
 
-    if (input === "talents" || input === "talent" || input === "t") {
-      this.game.toggleTalentTree();
-      return;
-    }
 
     if (input === "save") {
       this.saveGame();
@@ -277,10 +271,6 @@ export class InputHandlers {
       return;
     }
 
-    if (input === "talents" || input === "talent" || input === "t") {
-      this.game.toggleTalentTree();
-      return;
-    }
 
     const inputLower = input.toLowerCase();
     
