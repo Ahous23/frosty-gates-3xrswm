@@ -96,6 +96,7 @@ class TextGame {
 
     this.gameInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
+        e.preventDefault();
         this.handleInput();
       }
       if (e.code === "Space" && this.isTyping) {
@@ -180,6 +181,9 @@ class TextGame {
   async showTitleScreen() {
     let titleText;
     await fadeTransition(async () => {
+      if (this.gameInput) {
+        this.gameInput.rows = 1;
+      }
       document.body.classList.add("title-screen");
       this.uiManager.clearOutput();
       const titleContainer = document.createElement("div");

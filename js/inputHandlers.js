@@ -166,7 +166,12 @@ export class InputHandlers {
     } else if (input === "2" || input.toLowerCase() === "load game") {
       this.showLoadGamePrompt();
     } else {
-      this.game.uiManager.print("Invalid option. Please type 1 for New Game or 2 for Load Game.", "error-message");
+      this.game.showTitleScreen().then(() => {
+        this.game.uiManager.print(
+          "Invalid option. Please type 1 for New Game or 2 for Load Game.",
+          "error-message"
+        );
+      });
     }
   }
 
@@ -594,8 +599,11 @@ export class InputHandlers {
     this.game.gameOutput.appendChild(subtitleElement);
     
     await this.game.uiManager.typeIntoElement(subtitleElement, "Paste your save code below or type 'back' to return:", this.game.typingSpeed, this.game.audioManager);
-    
+
     this.game.inputMode = "loadGame";
+    if (this.game.gameInput) {
+      this.game.gameInput.rows = 4;
+    }
   }
 
   async makeChoice(nextScene) {
@@ -841,6 +849,9 @@ saveGame() {
       this.game.uiManager.print("Game loaded successfully!", "system-message");
       setTimeout(() => {
         this.game.uiManager.clearOutput();
+        if (this.game.gameInput) {
+          this.game.gameInput.rows = 1;
+        }
         this.game.inputMode = "normal";
         this.game.gameLogic.playScene();
       }, 1500);
