@@ -319,6 +319,29 @@ h1, h2, h3, h4, h5, h6 {
   /* Will be set to display: none via JavaScript after transition */
 }
 
+/* Stats Panel Styles */
+#stats-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 35%;
+  height: 100%;
+  background-color: var(--bg-panel);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 100;
+}
+
+#stats-panel.visible {
+  transform: translateX(0);
+}
+
+#stats-panel.hidden {
+  transform: translateX(100%);
+}
+
 .notes-header {
   padding: 10px;
   background-color: var(--bg-main);
@@ -548,40 +571,6 @@ h1, h2, h3, h4, h5, h6 {
 /* Talent Panel Styles */
 #talent-panel {
   position: fixed;
-<<<<<<< HEAD
-  right: -100%;
-  top: 0;
-  width: 100%;
-  height: 60%;
-  background-color: var(--bg-panel);
-  color: var(--text-color);
-  z-index: 100;
-  transition: right 0.3s ease-in-out;
-  overflow-y: auto;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-}
-
-#talent-panel.visible {
-  right: 0;
-}
-
-#talent-panel.hidden {
-  right: -100%;
-}
-
-.talent-item {
-  padding: 8px;
-  border-bottom: 1px solid #333;
-}
-
-.talent-item h4 {
-  margin: 0 0 5px 0;
-  color: #aad;
-}
-
-.talent-status {
-  color: #99ff99;
-=======
   right: 0;
   top: 0;
   width: 35%;
@@ -602,13 +591,26 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateX(100%);
 }
 
+.talent-item {
+  padding: 8px;
+  border-bottom: 1px solid #333;
+}
+
+.talent-item h4 {
+  margin: 0 0 5px 0;
+  color: #aad;
+}
+
+.talent-status {
+  color: #99ff99;
+}
+
 #close-talent {
   background: none;
   border: none;
   color: white;
   font-size: 20px;
   cursor: pointer;
->>>>>>> origin/codex/refactor-talenttreeui-constructor
 }
 
 .equipment-section {

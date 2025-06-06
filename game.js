@@ -22,6 +22,7 @@ import { SpellManager } from './js/spellManager.js';
 import { EquipmentManagerUI } from './js/equipmentManagerUI.js';
 import { TalentTreeUI } from './js/talentTreeUI.js';
 import { TalentManager } from './js/talentManager.js';
+import { StatsPanel } from './js/statsPanel.js';
 
 class TextGame {
   constructor() {
@@ -122,6 +123,7 @@ class TextGame {
     this.mapManager = new MapManager(this);
     this.equipmentManagerUI = new EquipmentManagerUI(this);
     this.talentTreeUI = new TalentTreeUI(this);
+    this.statsPanel = new StatsPanel(this);
     
     // Initialize everything
     this.init();
@@ -598,6 +600,29 @@ class TextGame {
     } else {
       console.error("Talent tree UI not initialized");
       this.uiManager.print("Talent panel is not available.", "error-message");
+    }
+  }
+
+  // Toggle stats panel
+  toggleStats(show) {
+    if (this.inputMode === 'title' || this.inputMode === 'loadGame') {
+      this.uiManager.print('Stats are not available right now.', 'system-message');
+      return;
+    }
+
+    if (this.statsPanel) {
+      if (show === undefined) show = !this.statsPanel.visible;
+      if (show) {
+        this.previousMode = this.inputMode;
+        this.inputMode = 'stats';
+      } else if (this.inputMode === 'stats') {
+        this.inputMode = this.previousMode || 'normal';
+        this.previousMode = null;
+      }
+      this.statsPanel.toggle(show);
+    } else {
+      console.error('Stats panel not initialized');
+      this.uiManager.print('Stats panel is not available.', 'error-message');
     }
   }
 

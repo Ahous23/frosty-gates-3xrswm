@@ -67,14 +67,13 @@ export class InputHandlers {
     this.isInitialAllocation = true;
     this.game.uiManager.clearOutput();
     this.game.uiManager.print("Welcome, brave adventurer!", "system-message");
-    this.game.uiManager.print("Before your journey begins, allocate your character stats:", "system-message");
-    this.showStats();
-    this.game.uiManager.print("\nInstructions:", "system-message");
-    this.game.uiManager.print("- Type a stat name to add a point (e.g., 'attack')", "help-text");
-    this.game.uiManager.print("- Type '-' followed by a stat name to remove a point (e.g., '-attack')", "help-text");
-    this.game.uiManager.print("- Type 'help' for stat descriptions", "help-text");
-    this.game.uiManager.print("- Type 'start' or 'done' when you're ready to begin your adventure", "help-text");
-    this.game.uiManager.print("- Type 'back' to return to the title screen", "help-text");
+    this.game.uiManager.print(
+      "Before your journey begins, allocate your character stats using the panel.",
+      "system-message"
+    );
+    this.game.toggleStats(true);
+    this.game.uiManager.print("Use the + and - buttons to adjust your stats.", "help-text");
+    this.game.uiManager.print("When finished, click 'Confirm Stats' to begin.", "help-text");
   }
   
   handleInput() {
@@ -633,40 +632,7 @@ export class InputHandlers {
   }
 
   showStats() {
-    // Display current stats
-    this.game.uiManager.print("\nCurrent Stats:", "system-message");
-    Object.entries(this.game.playerStats).forEach(([stat, value]) => {
-      this.game.uiManager.print(`${stat}: ${value}`, "player-stat");
-    });
-    
-    // Display health separately since it's in gameState
-    this.game.uiManager.print(`health: ${this.game.gameState.playerHealth || this.game.initialPlayerHealth}/${this.game.maxPlayerHealth || 100}`, "player-stat");
-    
-    // Show XP and level if they exist
-    if (this.game.gameState.playerXp !== undefined) {
-      const level = Math.floor(this.game.gameState.playerXp / (this.game.xpPerLevel || 100));
-      const nextLevelXp = (level + 1) * (this.game.xpPerLevel || 100);
-      this.game.uiManager.print(`XP: ${this.game.gameState.playerXp}/${nextLevelXp} (Level ${level})`, "player-stat");
-    }
-    
-    // Show available points - use the right source based on context
-    const availablePoints = this.isInitialAllocation 
-      ? this.game.availableStatPoints 
-      : (this.game.gameState.availableStatPoints || 0);
-      
-    this.game.uiManager.print(`\nAvailable Points: ${availablePoints}`, "system-message");
-    
-    if (availablePoints > 0) {
-      this.game.uiManager.print("Type a stat name to increase it (e.g., 'attack').", "system-message");
-      if (this.isInitialAllocation) {
-        this.game.uiManager.print("Type '-' followed by a stat name to decrease it (e.g., '-attack').", "system-message");
-      }
-    }
-    
-    // Show back option during initial allocation
-    if (this.isInitialAllocation) {
-      this.game.uiManager.print("\nType 'start' when ready or 'back' to return to title.", "system-message");
-    }
+    this.game.toggleStats(true);
   }
 
   showHelp() {
