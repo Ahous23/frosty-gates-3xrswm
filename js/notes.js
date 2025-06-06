@@ -35,7 +35,12 @@ export class NotesManager extends UIPanel {
     }
     
     // Setup event listeners
-    closeNotesBtn.addEventListener('click', () => this.toggle(false));
+    closeNotesBtn.addEventListener('click', () => {
+      this.toggle(false);
+      if (this.game.inputHandlers && typeof this.game.inputHandlers.resumeAfterNotes === 'function') {
+        this.game.inputHandlers.resumeAfterNotes();
+      }
+    });
     
     // Setup rich text formatting
     this.setupRichTextEditing();

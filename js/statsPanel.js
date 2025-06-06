@@ -13,7 +13,12 @@ export class StatsPanel extends UIPanel {
   init() {
     if (!this.panel) return;
     if (this.closeButton) {
-      this.closeButton.addEventListener('click', () => this.game.toggleStats(false));
+      this.closeButton.addEventListener('click', () => {
+        this.game.toggleStats(false);
+        if (this.game.inputHandlers && typeof this.game.inputHandlers.resumeAfterStats === 'function') {
+          this.game.inputHandlers.resumeAfterStats();
+        }
+      });
     }
     if (!this.visible) {
       this.panel.style.display = 'none';
@@ -66,8 +71,8 @@ export class StatsPanel extends UIPanel {
       addBtn.disabled = availablePoints <= 0;
       addBtn.addEventListener('click', () => {
         if (this.game.statPointsHandler.adjustStat(stat, 1, this.game.inputHandlers.isInitialAllocation)) {
-          this.game.uiManager.clearOutput();
           if (this.game.inputHandlers.isInitialAllocation) {
+            this.game.uiManager.clearOutput();
             this.game.inputHandlers.showInitialStatAllocation();
           } else {
             this.updateContent();
@@ -84,8 +89,8 @@ export class StatsPanel extends UIPanel {
       subBtn.disabled = value <= baseline;
       subBtn.addEventListener('click', () => {
         if (this.game.statPointsHandler.adjustStat(stat, -1, this.game.inputHandlers.isInitialAllocation)) {
-          this.game.uiManager.clearOutput();
           if (this.game.inputHandlers.isInitialAllocation) {
+            this.game.uiManager.clearOutput();
             this.game.inputHandlers.showInitialStatAllocation();
           } else {
             this.updateContent();
