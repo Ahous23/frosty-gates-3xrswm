@@ -29,6 +29,11 @@ export class UIManager {
   print(text, className = "") {
     const element = document.createElement("div");
     if (className) element.className = className;
+    if (className === "system-message") {
+      this.gameOutput
+        .querySelectorAll(".system-message")
+        .forEach((el) => el.remove());
+    }
     element.textContent = text;
     this.gameOutput.appendChild(element);
     this.gameOutput.scrollTop = this.gameOutput.scrollHeight;
