@@ -128,14 +128,7 @@ export class InputHandlers {
     }
 
     if (input === "talents" || input === "skills" || input === "talent") {
-      if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
-        this.game.toggleTalentTree();
-      } else {
-        this.game.uiManager.print(
-          "Talents can only be accessed during story mode.",
-          "system-message"
-        );
-      }
+      this.game.toggleTalentTree();
       return;
     }
 
