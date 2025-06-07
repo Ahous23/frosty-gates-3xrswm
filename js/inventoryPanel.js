@@ -21,7 +21,7 @@ export default class GameInventoryPanel extends UIPanel {
     if (this.closeButton) {
       this.closeButton.addEventListener('click', () => {
         this.toggle(false);
-        if (this.game.inputHandlers) {
+        if (this.game.inputHandlers && typeof this.game.inputHandlers.resumeAfterInventory === 'function') {
           this.game.inputHandlers.resumeAfterInventory();
         }
       });
