@@ -591,24 +591,24 @@ h1, h2, h3, h4, h5, h6 {
 /* Inventory Panel Styles */
 #inventory-panel {
   position: fixed;
-  top: -100%;
-  left: 0;
-  width: 100%;
-  height: 60%;
+  right: 0;
+  top: 0;
+  width: 35%;
+  height: 100%;
   background-color: var(--bg-panel);
-  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
   z-index: 100;
-  transition: top 0.3s ease-in-out;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  overflow-y: auto;
 }
 
 #inventory-panel.visible {
-  top: 0;
+  transform: translateX(0);
 }
 
 #inventory-panel.hidden {
-  top: -100%;
+  transform: translateX(100%);
 }
 
 /* Talent Panel Styles */
@@ -1119,24 +1119,24 @@ body.title-screen .game-container {
 /* Inventory Panel Styles */
 #inventory-panel {
   position: fixed;
-  bottom: -100%;
-  left: 0;
-  width: 100%;
-  height: 60%;
+  right: 0;
+  top: 0;
+  width: 35%;
+  height: 100%;
   background-color: var(--bg-panel);
-  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
   z-index: 100;
-  transition: bottom 0.3s ease-in-out;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.5);
-  overflow-y: auto;
 }
 
 #inventory-panel.visible {
-  bottom: 0;
+  transform: translateX(0);
 }
 
 #inventory-panel.hidden {
-  bottom: -100%;
+  transform: translateX(100%);
 }
 
 .inventory-container {

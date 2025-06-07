@@ -127,6 +127,11 @@ export class InputHandlers {
       return;
     }
 
+    if (input === "inventory" || input === "i") {
+      this.game.toggleInventory();
+      return;
+    }
+
     if (input === "talents" || input === "skills" || input === "talent") {
       this.game.toggleTalentTree();
       return;
@@ -451,81 +456,10 @@ export class InputHandlers {
       return;
     }
     
-    if (input === "back" || input === "exit") {
-      this.resumeAfterInventory();
-      return;
-    }
-
-    if (input === "help") {
-      this.showInventoryHelp();
-      return;
-    }
-
-    // Check if trying to examine an item
-    const examineMatch = input.match(/^examine\s+(.+)$|^look\s+(.+)$|^inspect\s+(.+)$/);
-    if (examineMatch) {
-      const itemName = (examineMatch[1] || examineMatch[2] || examineMatch[3]).toLowerCase();
-      // Find the item by name using the existing inventory array
-      const item = this.game.inventory.find(
-        (i) => i.name.toLowerCase() === itemName || i.id.toLowerCase() === itemName
-      );
-
-      if (!item) {
-        this.game.uiManager.print(`You don't have an item called "${itemName}"`, "error-message");
-        return;
-      }
-
-      this.examineItem(item);
-      return;
-    }
-
-    // Check if trying to equip an item
-    const equipMatch = input.match(/^equip\s+(.+)$/);
-    if (equipMatch) {
-      const itemName = equipMatch[1].toLowerCase();
-      // Find the item by name using the existing inventory array
-      const item = this.game.inventory.find(
-        (i) => i.name.toLowerCase() === itemName || i.id.toLowerCase() === itemName
-      );
-
-      if (!item) {
-        this.game.uiManager.print(`You don't have an item called "${itemName}"`, "error-message");
-        return;
-      }
-
-      this.equipItem(item);
-      return;
-    }
-
-    // Check if trying to use an item
-    const useMatch = input.match(/^use\s+(.+)$/);
-    if (useMatch) {
-      const itemName = useMatch[1].toLowerCase();
-      // Find the item by name using the existing inventory array
-      const item = this.game.inventory.find(
-        (i) => i.name.toLowerCase() === itemName || i.id.toLowerCase() === itemName
-      );
-
-      if (!item) {
-        this.game.uiManager.print(`You don't have an item called "${itemName}"`, "error-message");
-        return;
-      }
-
-      // Call the useConsumable method directly
-      const result = this.game.useConsumable(item);
-      
-      // Display the message to the player (not just console)
-      this.game.uiManager.print(result.message, result.success ? "system-message" : "error-message");
-      
-      // If the use was successful, remove the item from inventory
-      if (result.success) {
-        this.removeItemFromInventory(item.id, 1);
-      }
-      
-      return;
-    }
-
-    this.game.uiManager.print("Unknown inventory command. Type 'help' for inventory commands.", "error-message");
+    this.game.uiManager.print(
+      "Inventory actions are handled through the on-screen options.",
+      "error-message"
+    );
   }
 
   handleLoadGameInput(input) {
@@ -672,13 +606,6 @@ export class InputHandlers {
     }
   }
 
-  showInventoryHelp() {
-    this.game.uiManager.print("\n===== INVENTORY COMMANDS =====", "system-message");
-    this.game.uiManager.print("examine [item] - Examine an item in detail", "help-text");
-    this.game.uiManager.print("use [item] - Use a consumable item", "help-text");
-    this.game.uiManager.print("equip [item] - Equip a weapon or armor", "help-text");
-    this.game.uiManager.print("back, exit - Exit inventory view", "help-text");
-  }
 
   resumeAfterInventory() {
     if (this.game.inventoryPanel?.visible) {
@@ -988,14 +915,7 @@ saveGame() {
       }
     }
 
-    if (item.type === "weapon" || item.category === "weapon" ||
-        item.type === "armor" || item.category === "armor") {
-      messages.push({ text: `Type 'equip ${item.name}' to equip this item.`, className: 'hint-text' });
-    }
-
-    if (item.type === "consumable" || item.category === "consumable") {
-      messages.push({ text: `Type 'use ${item.name}' to use this item.`, className: 'hint-text' });
-    }
+    // Interaction hints are handled via the inventory UI
 
     this.showItemMessages(messages);
   }

@@ -14,7 +14,7 @@ export class StatsPanel extends UIPanel {
     if (!this.panel) return;
     if (this.closeButton) {
       this.closeButton.addEventListener('click', () => {
-        this.game.toggleStats(false);
+        this.toggle(false);
         if (this.game.inputHandlers && typeof this.game.inputHandlers.resumeAfterStats === 'function') {
           this.game.inputHandlers.resumeAfterStats();
         }
