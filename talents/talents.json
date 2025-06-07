@@ -5,9 +5,32 @@
       "name": "Apprentice Mage",
       "description": "Study of basic magic, unlocking the Ice Bolt spell.",
       "requiredLevel": 2,
+      "tier": 1,
       "prerequisites": [],
       "effects": {
         "unlockSpell": "ice_bolt"
+      }
+    },
+    {
+      "id": "warrior_training",
+      "name": "Warrior Training",
+      "description": "Basic combat drills increase your Attack by 2.",
+      "requiredLevel": 2,
+      "tier": 1,
+      "prerequisites": [],
+      "effects": {
+        "statBonuses": { "attack": 2 }
+      }
+    },
+    {
+      "id": "thick_skin",
+      "name": "Thick Skin",
+      "description": "Toughen your body to gain 2 Defense.",
+      "requiredLevel": 2,
+      "tier": 1,
+      "prerequisites": [],
+      "effects": {
+        "statBonuses": { "defense": 2 }
       }
     },
     {
@@ -15,9 +38,65 @@
       "name": "Adept Mage",
       "description": "Advanced magical training, unlocking the Frost Nova spell.",
       "requiredLevel": 4,
+      "tier": 2,
       "prerequisites": ["apprentice_mage"],
       "effects": {
         "unlockSpell": "frost_nova"
+      }
+    },
+    {
+      "id": "berserker",
+      "name": "Berserker",
+      "description": "Channel rage to gain 3 Attack.",
+      "requiredLevel": 4,
+      "tier": 2,
+      "prerequisites": [],
+      "effects": {
+        "statBonuses": { "attack": 3 }
+      }
+    },
+    {
+      "id": "fortitude",
+      "name": "Fortitude",
+      "description": "Increase your maximum health by 10.",
+      "requiredLevel": 4,
+      "tier": 2,
+      "prerequisites": [],
+      "effects": {
+        "statBonuses": { "defense": 1 }
+      }
+    },
+    {
+      "id": "master_mage",
+      "name": "Master Mage",
+      "description": "Mastery of magic grants +3 Intelligence.",
+      "requiredLevel": 6,
+      "tier": 3,
+      "prerequisites": ["adept_mage"],
+      "effects": {
+        "statBonuses": { "intelligence": 3 }
+      }
+    },
+    {
+      "id": "quick_reflexes",
+      "name": "Quick Reflexes",
+      "description": "Sharpen your reactions gaining +3 Speed.",
+      "requiredLevel": 6,
+      "tier": 3,
+      "prerequisites": [],
+      "effects": {
+        "statBonuses": { "speed": 3 }
+      }
+    },
+    {
+      "id": "lucky_star",
+      "name": "Lucky Star",
+      "description": "Fate smiles on you, granting +3 Luck.",
+      "requiredLevel": 6,
+      "tier": 3,
+      "prerequisites": [],
+      "effects": {
+        "statBonuses": { "luck": 3 }
       }
     }
   ]
