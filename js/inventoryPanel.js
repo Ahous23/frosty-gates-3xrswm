@@ -1,6 +1,6 @@
 import { UIPanel } from './uiPanel.js';
 
-export class InventoryPanel extends UIPanel {
+export default class GameInventoryPanel extends UIPanel {
   constructor(game) {
     const panel = document.getElementById('inventory-panel');
     super(panel);
