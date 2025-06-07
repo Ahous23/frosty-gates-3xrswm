@@ -733,7 +733,7 @@ export class InputHandlers {
       this.removeItemFromInventory(item.id);
       
       // Refresh inventory view
-      if (this.game.inventoryPanel) this.game.inventoryPanel.updateContent();
+      if (this.game.inventoryPanel) this.game.inventoryPanel.update();
       return;
     }
     
