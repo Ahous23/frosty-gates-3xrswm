@@ -623,6 +623,37 @@ export class InputHandlers {
     this.game.inputMode = this.game.previousMode || "normal";
     this.game.previousMode = null;
 
+    // If we returned to another panel, reopen it
+    if (this.game.inputMode === "stats" && this.game.statsPanel) {
+      this.game.statsPanel.toggle(true);
+      return;
+    }
+
+    if (this.game.inputMode === "equipment" && this.game.equipmentManagerUI) {
+      this.game.equipmentManagerUI.toggle(true);
+      return;
+    }
+
+    if (this.game.inputMode === "map" && this.game.mapManager) {
+      this.game.mapManager.toggle(true);
+      return;
+    }
+
+    if (this.game.inputMode === "notes" && this.game.notesManager) {
+      this.game.notesManager.toggle(true);
+      return;
+    }
+
+    if (this.game.inputMode === "talent" && this.game.talentTreeUI) {
+      this.game.talentTreeUI.toggle(true);
+      return;
+    }
+
+    if (this.game.inputMode === "audio" && this.game.audioPanel) {
+      this.game.audioPanel.toggle(true);
+      return;
+    }
+
     this.game.uiManager.clearOutput();
     if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
       this.game.gameLogic.playScene();
