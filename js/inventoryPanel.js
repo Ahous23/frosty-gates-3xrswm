@@ -9,6 +9,7 @@ export default class GameInventoryPanel extends UIPanel {
     this.equipped = panel ? panel.querySelector('#equipped-items') : null;
     this.messageBox = panel ? panel.querySelector('#inventory-message') : null;
     this.contextMenu = null;
+    this.equipmentContextMenu = null;
     this.closeButton = panel ? panel.querySelector('#close-inventory') : null;
     this.init();
   }
@@ -16,6 +17,7 @@ export default class GameInventoryPanel extends UIPanel {
   init() {
     if (!this.panel) return;
     this.createContextMenu();
+    this.createEquipmentContextMenu();
     if (this.closeButton) {
       this.closeButton.addEventListener('click', () => {
         this.toggle(false);
@@ -36,6 +38,14 @@ export default class GameInventoryPanel extends UIPanel {
     this.contextMenu.className = 'inventory-context-menu hidden';
     document.body.appendChild(this.contextMenu);
     document.addEventListener('click', () => this.hideContextMenu());
+  }
+
+  createEquipmentContextMenu() {
+    if (this.equipmentContextMenu) return;
+    this.equipmentContextMenu = document.createElement('div');
+    this.equipmentContextMenu.className = 'equipment-context-menu hidden';
+    document.body.appendChild(this.equipmentContextMenu);
+    document.addEventListener('click', () => this.hideEquipmentContextMenu());
   }
 
   showContextMenu(x, y, item, index) {
@@ -70,9 +80,55 @@ export default class GameInventoryPanel extends UIPanel {
     this.contextMenu.classList.remove('hidden');
   }
 
+  showEquippedContextMenu(x, y, slot) {
+    if (!this.equipmentContextMenu) return;
+    this.equipmentContextMenu.innerHTML = '';
+
+    const equipment = this.game.equipmentManager.getAllEquipment();
+    const item = equipment[slot];
+    if (!item) return;
+
+    const actions = [
+      { action: 'examine', label: 'Examine' },
+      { action: 'unequip', label: 'Unequip' }
+    ];
+
+    actions.forEach(act => {
+      const opt = document.createElement('div');
+      opt.className = 'context-option';
+      opt.textContent = act.label;
+      opt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (act.action === 'examine') {
+          this.game.inputHandlers.examineEquippedItem(slot);
+        } else if (act.action === 'unequip') {
+          if (this.game.inventoryManager.items.length < 20) {
+            this.game.inputHandlers.unequipItem(slot);
+            this.update();
+          } else {
+            this.clearMessages();
+            this.addMessage('Inventory is full.', 'error-message');
+          }
+        }
+        this.hideEquipmentContextMenu();
+      });
+      this.equipmentContextMenu.appendChild(opt);
+    });
+
+    this.equipmentContextMenu.style.left = `${x}px`;
+    this.equipmentContextMenu.style.top = `${y}px`;
+    this.equipmentContextMenu.classList.remove('hidden');
+  }
+
   hideContextMenu() {
     if (this.contextMenu) {
       this.contextMenu.classList.add('hidden');
+    }
+  }
+
+  hideEquipmentContextMenu() {
+    if (this.equipmentContextMenu) {
+      this.equipmentContextMenu.classList.add('hidden');
     }
   }
 
@@ -148,6 +204,10 @@ export default class GameInventoryPanel extends UIPanel {
         const item = equipment[slot];
         slotDiv.textContent = item ? item.name : slot;
         slotDiv.title = item ? item.name : '';
+        slotDiv.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          this.showEquippedContextMenu(e.pageX, e.pageY, slot);
+        });
         this.equipped.appendChild(slotDiv);
       });
     }
@@ -159,6 +219,7 @@ export default class GameInventoryPanel extends UIPanel {
       this.update();
     } else {
       this.hideContextMenu();
+      this.hideEquipmentContextMenu();
     }
   }
 }

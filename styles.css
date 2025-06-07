@@ -1143,3 +1143,26 @@ body.title-screen .game-container {
 .inventory-context-menu .context-option:hover {
   background-color: #555;
 }
+
+/* Equipment context menu */
+.equipment-context-menu {
+  position: absolute;
+  background-color: #222;
+  border: 1px solid #666;
+  border-radius: 4px;
+  color: #fff;
+  z-index: 200;
+}
+
+.equipment-context-menu.hidden {
+  display: none;
+}
+
+.equipment-context-menu .context-option {
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.equipment-context-menu .context-option:hover {
+  background-color: #555;
+}
