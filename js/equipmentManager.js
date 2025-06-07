@@ -3,11 +3,8 @@ export class EquipmentManager {
     this.game = game;
     this.equipment = {
       weapon: null,
-      shield: null,
-      helm: null,
-      chest: null,
-      legs: null,
-      gloves: null
+      armor: null,
+      accessory: null
     };
   }
 
@@ -17,29 +14,19 @@ export class EquipmentManager {
   }
 
   // Equip an item
-  equipItem(item, fromInventory = true, inventoryIndex = null) {
+  equipItem(item, fromInventory = true) {
     if (!item) return { success: false, message: "No item to equip." };
     
-    let slot = item.slot || null;
-
-    // Determine equipment slot based on item type/category if slot not provided
-    if (!slot) {
-      if (item.type === "weapon" || item.category === "weapon") {
-        slot = "weapon";
-      } else if (item.type === "shield" || item.category === "shield") {
-        slot = "shield";
-      } else if (item.type === "helm" || item.category === "helm") {
-        slot = "helm";
-      } else if (item.type === "chest" || item.category === "chest" || item.type === "armor" || item.category === "armor") {
-        slot = "chest";
-      } else if (item.type === "legs" || item.category === "legs") {
-        slot = "legs";
-      } else if (item.type === "gloves" || item.category === "gloves") {
-        slot = "gloves";
-      }
-    }
-
-    if (!slot || !(slot in this.equipment)) {
+    let slot = null;
+    
+    // Determine equipment slot based on item type
+    if (item.type === "weapon" || item.category === "weapon") {
+      slot = "weapon";
+    } else if (item.type === "armor" || item.category === "armor") {
+      slot = "armor";
+    } else if (item.type === "accessory" || item.category === "accessory") {
+      slot = "accessory";
+    } else {
       return { success: false, message: `Cannot equip ${item.name}.` };
     }
     
@@ -51,36 +38,40 @@ export class EquipmentManager {
     
     // Handle inventory if this is coming from there
     if (fromInventory && this.game.inventoryManager) {
-      if (inventoryIndex !== null && this.game.inventoryManager.items[inventoryIndex]) {
-        const invItem = this.game.inventoryManager.items[inventoryIndex];
-        invItem.quantity--;
-        if (invItem.quantity <= 0) {
-          this.game.inventoryManager.items.splice(inventoryIndex, 1);
-        }
-      } else {
-        const itemCopy = { ...item };
-        this.game.inventoryManager.removeItem(itemCopy.id, 1);
-      }
-
+      // Remove only 1 from inventory
+      // Make a copy before removal to avoid modifying the original item
+      const itemCopy = { ...item };
+      this.game.inventoryManager.removeItem(itemCopy.id, 1);
+      
+      // Add the previously equipped item back to inventory if it exists
       if (currentEquipped) {
-        const returnItem = { ...currentEquipped, equipped: false, quantity: 1 };
-        const targetIndex = inventoryIndex !== null ? inventoryIndex : this.game.inventoryManager.items.length;
-        this.game.inventoryManager.items.splice(targetIndex, 0, returnItem);
+        // Reset equipped state
+        const returnItem = { ...currentEquipped, equipped: false };
+        this.game.inventoryManager.addItem(returnItem);
       }
     } else if (fromInventory) {
-      const idx = inventoryIndex !== null ? inventoryIndex : this.game.inventory.findIndex(i => i.id === item.id);
-      if (idx !== -1 && this.game.inventory[idx]) {
-        if (this.game.inventory[idx].quantity > 1) {
-          this.game.inventory[idx].quantity--;
+      // Fallback for direct inventory manipulation
+      const itemIndex = this.game.inventory.findIndex(i => i.id === item.id);
+      if (itemIndex !== -1) {
+        // Just reduce quantity by 1 if more than one
+        if (this.game.inventory[itemIndex].quantity > 1) {
+          this.game.inventory[itemIndex].quantity--;
         } else {
-          this.game.inventory.splice(idx, 1);
+          // Remove the item if it's the last one
+          this.game.inventory.splice(itemIndex, 1);
         }
       }
-
+      
+      // Add previously equipped item back to inventory
       if (currentEquipped) {
-        const returnItem = { ...currentEquipped, equipped: false, quantity: 1 };
-        const targetIndex = idx !== -1 ? idx : this.game.inventory.length;
-        this.game.inventory.splice(targetIndex, 0, returnItem);
+        const returnItem = { ...currentEquipped, equipped: false };
+        const existingIndex = this.game.inventory.findIndex(i => i.id === returnItem.id);
+        
+        if (existingIndex !== -1 && returnItem.stackable !== false) {
+          this.game.inventory[existingIndex].quantity++;
+        } else {
+          this.game.inventory.push({...returnItem, quantity: 1});
+        }
       }
     }
     
@@ -137,12 +128,15 @@ export class EquipmentManager {
     // Base defense from player stats
     defense += Math.floor((this.game.playerStats.defense || 0) / 2);
     
-    const slots = ['shield','helm','chest','legs','gloves'];
-    slots.forEach(s => {
-      if (this.equipment[s] && this.equipment[s].defense) {
-        defense += this.equipment[s].defense;
-      }
-    });
+    // Add armor defense if equipped
+    if (this.equipment.armor) {
+      defense += this.equipment.armor.defense || 0;
+    }
+    
+    // Add accessory defense if equipped and it has a defense value
+    if (this.equipment.accessory && this.equipment.accessory.defense) {
+      defense += this.equipment.accessory.defense;
+    }
     
     return defense;
   }
@@ -154,14 +148,7 @@ export class EquipmentManager {
 
   // Load equipment data
   load(equipment) {
-    this.equipment = equipment || {
-      weapon: null,
-      shield: null,
-      helm: null,
-      chest: null,
-      legs: null,
-      gloves: null
-    };
+    this.equipment = equipment || { weapon: null, armor: null, accessory: null };
   }
 
   getWeapon(id) {

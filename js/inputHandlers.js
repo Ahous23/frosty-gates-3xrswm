@@ -8,22 +8,6 @@ export class InputHandlers {
     this.savedOutput = '';
   }
 
-  showItemMessages(messages) {
-    if (this.game.inventoryPanel && this.game.inventoryPanel.visible) {
-      this.game.inventoryPanel.showMessages(messages);
-    } else {
-      messages.forEach(m => this.game.uiManager.print(m.text, m.className));
-    }
-  }
-
-  addItemMessage(message) {
-    if (this.game.inventoryPanel && this.game.inventoryPanel.visible) {
-      this.game.inventoryPanel.addMessage(message.text, message.className);
-    } else {
-      this.game.uiManager.print(message.text, message.className);
-    }
-  }
-
   // Add a new method to handle combat input
   handleCombatInput(input) {
     // Add notes command check at the beginning
@@ -682,7 +666,7 @@ export class InputHandlers {
   }
 
   resumeAfterInventory() {
-    if (this.game.inventoryPanel?.visible) {
+    if (this.game.inventoryPanel) {
       this.game.inventoryPanel.toggle(false);
     }
     this.game.inputMode = this.game.previousMode || "normal";
@@ -697,22 +681,23 @@ export class InputHandlers {
   }
 
   showInventory() {
-    this.savedOutput = this.game.uiManager.getOutputHTML();
-    this.game.toggleInventory();
+    if (this.game.inputMode !== "inventory") {
+      this.game.previousMode = this.game.inputMode;
+    }
+    this.game.toggleInventory(true);
   }
 
   useItem(item) {
     // Handle different item types
-    if (item.type === "weapon" || item.category === "weapon" ||
+    if (item.type === "weapon" || item.category === "weapon" || 
         item.type === "armor" || item.category === "armor") {
       // Redirect to equip method
       this.equipItem(item);
       return;
     }
-
+    
     if (item.type === "consumable" || item.category === "consumable") {
-      const messages = [];
-      messages.push({ text: `Using ${item.name}...`, className: 'system-message' });
+      this.game.uiManager.print(`Using ${item.name}...`, "system-message");
       
       // Handle healing items
       if ((item.effects && item.effects.heal) || item.effect === "heal") {
@@ -721,11 +706,11 @@ export class InputHandlers {
           this.game.gameState.playerMaxHealth || 100,
           this.game.gameState.playerHealth + healAmount
         );
-        messages.push({ text: `You restored ${healAmount} health!`, className: 'healing' });
+        this.game.uiManager.print(`You restored ${healAmount} health!`, "healing");
       }
       // Handle status effect items
       else if (item.effect === "resist_frost" || (item.effects && item.effects.resistFrost)) {
-        messages.push({ text: `You gain frost resistance for ${item.duration || 300} seconds.`, className: 'system-message' });
+        this.game.uiManager.print(`You gain frost resistance for ${item.duration || 300} seconds.`, "system-message");
         // Add status effect tracking
         if (!this.game.gameState.statusEffects) {
           this.game.gameState.statusEffects = {};
@@ -741,26 +726,24 @@ export class InputHandlers {
       }
       // Generic message for other consumables
       else {
-        messages.push({ text: item.effectDescription || "Item used.", className: 'system-message' });
+        this.game.uiManager.print(item.effectDescription || "Item used.", "system-message");
       }
       
       // Remove the consumable from inventory
       this.removeItemFromInventory(item.id);
-
-      this.showItemMessages(messages);
-
+      
       // Refresh inventory view
       if (this.game.inventoryPanel) this.game.inventoryPanel.updateContent();
       return;
     }
-
+    
     if (item.type === "material" || item.category === "material") {
-      this.showItemMessages([{ text: `${item.name} is a crafting material. It can't be used directly.`, className: 'system-message' }]);
+      this.game.uiManager.print(`${item.name} is a crafting material. It can't be used directly.`, "system-message");
       return;
     }
-
+    
     // Default message for other item types
-    this.showItemMessages([{ text: `You can't use ${item.name} right now.`, className: 'error-message' }]);
+    this.game.uiManager.print(`You can't use ${item.name} right now.`, "error-message");
   }
 
   useItemById(itemId) {
@@ -961,39 +944,40 @@ saveGame() {
 
   examineItem(item) {
     let header = item.name;
-    const messages = [];
     if (item.type === "weapon" || item.category === "weapon") {
       const [minW, maxW] = this.game.combatSystem.calculateWeaponDamageRange(item);
       header = `${item.name} (${minW}-${maxW} damage)`;
     }
-    messages.push({ text: `\n${header}`, className: 'item-name' });
-
+    this.game.uiManager.print(`\n${header}`, "item-name");
+    
+    // Display description if it exists
     if (item.description) {
-      messages.push({ text: item.description, className: 'item-description' });
+      this.game.uiManager.print(item.description, "item-description");
     } else {
-      messages.push({ text: "There's nothing special about this item.", className: 'item-description' });
+      this.game.uiManager.print("There's nothing special about this item.", "item-description");
     }
-
+    
+    // Show item stats based on type
     if (item.type === "weapon" || item.category === "weapon") {
-      messages.push({ text: `Damage: ${item.damage || 0}`, className: 'item-stat' });
+      this.game.uiManager.print(`Damage: ${item.damage || 0}`, "item-stat");
     } else if (item.type === "armor" || item.category === "armor") {
-      messages.push({ text: `Defense: ${item.defense || 0}`, className: 'item-stat' });
+      this.game.uiManager.print(`Defense: ${item.defense || 0}`, "item-stat");
     } else if (item.type === "consumable" || item.category === "consumable") {
       if (item.effect === "heal") {
-        messages.push({ text: `Healing: ${item.value || 0}`, className: 'item-stat' });
+        this.game.uiManager.print(`Healing: ${item.value || 0}`, "item-stat");
       }
     }
-
-    if (item.type === "weapon" || item.category === "weapon" ||
+    
+    // Show if equipable
+    if (item.type === "weapon" || item.category === "weapon" || 
         item.type === "armor" || item.category === "armor") {
-      messages.push({ text: `Type 'equip ${item.name}' to equip this item.`, className: 'hint-text' });
+      this.game.uiManager.print(`Type 'equip ${item.name}' to equip this item.`, "hint-text");
     }
-
+    
+    // Show if usable
     if (item.type === "consumable" || item.category === "consumable") {
-      messages.push({ text: `Type 'use ${item.name}' to use this item.`, className: 'hint-text' });
+      this.game.uiManager.print(`Type 'use ${item.name}' to use this item.`, "hint-text");
     }
-
-    this.showItemMessages(messages);
   }
 
   // Add these helper methods to calculate attack and defense properly
@@ -1033,12 +1017,12 @@ saveGame() {
   }
 
   // Update the equipItem method to use the equipment manager
-  equipItem(item, index = null) {
+  equipItem(item) {
     // Check if the item is a weapon or armor
-    if (item.type !== "weapon" && item.category !== "weapon" &&
+    if (item.type !== "weapon" && item.category !== "weapon" && 
         item.type !== "armor" && item.category !== "armor" &&
         item.type !== "accessory" && item.category !== "accessory") {
-      this.showItemMessages([{ text: `You can't equip ${item.name}.`, className: 'error-message' }]);
+      this.game.uiManager.print(`You can't equip ${item.name}.`, "error-message");
       return;
     }
     
@@ -1050,35 +1034,39 @@ saveGame() {
                          (item.type === "armor" || item.category === "armor") ? "armor" : "accessory";
     
     // Use the equipment manager to equip the item
-    const result = this.game.equipmentManager.equipItem(item, true, index);
-
+    const result = this.game.equipmentManager.equipItem(item);
+    
     if (!result.success) {
-      this.showItemMessages([{ text: result.message, className: 'error-message' }]);
+      this.game.uiManager.print(result.message, "error-message");
       return;
     }
-
-    const messages = [];
-    messages.push({ text: `You equip ${item.name}.`, className: 'system-message' });
+    
+    // Create a message container that won't get erased by inventory refresh
+    this.game.uiManager.clearOutput();
+    
+    // First print the basic equip message
+    this.game.uiManager.print(`You equip ${item.name}.`, "system-message");
     
     // Calculate new stats after equipping
     const newAttack = this.getCalculatedAttack();
     const newDefense = this.getCalculatedDefense();
-
+    
+    // Show attack change for weapons
     if (equipmentType === "weapon" && newAttack !== oldAttack) {
       const difference = newAttack - oldAttack;
       const changeText = difference > 0 ? `increased by ${difference}` : `decreased by ${Math.abs(difference)}`;
-      messages.push({ text: `Your attack rating has ${changeText}!`, className: 'stat-change' });
+      this.game.uiManager.print(`Your attack rating has ${changeText}!`, "stat-change");
     }
-
+    
+    // Show defense change for armor
     if (equipmentType === "armor" && newDefense !== oldDefense) {
       const difference = newDefense - oldDefense;
       const changeText = difference > 0 ? `increased by ${difference}` : `decreased by ${Math.abs(difference)}`;
-      messages.push({ text: `Your defense rating has ${changeText}!`, className: 'stat-change' });
+      this.game.uiManager.print(`Your defense rating has ${changeText}!`, "stat-change");
     }
-
-    messages.push({ text: "\nPress Enter to continue...", className: 'hint-text' });
-
-    this.showItemMessages(messages);
+    
+    // Add a "press any key to continue" instruction
+    this.game.uiManager.print("\nPress Enter to continue...", "hint-text");
     
     // Store the original input mode to restore it later
     const originalInputMode = this.game.inputMode;
@@ -1168,32 +1156,32 @@ saveGame() {
     
     const equipment = this.game.equipmentManager.getAllEquipment();
     const item = equipment[slot];
-
+    
     if (!item) {
-      this.showItemMessages([{ text: `You don't have anything equipped in the ${slot} slot.`, className: 'error-message' }]);
+      this.game.uiManager.print(`You don't have anything equipped in the ${slot} slot.`, "error-message");
       return;
     }
-
+    
     // Use the existing examineItem method with added stat context
     this.examineItem(item);
-
+    
     // Add equipment-specific context
     if (slot === "weapon") {
       const baseAttack = Math.floor(this.game.playerStats.attack / 2);
-      this.addItemMessage({ text: `\nStat Impact:`, className: 'system-message' });
-      this.addItemMessage({ text: `Base attack bonus: +${baseAttack} (from attack stat)`, className: 'item-stat-detail' });
-      this.addItemMessage({ text: `Weapon damage: +${item.damage}`, className: 'item-stat-detail' });
-      this.addItemMessage({ text: `Total attack: ${baseAttack + item.damage}`, className: 'item-stat-detail' });
+      this.game.uiManager.print(`\nStat Impact:`, "system-message");
+      this.game.uiManager.print(`Base attack bonus: +${baseAttack} (from attack stat)`, "item-stat-detail");
+      this.game.uiManager.print(`Weapon damage: +${item.damage}`, "item-stat-detail");
+      this.game.uiManager.print(`Total attack: ${baseAttack + item.damage}`, "item-stat-detail");
     } else if (slot === "armor") {
       const baseDefense = Math.floor(this.game.playerStats.defense / 2);
-      this.addItemMessage({ text: `\nStat Impact:`, className: 'system-message' });
-      this.addItemMessage({ text: `Base defense bonus: +${baseDefense} (from defense stat)`, className: 'item-stat-detail' });
-      this.addItemMessage({ text: `Armor defense: +${item.defense}`, className: 'item-stat-detail' });
-      this.addItemMessage({ text: `Total defense: ${baseDefense + item.defense}`, className: 'item-stat-detail' });
+      this.game.uiManager.print(`\nStat Impact:`, "system-message");
+      this.game.uiManager.print(`Base defense bonus: +${baseDefense} (from defense stat)`, "item-stat-detail");
+      this.game.uiManager.print(`Armor defense: +${item.defense}`, "item-stat-detail");
+      this.game.uiManager.print(`Total defense: ${baseDefense + item.defense}`, "item-stat-detail");
     } else if (slot === "accessory" && item.effects) {
-      this.addItemMessage({ text: `\nStat Impact:`, className: 'system-message' });
+      this.game.uiManager.print(`\nStat Impact:`, "system-message");
       Object.entries(item.effects).forEach(([effect, value]) => {
-        this.addItemMessage({ text: `${this.formatEffectName(effect)}: ${value > 0 ? '+' : ''}${value}`, className: 'item-stat-detail' });
+        this.game.uiManager.print(`${this.formatEffectName(effect)}: ${value > 0 ? '+' : ''}${value}`, "item-stat-detail");
       });
     }
   }
@@ -1211,13 +1199,13 @@ saveGame() {
     }
     
     const result = this.game.equipmentManager.unequipItem(slot);
-
+    
     if (result.success) {
-      this.showItemMessages([{ text: result.message, className: 'system-message' }]);
+      this.game.uiManager.print(result.message, "system-message");
       // Refresh the equipment display
       this.showEquipment();
     } else {
-      this.showItemMessages([{ text: result.message, className: 'error-message' }]);
+      this.game.uiManager.print(result.message, "error-message");
     }
   }
 
