@@ -1242,8 +1242,10 @@ saveGame() {
 
     this.game.inputMode = this.game.previousMode || "normal";
     this.game.previousMode = null;
-
-    if (this.game.inputMode === "combat") {
+    this.game.uiManager.clearOutput();
+    if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
+      this.game.gameLogic.playScene();
+    } else if (this.game.inputMode === "combat") {
       this.game.combatSystem.showCombatOptions();
     }
   }
