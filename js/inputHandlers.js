@@ -747,11 +747,16 @@ export class InputHandlers {
       // Remove the consumable from inventory
       this.removeItemFromInventory(item.id);
 
-      this.showItemMessages(messages);
+    this.showItemMessages(messages);
 
-      // Refresh inventory view
-      if (this.game.inventoryPanel) this.game.inventoryPanel.updateContent();
-      return;
+    if (this.game.inventoryPanel && this.game.inventoryPanel.visible) {
+      // If inventory panel is already open, just refresh it
+      this.game.inventoryPanel.update();
+    } else {
+      // Otherwise show the inventory normally
+      this.showInventory();
+    }
+    return;
     }
 
     if (item.type === "material" || item.category === "material") {
