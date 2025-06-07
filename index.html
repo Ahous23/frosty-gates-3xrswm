@@ -56,13 +56,27 @@
       <div id="stats-content" class="panel-content"></div>
     </div>
 
-    <div id="equipment-panel" class="ui-panel hidden">
-      <div class="panel-header">
-        <h2>Equipment</h2>
-        <button id="close-equipment" class="close-button">×</button>
+      <div id="equipment-panel" class="ui-panel hidden">
+        <div class="panel-header">
+          <h2>Equipment</h2>
+          <button id="close-equipment" class="close-button">×</button>
+        </div>
+        <div id="equipment-content" class="panel-content"></div>
       </div>
-      <div id="equipment-content" class="panel-content"></div>
-    </div>
+
+      <div id="inventory-panel" class="ui-panel hidden">
+        <div class="panel-header">
+          <h2>Inventory</h2>
+          <button id="close-inventory" class="close-button">×</button>
+        </div>
+        <div id="inventory-content" class="panel-content">
+          <div id="inventory-message" class="inventory-message"></div>
+          <div class="inventory-container">
+            <div id="inventory-grid" class="inventory-grid"></div>
+            <div id="equipped-items" class="equipped-items"></div>
+          </div>
+        </div>
+      </div>
 
     <div id="inventory-panel" class="ui-panel hidden">
       <div class="panel-header">
