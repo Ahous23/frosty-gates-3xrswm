@@ -127,6 +127,11 @@ export class InputHandlers {
       return;
     }
 
+    if (input === "inventory" || input === "i") {
+      this.game.toggleInventory();
+      return;
+    }
+
     if (input === "talents" || input === "skills" || input === "talent") {
       this.game.toggleTalentTree();
       return;

@@ -498,6 +498,10 @@ class TextGame {
 
   // Toggle inventory panel
   toggleInventory() {
+    if (!this.isGameplayPhase() && !this.inputHandlers.isInitialAllocation) {
+      this.uiManager.print('Inventory can only be accessed during gameplay.', 'system-message');
+      return;
+    }
     if (this.inventoryPanel) {
       const show = !this.inventoryPanel.visible;
       if (show) {
