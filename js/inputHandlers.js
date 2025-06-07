@@ -608,18 +608,19 @@ export class InputHandlers {
 
 
   resumeAfterInventory() {
-    if (this.game.inventoryPanel?.visible) {
+    if (this.game.inventoryPanel) {
       this.game.inventoryPanel.toggle(false);
     }
+
     this.game.inputMode = this.game.previousMode || "normal";
     this.game.previousMode = null;
+
     this.game.uiManager.clearOutput();
     if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
       this.game.gameLogic.playScene();
     } else if (this.game.inputMode === "combat") {
       this.game.combatSystem.showCombatOptions();
     }
-    this.game.uiManager.focusInput();
   }
 
   showInventory() {
