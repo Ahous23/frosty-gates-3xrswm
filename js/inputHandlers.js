@@ -456,17 +456,10 @@ export class InputHandlers {
       return;
     }
     
-    if (input === "back" || input === "exit") {
-      this.resumeAfterInventory();
-      return;
-    }
-
-    if (input === "help") {
-      this.showInventoryHelp();
-      return;
-    }
-
-    this.game.uiManager.print("Unknown inventory command. Type 'help' for inventory options.", "error-message");
+    this.game.uiManager.print(
+      "Inventory actions are handled through the on-screen options.",
+      "error-message"
+    );
   }
 
   handleLoadGameInput(input) {
@@ -613,25 +606,21 @@ export class InputHandlers {
     }
   }
 
-  showInventoryHelp() {
-    this.game.uiManager.print("\n===== INVENTORY =====", "system-message");
-    this.game.uiManager.print("Use the on-screen options to examine, use or equip items.", "help-text");
-    this.game.uiManager.print("back, exit - Exit inventory view", "help-text");
-  }
 
   resumeAfterInventory() {
-    if (this.game.inventoryPanel?.visible) {
+    if (this.game.inventoryPanel) {
       this.game.inventoryPanel.toggle(false);
     }
+
     this.game.inputMode = this.game.previousMode || "normal";
     this.game.previousMode = null;
+
     this.game.uiManager.clearOutput();
     if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
       this.game.gameLogic.playScene();
     } else if (this.game.inputMode === "combat") {
       this.game.combatSystem.showCombatOptions();
     }
-    this.game.uiManager.focusInput();
   }
 
   showInventory() {
@@ -1254,8 +1243,10 @@ saveGame() {
 
     this.game.inputMode = this.game.previousMode || "normal";
     this.game.previousMode = null;
-
-    if (this.game.inputMode === "combat") {
+    this.game.uiManager.clearOutput();
+    if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
+      this.game.gameLogic.playScene();
+    } else if (this.game.inputMode === "combat") {
       this.game.combatSystem.showCombatOptions();
     }
   }
