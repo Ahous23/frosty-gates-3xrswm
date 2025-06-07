@@ -24,7 +24,6 @@ import GameInventoryPanel from './js/inventoryPanel.js';
 import { TalentTreeUI } from './js/talentTreeUI.js';
 import { TalentManager } from './js/talentManager.js';
 import { StatsPanel } from './js/statsPanel.js';
-import { InventoryPanel } from './js/inventoryPanel.js';
 import { StatsPointsHandler } from './js/statsPointsHandler.js';
 
 class TextGame {
@@ -132,8 +131,7 @@ class TextGame {
     this.inventoryPanel = new GameInventoryPanel(this);
     this.talentTreeUI = new TalentTreeUI(this);
     this.statsPanel = new StatsPanel(this);
-    this.inventoryPanel = new InventoryPanel(this);
-    
+
     // Initialize everything
     this.init();
   }
