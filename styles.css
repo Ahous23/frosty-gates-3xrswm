@@ -656,6 +656,43 @@ h1, h2, h3, h4, h5, h6 {
   cursor: pointer;
 }
 
+.talent-points {
+  padding: 5px 10px;
+  font-size: 14px;
+}
+
+.talent-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+}
+
+.talent-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.talent-option {
+  width: 60px;
+  height: 60px;
+  background-color: #24476a;
+  border: 1px solid #666;
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+}
+
+.talent-option.active {
+  background-color: #d4b123;
+}
+
+.talent-option.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 /* Audio Panel Styles */
 #audio-panel {
   position: fixed;

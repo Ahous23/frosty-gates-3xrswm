@@ -30,6 +30,13 @@ export class TalentManager {
     const talent = this.getTalent(id);
     if (!talent || this.isTalentUnlocked(id)) return false;
 
+    if (talent.tier && this.acquired.some(tid => {
+      const t = this.getTalent(tid);
+      return t && t.tier === talent.tier;
+    })) {
+      return false;
+    }
+
     const level = Math.floor(this.game.gameState.playerXp / (this.game.xpPerLevel || 100));
     if (talent.requiredLevel && level < talent.requiredLevel) return false;
     if (talent.prerequisites && !talent.prerequisites.every(pr => this.isTalentUnlocked(pr))) {

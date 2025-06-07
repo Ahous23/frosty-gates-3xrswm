@@ -1,24 +1,79 @@
 {
   "talents": [
     {
+      "id": "warrior_training",
+      "name": "Warrior Training",
+      "description": "Increase attack by 2.",
+      "requiredLevel": 1,
+      "tier": 1,
+      "effects": { "statBonuses": { "attack": 2 } }
+    },
+    {
+      "id": "defensive_posture",
+      "name": "Defensive Posture",
+      "description": "Increase defense by 2.",
+      "requiredLevel": 1,
+      "tier": 1,
+      "effects": { "statBonuses": { "defense": 2 } }
+    },
+    {
+      "id": "keen_mind",
+      "name": "Keen Mind",
+      "description": "Increase intelligence by 2.",
+      "requiredLevel": 1,
+      "tier": 1,
+      "effects": { "statBonuses": { "intelligence": 2 } }
+    },
+
+    {
       "id": "apprentice_mage",
       "name": "Apprentice Mage",
-      "description": "Study of basic magic, unlocking the Ice Bolt spell.",
-      "requiredLevel": 2,
-      "prerequisites": [],
-      "effects": {
-        "unlockSpell": "ice_bolt"
-      }
+      "description": "Unlocks the Ice Bolt spell.",
+      "requiredLevel": 3,
+      "tier": 2,
+      "effects": { "unlockSpell": "ice_bolt" }
     },
+    {
+      "id": "shield_master",
+      "name": "Shield Master",
+      "description": "Increase defense by 4.",
+      "requiredLevel": 3,
+      "tier": 2,
+      "effects": { "statBonuses": { "defense": 4 } }
+    },
+    {
+      "id": "swiftness",
+      "name": "Swiftness",
+      "description": "Increase speed by 3.",
+      "requiredLevel": 3,
+      "tier": 2,
+      "effects": { "statBonuses": { "speed": 3 } }
+    },
+
     {
       "id": "adept_mage",
       "name": "Adept Mage",
-      "description": "Advanced magical training, unlocking the Frost Nova spell.",
-      "requiredLevel": 4,
+      "description": "Unlocks the Frost Nova spell.",
+      "requiredLevel": 5,
+      "tier": 3,
       "prerequisites": ["apprentice_mage"],
-      "effects": {
-        "unlockSpell": "frost_nova"
-      }
+      "effects": { "unlockSpell": "frost_nova" }
+    },
+    {
+      "id": "berserker_rage",
+      "name": "Berserker Rage",
+      "description": "Increase attack by 5.",
+      "requiredLevel": 5,
+      "tier": 3,
+      "effects": { "statBonuses": { "attack": 5 } }
+    },
+    {
+      "id": "fortuitous",
+      "name": "Fortuitous",
+      "description": "Increase luck by 5.",
+      "requiredLevel": 5,
+      "tier": 3,
+      "effects": { "statBonuses": { "luck": 5 } }
     }
   ]
 }
