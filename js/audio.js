@@ -3,19 +3,32 @@ export class AudioManager {
     this.titleMusic = new Audio('audio/title.mp3');
     this.titleMusic.loop = true;
     this.musicEnabled = false;
+    this.titleMusic.volume = 0.5;
     this.typingSound = new Audio('audio/typing.mp3');
     this.typingSound.loop = true;
     this.typingSound.volume = 0.1;
+    this.typingSoundEnabled = true;
   }
 
-  enableAudio() {
-    this.musicEnabled = true;
-    this.playTitleMusic();
+  enableMusic(enable) {
+    this.musicEnabled = enable;
+    if (enable) {
+      this.playTitleMusic();
+    } else {
+      this.stopTitleMusic();
+    }
+  }
+
+  setMusicVolume(volume) {
+    this.titleMusic.volume = volume;
+  }
+
+  getMusicVolume() {
+    return this.titleMusic.volume;
   }
 
   playTitleMusic() {
     if (this.musicEnabled) {
-      this.titleMusic.volume = 0.5; // 50% volume
       this.titleMusic.play().catch(e => console.log("Error playing title music:", e));
     }
   }
@@ -35,7 +48,7 @@ export class AudioManager {
   }
 
   playTypingSound() {
-    if (this.typingSound.paused) {
+    if (this.typingSoundEnabled && this.typingSound.paused) {
       this.typingSound.play().catch(e => console.log("Error playing typing sound:", e));
     }
   }

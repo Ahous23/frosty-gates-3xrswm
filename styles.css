@@ -656,6 +656,41 @@ h1, h2, h3, h4, h5, h6 {
   cursor: pointer;
 }
 
+/* Audio Panel Styles */
+#audio-panel {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  width: 300px;
+  background-color: var(--bg-panel);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 100;
+}
+
+#audio-panel.visible {
+  transform: translateX(0);
+}
+
+#audio-panel.hidden {
+  transform: translateX(100%);
+}
+
+#audio-content {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .equipment-section {
   padding: 10px 15px;
   margin-bottom: 15px;

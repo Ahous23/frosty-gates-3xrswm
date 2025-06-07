@@ -12,7 +12,7 @@
       <div class="input-container">
         <div class="prompt">&gt;</div>
         <textarea id="gameInput" class="game-input" rows="1" autocomplete="off"></textarea>
-        <button id="musicToggle" class="music-toggle">Toggle Music</button>
+        <button id="audioToggle" class="music-toggle">Audio</button>
       </div>
     </div>
     
@@ -93,7 +93,22 @@
       </div>
       <div id="talent-content" class="panel-content"></div>
     </div>
-    
+
+    <div id="audio-panel" class="audio-panel ui-panel hidden">
+      <div class="panel-header">
+        <h2>Audio</h2>
+        <button id="close-audio" class="close-button">×</button>
+      </div>
+      <div id="audio-content" class="panel-content">
+        <label><input type="checkbox" id="enable-music-checkbox" /> Enable Music</label>
+        <div class="volume-control">
+          <label for="music-volume">Music Volume</label>
+          <input type="range" id="music-volume" min="0" max="1" step="0.1" />
+        </div>
+        <label><input type="checkbox" id="enable-typing-checkbox" checked /> Typing Sounds</label>
+      </div>
+    </div>
+
     <script type="module" src="game.js"></script>
   </body>
 </html>

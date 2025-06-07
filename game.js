@@ -25,6 +25,7 @@ import { TalentTreeUI } from './js/talentTreeUI.js';
 import { TalentManager } from './js/talentManager.js';
 import { StatsPanel } from './js/statsPanel.js';
 import { StatsPointsHandler } from './js/statsPointsHandler.js';
+import { AudioPanel } from './js/audioPanel.js';
 
 class TextGame {
   constructor() {
@@ -86,14 +87,6 @@ class TextGame {
     this.talentManager = new TalentManager(this);
     this.talentTreeUI = new TalentTreeUI(this);
 
-    const enableAudio = () => {
-      this.audioManager.enableAudio();
-      document.removeEventListener('click', enableAudio);
-      document.removeEventListener('keydown', enableAudio);
-    };
-
-    document.addEventListener('click', enableAudio);
-    document.addEventListener('keydown', enableAudio);
 
     this.gameInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
@@ -115,10 +108,10 @@ class TextGame {
 
     this.initialize();
 
-    this.musicToggleBtn = document.getElementById("musicToggle");
-    if (this.musicToggleBtn) {
-      this.musicToggleBtn.addEventListener("click", () => {
-        this.toggleMusic();
+    this.audioToggleBtn = document.getElementById("audioToggle");
+    if (this.audioToggleBtn) {
+      this.audioToggleBtn.addEventListener("click", () => {
+        this.toggleAudio();
       });
     }
 
@@ -131,6 +124,7 @@ class TextGame {
     this.inventoryPanel = new GameInventoryPanel(this);
     this.talentTreeUI = new TalentTreeUI(this);
     this.statsPanel = new StatsPanel(this);
+    this.audioPanel = new AudioPanel(this);
 
     // Initialize everything
     this.init();
@@ -711,6 +705,21 @@ class TextGame {
     } else {
       console.error('Stats panel not initialized');
       this.uiManager.print('Stats panel is not available.', 'error-message');
+    }
+  }
+
+  // Toggle audio panel
+  toggleAudio(show) {
+    if (this.audioPanel && show === undefined) show = !this.audioPanel.visible;
+    if (this.audioPanel) {
+      if (show) {
+        this.previousMode = this.inputMode;
+        this.inputMode = 'audio';
+      } else if (this.inputMode === 'audio') {
+        this.inputMode = this.previousMode || 'normal';
+        this.previousMode = null;
+      }
+      this.audioPanel.toggle(show);
     }
   }
 

@@ -122,6 +122,11 @@ export class InputHandlers {
       return;
     }
 
+    if (input === "audio" || input === "sound") {
+      this.game.toggleAudio();
+      return;
+    }
+
     if (input === "talents" || input === "skills" || input === "talent") {
       if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
         this.game.toggleTalentTree();
@@ -650,6 +655,7 @@ export class InputHandlers {
     this.game.uiManager.print("equipment, equip - Show your equipped items", "help-text");
     this.game.uiManager.print("notes, note - Open/close the notes panel", "help-text");
     this.game.uiManager.print("map, m - Open/close the map", "help-text");
+    this.game.uiManager.print("audio, sound - Audio settings", "help-text");
     this.game.uiManager.print("talents, talent, t - Open/close the talent tree", "help-text");
     this.game.uiManager.print("save - Save your game", "help-text");
     this.game.uiManager.print("load - Load a saved game", "help-text");
@@ -1325,6 +1331,22 @@ saveGame() {
     this.game.previousMode = null;
 
     if (this.game.inputMode === "combat") {
+      this.game.combatSystem.showCombatOptions();
+    }
+  }
+
+  resumeAfterAudio() {
+    if (this.game.audioPanel) {
+      this.game.audioPanel.toggle(false);
+    }
+
+    this.game.inputMode = this.game.previousMode || "normal";
+    this.game.previousMode = null;
+
+    this.game.uiManager.clearOutput();
+    if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
+      this.game.gameLogic.playScene();
+    } else if (this.game.inputMode === "combat") {
       this.game.combatSystem.showCombatOptions();
     }
   }
