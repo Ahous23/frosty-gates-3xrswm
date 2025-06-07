@@ -17,8 +17,10 @@ export class AudioPanel extends UIPanel {
 
     if (this.closeButton) {
       this.closeButton.addEventListener('click', () => {
-        this.game.toggleAudio(false);
-        if (this.game.inputHandlers && typeof this.game.inputHandlers.resumeAfterAudio === 'function') {
+        // Close the panel directly then let the input handler restore the mode
+        this.toggle(false);
+        if (this.game.inputHandlers &&
+            typeof this.game.inputHandlers.resumeAfterAudio === 'function') {
           this.game.inputHandlers.resumeAfterAudio();
         }
       });

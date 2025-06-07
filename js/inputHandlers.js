@@ -1340,14 +1340,20 @@ saveGame() {
       this.game.audioPanel.toggle(false);
     }
 
-    this.game.inputMode = this.game.previousMode || "normal";
+    // Restore the mode we were in before opening the audio panel
+    this.game.inputMode = this.game.previousMode || this.game.inputMode || "normal";
     this.game.previousMode = null;
 
-    this.game.uiManager.clearOutput();
     if (this.game.inputMode === "normal" || this.game.inputMode === "choices") {
+      this.game.uiManager.clearOutput();
       this.game.gameLogic.playScene();
     } else if (this.game.inputMode === "combat") {
+      this.game.uiManager.clearOutput();
       this.game.combatSystem.showCombatOptions();
+    } else if (this.game.inputMode === "title") {
+      this.game.showTitleScreen();
+    } else if (this.game.inputMode === "loadGame") {
+      this.game.showLoadGamePrompt();
     }
   }
 }
