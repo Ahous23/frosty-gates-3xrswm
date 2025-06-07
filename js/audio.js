@@ -3,7 +3,8 @@ export class AudioManager {
     this.titleMusic = new Audio('audio/title.mp3');
     this.titleMusic.loop = true;
     this.musicEnabled = false;
-    this.titleMusic.volume = 0.5;
+    this.musicVolume = 0.5;
+    this.titleMusic.volume = this.musicVolume;
     this.typingSound = new Audio('audio/typing.mp3');
     this.typingSound.loop = true;
     this.typingSound.volume = 0.1;
@@ -20,11 +21,12 @@ export class AudioManager {
   }
 
   setMusicVolume(volume) {
+    this.musicVolume = volume;
     this.titleMusic.volume = volume;
   }
 
   getMusicVolume() {
-    return this.titleMusic.volume;
+    return this.musicVolume;
   }
 
   playTitleMusic() {
@@ -34,14 +36,14 @@ export class AudioManager {
   }
 
   stopTitleMusic() {
-    if (!this.musicEnabled) return;
+    if (this.titleMusic.paused) return;
     const fadeAudio = setInterval(() => {
       if (this.titleMusic.volume > 0.05) {
         this.titleMusic.volume -= 0.05;
       } else {
         this.titleMusic.pause();
         this.titleMusic.currentTime = 0;
-        this.titleMusic.volume = 0.5; // Reset volume for next time
+        this.titleMusic.volume = this.musicVolume;
         clearInterval(fadeAudio);
       }
     }, 100);
