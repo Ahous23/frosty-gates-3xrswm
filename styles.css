@@ -1043,6 +1043,14 @@ body.title-screen .game-container {
   gap: 5px;
 }
 
+.inventory-message {
+  min-height: 40px;
+  padding: 5px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
 .inventory-slot {
   width: 60px;
   height: 60px;

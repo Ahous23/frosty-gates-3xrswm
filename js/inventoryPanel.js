@@ -7,6 +7,7 @@ export class InventoryPanel extends UIPanel {
     this.game = game;
     this.grid = panel ? panel.querySelector('#inventory-grid') : null;
     this.equipped = panel ? panel.querySelector('#equipped-items') : null;
+    this.messageBox = panel ? panel.querySelector('#inventory-message') : null;
     this.contextMenu = null;
     this.closeButton = panel ? panel.querySelector('#close-inventory') : null;
     this.init();
@@ -73,6 +74,25 @@ export class InventoryPanel extends UIPanel {
     if (this.contextMenu) {
       this.contextMenu.classList.add('hidden');
     }
+  }
+
+  clearMessages() {
+    if (this.messageBox) {
+      this.messageBox.innerHTML = '';
+    }
+  }
+
+  addMessage(text, className = '') {
+    if (!this.messageBox) return;
+    const div = document.createElement('div');
+    if (className) div.className = className;
+    div.textContent = text;
+    this.messageBox.appendChild(div);
+  }
+
+  showMessages(messages) {
+    this.clearMessages();
+    messages.forEach(m => this.addMessage(m.text, m.className));
   }
 
   handleContextAction(action, item, index) {
