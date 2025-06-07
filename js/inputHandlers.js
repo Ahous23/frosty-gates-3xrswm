@@ -666,6 +666,9 @@ export class InputHandlers {
   }
 
   resumeAfterInventory() {
+    if (this.game.inventoryPanel?.visible) {
+      this.game.inventoryPanel.toggle(false);
+    }
     this.game.inputMode = this.game.previousMode || "normal";
     this.game.previousMode = null;
     this.game.uiManager.setOutputHTML(this.savedOutput);
@@ -676,36 +679,8 @@ export class InputHandlers {
   }
 
   showInventory() {
-    // Preserve the original mode when opening inventory the first time
-    if (this.game.inputMode !== "inventory") {
-      this.game.previousMode = this.game.inputMode;
-    }
     this.savedOutput = this.game.uiManager.getOutputHTML();
-    this.game.inputMode = "inventory";
-    this.game.uiManager.clearOutput();
-    this.game.uiManager.print("===== INVENTORY =====", "system-message");
-    
-    if (this.game.inventory.length === 0) {
-      this.game.uiManager.print("Your inventory is empty.", "system-message");
-    } else {
-      this.game.inventory.forEach((item) => {
-        let label = `- ${item.name}`;
-        if (item.type === "weapon" || item.category === "weapon") {
-          const [minW, maxW] = this.game.combatSystem.calculateWeaponDamageRange(item);
-          label = `- ${item.name} (${minW}-${maxW} damage)`;
-        }
-        this.game.uiManager.print(`${label} ${item.quantity > 1 ? `(x${item.quantity})` : ""}`, "item-name");
-        // Show a shorter description in the main inventory view
-        if (item.description) {
-          const shortDesc = item.description.length > 60 ? 
-            item.description.substring(0, 57) + "..." : 
-            item.description;
-          this.game.uiManager.print(`  ${shortDesc}`, "item-description");
-        }
-      });
-    }
-    
-    this.game.uiManager.print("\nType 'examine [item]' to inspect details, 'use [item]' to use an item, 'equip [item]' to equip an item, or 'back' to return", "system-message");
+    this.game.toggleInventory();
   }
 
   useItem(item) {

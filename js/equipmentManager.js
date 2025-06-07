@@ -3,8 +3,11 @@ export class EquipmentManager {
     this.game = game;
     this.equipment = {
       weapon: null,
-      armor: null,
-      accessory: null
+      shield: null,
+      helm: null,
+      chest: null,
+      legs: null,
+      gloves: null
     };
   }
 
@@ -17,16 +20,26 @@ export class EquipmentManager {
   equipItem(item, fromInventory = true) {
     if (!item) return { success: false, message: "No item to equip." };
     
-    let slot = null;
-    
-    // Determine equipment slot based on item type
-    if (item.type === "weapon" || item.category === "weapon") {
-      slot = "weapon";
-    } else if (item.type === "armor" || item.category === "armor") {
-      slot = "armor";
-    } else if (item.type === "accessory" || item.category === "accessory") {
-      slot = "accessory";
-    } else {
+    let slot = item.slot || null;
+
+    // Determine equipment slot based on item type/category if slot not provided
+    if (!slot) {
+      if (item.type === "weapon" || item.category === "weapon") {
+        slot = "weapon";
+      } else if (item.type === "shield" || item.category === "shield") {
+        slot = "shield";
+      } else if (item.type === "helm" || item.category === "helm") {
+        slot = "helm";
+      } else if (item.type === "chest" || item.category === "chest" || item.type === "armor" || item.category === "armor") {
+        slot = "chest";
+      } else if (item.type === "legs" || item.category === "legs") {
+        slot = "legs";
+      } else if (item.type === "gloves" || item.category === "gloves") {
+        slot = "gloves";
+      }
+    }
+
+    if (!slot || !(slot in this.equipment)) {
       return { success: false, message: `Cannot equip ${item.name}.` };
     }
     
@@ -128,15 +141,12 @@ export class EquipmentManager {
     // Base defense from player stats
     defense += Math.floor((this.game.playerStats.defense || 0) / 2);
     
-    // Add armor defense if equipped
-    if (this.equipment.armor) {
-      defense += this.equipment.armor.defense || 0;
-    }
-    
-    // Add accessory defense if equipped and it has a defense value
-    if (this.equipment.accessory && this.equipment.accessory.defense) {
-      defense += this.equipment.accessory.defense;
-    }
+    const slots = ['shield','helm','chest','legs','gloves'];
+    slots.forEach(s => {
+      if (this.equipment[s] && this.equipment[s].defense) {
+        defense += this.equipment[s].defense;
+      }
+    });
     
     return defense;
   }
@@ -148,7 +158,14 @@ export class EquipmentManager {
 
   // Load equipment data
   load(equipment) {
-    this.equipment = equipment || { weapon: null, armor: null, accessory: null };
+    this.equipment = equipment || {
+      weapon: null,
+      shield: null,
+      helm: null,
+      chest: null,
+      legs: null,
+      gloves: null
+    };
   }
 
   getWeapon(id) {
