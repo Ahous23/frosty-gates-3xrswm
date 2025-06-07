@@ -612,6 +612,14 @@ export class InputHandlers {
       this.game.inventoryPanel.toggle(false);
     }
 
+    if (this.isInitialAllocation && this.game.previousMode === "stats") {
+      this.game.inputMode = "stats";
+      this.game.previousMode = null;
+      this.game.uiManager.clearOutput();
+      this.showInitialStatAllocation();
+      return;
+    }
+
     this.game.inputMode = this.game.previousMode || "normal";
     this.game.previousMode = null;
 
