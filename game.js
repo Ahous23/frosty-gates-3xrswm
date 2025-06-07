@@ -20,7 +20,7 @@ import { EquipmentManager } from './js/equipmentManager.js';
 import { WeaponManager } from './js/weaponManager.js';
 import { SpellManager } from './js/spellManager.js';
 import { EquipmentManagerUI } from './js/equipmentManagerUI.js';
-import { InventoryPanel } from './js/inventoryPanel.js';
+import GameInventoryPanel from './js/inventoryPanel.js';
 import { TalentTreeUI } from './js/talentTreeUI.js';
 import { TalentManager } from './js/talentManager.js';
 import { StatsPanel } from './js/statsPanel.js';
@@ -129,7 +129,7 @@ class TextGame {
     this.notesManager = new NotesManager(this);
     this.mapManager = new MapManager(this);
     this.equipmentManagerUI = new EquipmentManagerUI(this);
-    this.inventoryPanel = new InventoryPanel(this);
+    this.inventoryPanel = new GameInventoryPanel(this);
     this.talentTreeUI = new TalentTreeUI(this);
     this.statsPanel = new StatsPanel(this);
     this.inventoryPanel = new InventoryPanel(this);
