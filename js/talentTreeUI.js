@@ -43,6 +43,60 @@ export class TalentTreeUI extends UIPanel {
 
   updateContent() {
     if (!this.content) return;
-    this.content.innerHTML = '<p>Here you will be able to spend talent points.</p>';
+
+    const playerLevel = Math.floor(this.game.gameState.playerXp / (this.game.xpPerLevel || 100));
+    const points = this.game.gameState.talentPoints || 0;
+
+    this.content.innerHTML = '';
+
+    const pointsInfo = document.createElement('div');
+    pointsInfo.className = 'talent-points';
+    pointsInfo.textContent = `Talent Points: ${points}`;
+    this.content.appendChild(pointsInfo);
+
+    const grid = document.createElement('div');
+    grid.className = 'talent-grid';
+
+    [1,2,3].forEach(tier => {
+      const row = document.createElement('div');
+      row.className = 'talent-row';
+      const talents = this.game.talentManager.talents.filter(t => t.tier === tier);
+      talents.forEach(talent => {
+        const box = document.createElement('div');
+        box.className = 'talent-slot';
+        box.title = talent.description;
+        box.textContent = talent.name;
+
+        if (this.game.talentManager.isTalentUnlocked(talent.id)) {
+          box.classList.add('unlocked');
+        } else {
+          const tierTaken = this.game.talentManager.acquired.some(id => {
+            const t = this.game.talentManager.getTalent(id);
+            return t && t.tier === tier;
+          });
+          const prereqsMet = !talent.prerequisites || talent.prerequisites.every(pr => this.game.talentManager.isTalentUnlocked(pr));
+          const levelMet = !talent.requiredLevel || playerLevel >= talent.requiredLevel;
+          const canUnlock = points > 0 && !tierTaken && prereqsMet && levelMet;
+          if (canUnlock) {
+            box.addEventListener('click', () => {
+              if (confirm(`Unlock ${talent.name}? This cannot be undone.`)) {
+                if (this.game.talentManager.unlockTalent(talent.id)) {
+                  this.updateContent();
+                } else {
+                  this.game.uiManager.print('Unable to unlock talent.', 'error-message');
+                }
+              }
+            });
+          } else {
+            box.classList.add('disabled');
+          }
+        }
+
+        row.appendChild(box);
+      });
+      grid.appendChild(row);
+    });
+
+    this.content.appendChild(grid);
   }
 }

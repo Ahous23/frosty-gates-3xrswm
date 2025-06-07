@@ -1201,3 +1201,52 @@ body.title-screen .game-container {
 .equipment-context-menu .context-option:hover {
   background-color: #555;
 }
+
+/* Talent tree styles */
+#talent-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+}
+
+.talent-points {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.talent-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.talent-row {
+  display: grid;
+  grid-template-columns: repeat(3, 60px);
+  gap: 5px;
+}
+
+.talent-slot {
+  width: 60px;
+  height: 60px;
+  background-color: #24476a;
+  border: 1px solid #666;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 11px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.talent-slot.unlocked {
+  background-color: #d4b037;
+}
+
+.talent-slot.disabled {
+  opacity: 0.5;
+  cursor: default;
+}

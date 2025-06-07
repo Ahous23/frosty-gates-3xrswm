@@ -36,7 +36,19 @@ export class TalentManager {
       return false;
     }
 
+    if (talent.tier && this.acquired.some(tId => {
+      const t = this.getTalent(tId);
+      return t && t.tier === talent.tier;
+    })) {
+      return false;
+    }
+
+    if (!this.game.gameState.talentPoints || this.game.gameState.talentPoints <= 0) {
+      return false;
+    }
+
     this.acquired.push(id);
+    this.game.gameState.talentPoints--;
 
     if (talent.effects) {
       if (talent.effects.unlockSpell) {
