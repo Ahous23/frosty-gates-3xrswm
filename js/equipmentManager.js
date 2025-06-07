@@ -17,7 +17,7 @@ export class EquipmentManager {
   }
 
   // Equip an item
-  equipItem(item, fromInventory = true) {
+  equipItem(item, fromInventory = true, inventoryIndex = null) {
     if (!item) return { success: false, message: "No item to equip." };
     
     let slot = item.slot || null;
@@ -51,40 +51,36 @@ export class EquipmentManager {
     
     // Handle inventory if this is coming from there
     if (fromInventory && this.game.inventoryManager) {
-      // Remove only 1 from inventory
-      // Make a copy before removal to avoid modifying the original item
-      const itemCopy = { ...item };
-      this.game.inventoryManager.removeItem(itemCopy.id, 1);
-      
-      // Add the previously equipped item back to inventory if it exists
+      if (inventoryIndex !== null && this.game.inventoryManager.items[inventoryIndex]) {
+        const invItem = this.game.inventoryManager.items[inventoryIndex];
+        invItem.quantity--;
+        if (invItem.quantity <= 0) {
+          this.game.inventoryManager.items.splice(inventoryIndex, 1);
+        }
+      } else {
+        const itemCopy = { ...item };
+        this.game.inventoryManager.removeItem(itemCopy.id, 1);
+      }
+
       if (currentEquipped) {
-        // Reset equipped state
-        const returnItem = { ...currentEquipped, equipped: false };
-        this.game.inventoryManager.addItem(returnItem);
+        const returnItem = { ...currentEquipped, equipped: false, quantity: 1 };
+        const targetIndex = inventoryIndex !== null ? inventoryIndex : this.game.inventoryManager.items.length;
+        this.game.inventoryManager.items.splice(targetIndex, 0, returnItem);
       }
     } else if (fromInventory) {
-      // Fallback for direct inventory manipulation
-      const itemIndex = this.game.inventory.findIndex(i => i.id === item.id);
-      if (itemIndex !== -1) {
-        // Just reduce quantity by 1 if more than one
-        if (this.game.inventory[itemIndex].quantity > 1) {
-          this.game.inventory[itemIndex].quantity--;
+      const idx = inventoryIndex !== null ? inventoryIndex : this.game.inventory.findIndex(i => i.id === item.id);
+      if (idx !== -1 && this.game.inventory[idx]) {
+        if (this.game.inventory[idx].quantity > 1) {
+          this.game.inventory[idx].quantity--;
         } else {
-          // Remove the item if it's the last one
-          this.game.inventory.splice(itemIndex, 1);
+          this.game.inventory.splice(idx, 1);
         }
       }
-      
-      // Add previously equipped item back to inventory
+
       if (currentEquipped) {
-        const returnItem = { ...currentEquipped, equipped: false };
-        const existingIndex = this.game.inventory.findIndex(i => i.id === returnItem.id);
-        
-        if (existingIndex !== -1 && returnItem.stackable !== false) {
-          this.game.inventory[existingIndex].quantity++;
-        } else {
-          this.game.inventory.push({...returnItem, quantity: 1});
-        }
+        const returnItem = { ...currentEquipped, equipped: false, quantity: 1 };
+        const targetIndex = idx !== -1 ? idx : this.game.inventory.length;
+        this.game.inventory.splice(targetIndex, 0, returnItem);
       }
     }
     

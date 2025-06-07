@@ -1013,7 +1013,7 @@ saveGame() {
   }
 
   // Update the equipItem method to use the equipment manager
-  equipItem(item) {
+  equipItem(item, index = null) {
     // Check if the item is a weapon or armor
     if (item.type !== "weapon" && item.category !== "weapon" && 
         item.type !== "armor" && item.category !== "armor" &&
@@ -1030,7 +1030,7 @@ saveGame() {
                          (item.type === "armor" || item.category === "armor") ? "armor" : "accessory";
     
     // Use the equipment manager to equip the item
-    const result = this.game.equipmentManager.equipItem(item);
+    const result = this.game.equipmentManager.equipItem(item, true, index);
     
     if (!result.success) {
       this.game.uiManager.print(result.message, "error-message");

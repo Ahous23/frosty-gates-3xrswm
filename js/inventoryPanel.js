@@ -7,12 +7,14 @@ export class InventoryPanel extends UIPanel {
     this.game = game;
     this.grid = panel ? panel.querySelector('#inventory-grid') : null;
     this.equipped = panel ? panel.querySelector('#equipped-items') : null;
+    this.contextMenu = null;
     this.closeButton = panel ? panel.querySelector('#close-inventory') : null;
     this.init();
   }
 
   init() {
     if (!this.panel) return;
+    this.createContextMenu();
     if (this.closeButton) {
       this.closeButton.addEventListener('click', () => {
         this.toggle(false);
@@ -24,6 +26,65 @@ export class InventoryPanel extends UIPanel {
     if (!this.visible) {
       this.panel.style.display = 'none';
       this.panel.classList.add('hidden');
+    }
+  }
+
+  createContextMenu() {
+    if (this.contextMenu) return;
+    this.contextMenu = document.createElement('div');
+    this.contextMenu.className = 'inventory-context-menu hidden';
+    document.body.appendChild(this.contextMenu);
+    document.addEventListener('click', () => this.hideContextMenu());
+  }
+
+  showContextMenu(x, y, item, index) {
+    if (!this.contextMenu) return;
+    this.contextMenu.innerHTML = '';
+
+    const actions = [];
+    if (['weapon','shield','helm','chest','legs','gloves','armor'].includes(item.type) ||
+        ['weapon','shield','helm','chest','legs','gloves','armor'].includes(item.category) ||
+        item.slot) {
+      actions.push({ action: 'equip', label: 'Equip' });
+    }
+    if (item.type === 'consumable' || item.category === 'consumable') {
+      actions.push({ action: 'use', label: 'Use' });
+    }
+    actions.push({ action: 'examine', label: 'Examine' });
+
+    actions.forEach(act => {
+      const opt = document.createElement('div');
+      opt.className = 'context-option';
+      opt.textContent = act.label;
+      opt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.handleContextAction(act.action, item, index);
+        this.hideContextMenu();
+      });
+      this.contextMenu.appendChild(opt);
+    });
+
+    this.contextMenu.style.left = `${x}px`;
+    this.contextMenu.style.top = `${y}px`;
+    this.contextMenu.classList.remove('hidden');
+  }
+
+  hideContextMenu() {
+    if (this.contextMenu) {
+      this.contextMenu.classList.add('hidden');
+    }
+  }
+
+  handleContextAction(action, item, index) {
+    if (!item) return;
+    if (action === 'equip') {
+      this.game.inputHandlers.equipItem(item, index);
+      this.update();
+    } else if (action === 'use') {
+      this.game.inputHandlers.useItem(item);
+      this.update();
+    } else if (action === 'examine') {
+      this.game.inputHandlers.examineItem(item);
     }
   }
 
@@ -45,9 +106,13 @@ export class InventoryPanel extends UIPanel {
           if (item.type === 'weapon' || item.category === 'weapon' || item.slot === 'weapon') {
             slotEl.classList.add('weapon-slot');
           }
+          slotEl.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            this.showContextMenu(e.pageX, e.pageY, item, i);
+          });
           slotEl.appendChild(qty);
         } else {
-          slotEl.classList.add('item-slot');
+          slotEl.classList.add('empty-slot');
         }
         this.grid.appendChild(slotEl);
       }
@@ -70,6 +135,10 @@ export class InventoryPanel extends UIPanel {
 
   toggle(show = !this.visible) {
     super.toggle(show);
-    if (show) this.update();
+    if (show) {
+      this.update();
+    } else {
+      this.hideContextMenu();
+    }
   }
 }
