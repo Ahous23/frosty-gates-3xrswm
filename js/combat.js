@@ -557,13 +557,18 @@ export class CombatSystem {
         this.game.gameState.talentPoints = 0;
       }
       this.game.gameState.talentPoints += levelsGained;
-      
+
       // Display level up message
       this.game.uiManager.print(`\nLevel up! You are now level ${newLevel}!`, "level-up");
       this.game.uiManager.print(`You gained ${levelsGained} stat point(s)!`, "stat-points");
       this.game.uiManager.print(`Type 'stats' anytime to allocate your points.`, "system-message");
       this.game.uiManager.print(`You gained ${levelsGained} talent point(s)!`, "stat-points");
       this.game.uiManager.print(`Type 'talents' to view the talent tree.`, "system-message");
+
+      if (oldLevel < 1 && newLevel >= 1) {
+        this.game.uiManager.print('You have unlocked the talents panel!', 'system-message');
+        this.game.uiManager.print("Type 'talents' to open it and spend your points.", 'system-message');
+      }
     }
   }
 

@@ -666,6 +666,11 @@ class TextGame {
       this.uiManager.print('Talents can only be accessed during gameplay.', 'system-message');
       return;
     }
+    const level = Math.floor((this.gameState.playerXp || 0) / (this.xpPerLevel || 100));
+    if (level < 1) {
+      this.uiManager.print('The talent panel unlocks once you reach level 1.', 'system-message');
+      return;
+    }
     if (this.talentTreeUI) {
       const show = !this.talentTreeUI.visible;
       if (show) {
