@@ -53,6 +53,15 @@ export class TalentTreeUI extends UIPanel {
     this.gridEl.innerHTML = '';
     const tiers = [...new Set(this.game.talentManager.talents.map(t => t.tier))].sort();
     tiers.forEach(tier => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'talent-tier';
+
+      const label = document.createElement('div');
+      label.className = 'tier-label';
+      const tExample = this.game.talentManager.talents.find(t => t.tier === tier);
+      label.textContent = `Level ${tExample?.requiredLevel || tier}`;
+      wrapper.appendChild(label);
+
       const row = document.createElement('div');
       row.className = 'talent-row';
 
@@ -76,7 +85,8 @@ export class TalentTreeUI extends UIPanel {
           row.appendChild(box);
         });
 
-      this.gridEl.appendChild(row);
+      wrapper.appendChild(row);
+      this.gridEl.appendChild(wrapper);
     });
   }
 
